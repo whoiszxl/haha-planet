@@ -1,0 +1,50 @@
+# Caffeine缓存配置示例
+haha:
+  cache:
+    caffeine:
+      enabled: true
+      
+      # 默认缓存配置
+      default-config:
+        spec: "maximumSize=1000,expireAfterWrite=30m,recordStats"
+        maximum-size: 1000
+        initial-capacity: 16
+        expire-after-write: 30m
+        record-stats: true
+        allow-null-values: true
+      
+      # 具体缓存配置
+      caches:
+        userCache:
+          maximum-size: 5000
+          expire-after-write: 1h
+          expire-after-access: 30m
+          record-stats: true
+          allow-null-values: false
+        
+        productCache:
+          maximum-size: 10000
+          expire-after-write: 2h
+          refresh-after-write: 1h
+          record-stats: true
+          cache-loader: "com.example.ProductCacheLoader"
+        
+        sessionCache:
+          maximum-size: 2000
+          expire-after-access: 15m
+          weak-keys: true
+          record-stats: true
+      
+      # 监控配置
+      monitor:
+        enabled: true
+        jmx-enabled: true
+        micrometer-enabled: true
+        stats-interval: 5m
+        detailed-stats: true
+        metrics-prefix: "haha.cache.caffeine"
+      
+      # 序列化配置
+      serialization:
+        key-serializer: STRING
+        value-serializer: JSON

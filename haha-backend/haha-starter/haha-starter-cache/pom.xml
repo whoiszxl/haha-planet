@@ -5,17 +5,30 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.whoiszxl</groupId>
-        <artifactId>haha-backend</artifactId>
-        <version>1.0.0</version>
-        <relativePath>../../pom.xml</relativePath>
+        <artifactId>haha-starter</artifactId>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>haha-starter-cache</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>haha-starter-cache-redisson</module>
+        <module>haha-starter-cache-caffeine</module>
+        <module>haha-starter-cache-jetcache</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
 
 </project>

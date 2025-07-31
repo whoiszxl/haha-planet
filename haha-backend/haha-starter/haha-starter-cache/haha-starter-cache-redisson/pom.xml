@@ -6,15 +6,30 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-starter-cache</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
+    <version>${revision}</version>
     <artifactId>haha-starter-cache-redisson</artifactId>
+    <description>redisson 缓存模块</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+    </dependencies>
+
 
 </project>

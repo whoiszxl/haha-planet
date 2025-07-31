@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-starter-log</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>haha-starter-log-core</artifactId>

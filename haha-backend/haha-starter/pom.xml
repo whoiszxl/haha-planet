@@ -5,16 +5,73 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.whoiszxl</groupId>
-        <artifactId>haha-backend</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <artifactId>haha-starter-dependencies</artifactId>
+        <version>${revision}</version>
+        <relativePath>./haha-starter-dependencies</relativePath>
     </parent>
 
     <artifactId>haha-starter</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>haha-starter-auth</module>
+        <module>haha-starter-core</module>
+        <module>haha-starter-cache</module>
+        <module>haha-starter-captcha</module>
+        <module>haha-starter-crud</module>
+        <module>haha-starter-web</module>
+        <module>haha-starter-doc</module>
+        <module>haha-starter-data</module>
+        <module>haha-starter-json</module>
+        <module>haha-starter-messaging</module>
+        <module>haha-starter-security</module>
+        <module>haha-starter-log</module>
+    </modules>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>17</java.version>
+        <resource.delimiter>@</resource.delimiter>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
+
+
+    <build>
+        <plugins>
+            <!-- 统一版本号插件 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>oss</flattenMode>
+                    <pomElements>
+                        <parent>expand</parent>
+                        <properties>keep</properties>
+                    </pomElements>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten-clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

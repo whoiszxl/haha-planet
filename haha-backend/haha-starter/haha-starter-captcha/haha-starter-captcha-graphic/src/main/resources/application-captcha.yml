@@ -1,0 +1,15 @@
+haha:
+  captcha:
+    graphic:
+      enabled: true
+      type: arithmetic
+      length: 4
+      width: 130
+      height: 48
+      expire-time: 5m
+      font-name: Arial
+      font-size: 25
+      line-count: 3
+      storage:
+        type: memory
+        key-prefix: "captcha:graphic:"

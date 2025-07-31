@@ -6,10 +6,17 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-starter</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>haha-starter-log</artifactId>
+    <version>${revision}</version>
+
+    <packaging>pom</packaging>
+    <modules>
+        <module>haha-starter-log-core</module>
+        <module>haha-starter-log-httptrace</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -17,4 +24,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-web</artifactId>
+        </dependency>
+    </dependencies>
 </project>

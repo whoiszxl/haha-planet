@@ -17,4 +17,30 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <!-- Sa-Token -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot3-starter</artifactId>
+        </dependency>
+
+        <!-- Sa-Token 整合 JWT -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-jwt</artifactId>
+        </dependency>
+
+        <!-- 缓存模块 - Redisson -->
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-cache-redisson</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Web 模块 -->
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-web</artifactId>
+        </dependency>
+    </dependencies>
 </project>

@@ -1,0 +1,2 @@
+com.whoiszxl.starter.web.config.cors.CorsAutoConfiguration
+com.whoiszxl.starter.web.config.trace.TraceAutoConfiguration

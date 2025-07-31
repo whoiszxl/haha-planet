@@ -6,9 +6,10 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-starter-log</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
+    <version>${revision}</version>
     <artifactId>haha-starter-log-httptrace</artifactId>
 
     <properties>
@@ -17,4 +18,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations-jakarta</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-log-core</artifactId>
+        </dependency>
+    </dependencies>
 </project>

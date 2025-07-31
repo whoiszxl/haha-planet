@@ -6,15 +6,30 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-starter</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>haha-starter-doc</artifactId>
+    <description>Backend Starter Doc</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <!-- Knife4j 文档支持 -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- 核心模块 -->
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-core</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

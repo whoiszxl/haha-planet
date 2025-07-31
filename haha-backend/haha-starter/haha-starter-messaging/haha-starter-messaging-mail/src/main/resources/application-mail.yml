@@ -1,0 +1,50 @@
+haha:
+  messaging:
+    mail:
+      enabled: true
+      default-sender:
+        email: noreply@example.com
+        name: "系统邮件"
+        reply-to: support@example.com
+      template:
+        enabled: true
+        engine: thymeleaf
+        prefix: "classpath:/templates/mail/"
+        suffix: ".html"
+        cache: true
+      async:
+        enabled: true
+        core-pool-size: 2
+        max-pool-size: 10
+        queue-capacity: 100
+        thread-name-prefix: "mail-async-"
+        keep-alive-time: 60s
+      retry:
+        enabled: true
+        max-attempts: 3
+        delay: 2s
+        multiplier: 2.0
+        max-delay: 5m
+      rate-limit:
+        enabled: false
+        max-per-minute: 60
+        max-per-hour: 1000
+        max-per-day: 10000
+
+# Spring Mail 配置示例
+spring:
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: your-email@example.com
+    password: your-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
