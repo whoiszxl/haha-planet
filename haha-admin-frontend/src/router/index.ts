@@ -47,11 +47,7 @@ export const constantRoutes: RouteRecordRaw[] = [
       }
     ]
   },
-  {
-    path: '/social/callback',
-    component: () => import('@/views/login/social/index.vue'),
-    meta: { hidden: true }
-  },
+
   {
     path: '/setting',
     name: 'Setting',

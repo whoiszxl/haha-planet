@@ -261,16 +261,7 @@ export interface StoragePageQuery extends StorageQuery, PageQuery {
 }
 
 /** 系统参数类型 */
-export interface OptionResp {
-  name: string
-  code: string
-  value: string
-  description: string
-}
 
-export interface OptionQuery {
-  code: Array<string>
-}
 
 /** 基础配置类型 */
 export interface BasicConfig {
@@ -291,23 +282,9 @@ export interface MailConfig {
   MAIL_FROM: string
 }
 
-/** 安全配置类型 */
-export interface SecurityConfig {
-  PASSWORD_ERROR_LOCK_COUNT: OptionResp
-  PASSWORD_ERROR_LOCK_MINUTES: OptionResp
-  PASSWORD_EXPIRATION_DAYS: OptionResp
-  PASSWORD_EXPIRATION_WARNING_DAYS: OptionResp
-  PASSWORD_REUSE_POLICY: OptionResp
-  PASSWORD_MIN_LENGTH: OptionResp
-  PASSWORD_ALLOW_CONTAIN_USERNAME: OptionResp
-  PASSWORD_CONTAIN_SPECIAL_CHARACTERS: OptionResp
-}
 
-/** 绑定三方账号信息 */
-export interface BindSocialAccountRes {
-  source: string
-  description: string
-}
+
+
 
 /** 系统消息类型 */
 export interface MessageResp {

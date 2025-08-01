@@ -41,7 +41,7 @@ import { Modal } from '@arco-design/web-vue'
 import type { ModeItem } from '../type'
 import VerifyModel from '../components/VerifyModel.vue'
 import GoogleCaptchaModal from './components/GoogleCaptchaModal.vue'
-import { type OptionResp, type SecurityConfig, listOption, checkGoogleCaptchaStatus } from '@/apis'
+import { checkGoogleCaptchaStatus } from '@/apis'
 import { useUserStore } from '@/stores'
 
 const userStore = useUserStore()
@@ -141,33 +141,12 @@ const checkGoogleStatus = async () => {
   }
 }
 
-const securityConfig = ref<SecurityConfig>({
-  PASSWORD_ERROR_LOCK_COUNT: {},
-  PASSWORD_ERROR_LOCK_MINUTES: {},
-  PASSWORD_EXPIRATION_WARNING_DAYS: {},
-  PASSWORD_EXPIRATION_DAYS: {},
-  PASSWORD_REUSE_POLICY: {},
-  PASSWORD_MIN_LENGTH: {},
-  PASSWORD_ALLOW_CONTAIN_USERNAME: {},
-  PASSWORD_CONTAIN_SPECIAL_CHARACTERS: {}
-})
-
-// 查询列表数据
-const getDataList = async () => {
-  const { data } = await listOption({ code: Object.keys(securityConfig.value) })
-  securityConfig.value = data.reduce((obj: SecurityConfig, option: OptionResp) => {
-    obj[option.code] = { ...option, value: Number.parseInt(option.value) }
-    return obj
-  }, {})
-}
+// 系统参数相关功能已被移除
 
 // 初始化数据
 const initData = async () => {
   try {
-    await Promise.all([
-      getDataList(),
-      checkGoogleStatus()
-    ])
+    await checkGoogleStatus()
     initModeList()
   } catch (error) {
     console.error('初始化数据失败:', error)

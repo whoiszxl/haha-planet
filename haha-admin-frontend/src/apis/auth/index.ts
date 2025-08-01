@@ -18,15 +18,7 @@ export function emailLogin(req: Auth.EmailLoginReq) {
   return http.post<Auth.LoginResp>(`${BASE_URL}/email`, req)
 }
 
-/** @desc 三方账号登录 */
-export function socialLogin(source: string, req: any) {
-  return http.post<Auth.LoginResp>(`/oauth/${source}`, req)
-}
 
-/** @desc 三方账号登录授权 */
-export function socialAuth(source: string) {
-  return http.get<Auth.SocialAuthAuthorizeResp>(`/oauth/${source}`)
-}
 
 /** @desc 退出登录 */
 export function logout() {

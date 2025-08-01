@@ -11,7 +11,7 @@ import {
   getUserInfo as getUserInfoApi,
   logout as logoutApi,
   phoneLogin as phoneLoginApi,
-  socialLogin as socialLoginApi
+
 } from '@/apis'
 import { clearToken, getToken, setToken } from '@/utils/auth'
 import { resetHasRouteFlag } from '@/router/permission'
@@ -69,12 +69,7 @@ const storeSetup = () => {
     token.value = res.data.token
   }
 
-  // 三方账号登录
-  const socialLogin = async (source: string, req: any) => {
-    const res = await socialLoginApi(source, req)
-    setToken(res.data.token)
-    token.value = res.data.token
-  }
+
 
   // 退出登录回调
   const logoutCallBack = async () => {
@@ -118,7 +113,7 @@ const storeSetup = () => {
     accountLogin,
     emailLogin,
     phoneLogin,
-    socialLogin,
+
     logout,
     logoutCallBack,
     getInfo,
