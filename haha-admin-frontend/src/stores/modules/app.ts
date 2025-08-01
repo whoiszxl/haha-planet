@@ -32,15 +32,72 @@ const storeSetup = () => {
   }
 
   // 切换主题 暗黑模式|简白模式
-  const toggleTheme = (dark: boolean) => {
-    if (dark) {
-      settingConfig.theme = 'dark'
+  // 主题类型定义
+  type ThemeType = 'light' | 'dark' | 'auto' | 'blue' | 'green'
+  
+  // 主题配置映射
+  const themeConfigs = {
+    light: {
+      arcoTheme: 'light',
+      themeColor: '#165DFF',
+      bodyClass: 'theme-light'
+    },
+    dark: {
+      arcoTheme: 'dark', 
+      themeColor: '#165DFF',
+      bodyClass: 'theme-dark'
+    },
+    auto: {
+      arcoTheme: 'auto',
+      themeColor: '#165DFF',
+      bodyClass: 'theme-auto'
+    },
+    blue: {
+      arcoTheme: 'light',
+      themeColor: '#1890ff',
+      bodyClass: 'theme-blue'
+    },
+    green: {
+      arcoTheme: 'light',
+      themeColor: '#52c41a', 
+      bodyClass: 'theme-green'
+    }
+  }
+  
+  // 设置主题
+  const setTheme = (theme: ThemeType) => {
+    settingConfig.theme = theme
+    const config = themeConfigs[theme]
+    
+    // 移除所有主题类
+    Object.values(themeConfigs).forEach(cfg => {
+      document.body.classList.remove(cfg.bodyClass)
+    })
+    
+    // 添加当前主题类
+    document.body.classList.add(config.bodyClass)
+    
+    // 处理自动主题
+    if (theme === 'auto') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      if (isDark) {
+        document.body.setAttribute('arco-theme', 'dark')
+      } else {
+        document.body.removeAttribute('arco-theme')
+      }
+    } else if (config.arcoTheme === 'dark') {
       document.body.setAttribute('arco-theme', 'dark')
     } else {
-      settingConfig.theme = 'light'
       document.body.removeAttribute('arco-theme')
     }
-    setThemeColor(settingConfig.themeColor)
+    
+    // 设置主题色
+    setThemeColor(config.themeColor)
+  }
+
+  // 兼容原有的toggleTheme方法
+  const toggleTheme = (dark: boolean) => {
+    setTheme(dark ? 'dark' : 'light')
   }
 
   // 初始化主题
@@ -105,6 +162,7 @@ const storeSetup = () => {
     transitionName,
     themeCSSVar,
     toggleTheme,
+    setTheme,
     setThemeColor,
     initTheme,
     setMenuCollapse,

@@ -1,7 +1,7 @@
 declare namespace App {
   /** 系统配置 */
   interface SettingConfig {
-    theme: 'light' | 'dark' // 主题
+    theme: 'light' | 'dark' | 'auto' | 'blue' | 'green' // 扩展主题类型
     themeColor: string // 主题色
     tab: boolean // 是否显示页签
     tabMode: TabType // 页签风格

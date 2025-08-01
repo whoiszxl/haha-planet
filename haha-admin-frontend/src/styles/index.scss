@@ -15,3 +15,340 @@
 
 // 动画类名
 @use './animated.scss';
+
+// 亮色主题（默认）- 优化对比度
+.theme-light {
+  --color-primary-1: #e6f4ff;
+  --color-primary-2: #bae0ff;
+  --color-primary-3: #91caff;
+  --color-primary-4: #69b1ff;
+  --color-primary-5: #4096ff;
+  --color-primary-6: #1677ff;
+  --color-primary-7: #0958d9;
+  --color-primary-8: #003eb3;
+  --color-primary-9: #002c8c;
+  --color-primary-10: #001d66;
+  
+  // 优化背景色系统 - 更清晰的层次
+  --color-bg-1: #ffffff;
+  --color-bg-2: #f8f9fa;
+  --color-bg-3: #f1f3f4;
+  --color-bg-4: #e8eaed;
+  --color-bg-5: #dadce0;
+  
+  // 优化文本色 - 更好的对比度
+  --color-text-1: #202124;  // 主标题 - 深黑色
+  --color-text-2: #3c4043;  // 正文 - 深灰色
+  --color-text-3: #5f6368;  // 次要文本 - 中灰色
+  --color-text-4: #80868b;  // 辅助文本 - 浅灰色
+  
+  // 优化边框色
+  --color-border: #dadce0;
+  --color-border-2: #e8eaed;
+  --color-border-3: #f1f3f4;
+  --color-border-4: #f8f9fa;
+  
+  // 优化阴影
+  --shadow-1: 0 1px 3px rgba(60, 64, 67, 0.15), 0 1px 2px rgba(60, 64, 67, 0.3);
+  --shadow-2: 0 4px 6px rgba(32, 33, 36, 0.28);
+  
+  // 字体优化
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+}
+
+// 暗色主题 - 优化对比度
+.theme-dark {
+  --color-primary-1: #1a2332;
+  --color-primary-2: #1e2a3a;
+  --color-primary-3: #253142;
+  --color-primary-4: #2d3a4b;
+  --color-primary-5: #364354;
+  --color-primary-6: #4285f4;
+  --color-primary-7: #5a9cff;
+  --color-primary-8: #72b3ff;
+  --color-primary-9: #8ac9ff;
+  --color-primary-10: #a2dfff;
+  
+  // 优化暗色背景 - 更好的层次感
+  --color-bg-1: #121212;
+  --color-bg-2: #1e1e1e;
+  --color-bg-3: #2d2d2d;
+  --color-bg-4: #3c3c3c;
+  --color-bg-5: #4a4a4a;
+  
+  // 优化暗色文本 - 更好的可读性
+  --color-text-1: #ffffff;  // 主标题 - 纯白
+  --color-text-2: #e8eaed;  // 正文 - 浅灰白
+  --color-text-3: #bdc1c6;  // 次要文本 - 中灰
+  --color-text-4: #9aa0a6;  // 辅助文本 - 深灰
+  
+  // 优化暗色边框
+  --color-border: #3c4043;
+  --color-border-2: #5f6368;
+  --color-border-3: #80868b;
+  --color-border-4: #9aa0a6;
+  
+  // 优化暗色阴影
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-2: 0 4px 6px rgba(0, 0, 0, 0.5);
+  
+  // 字体优化
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+}
+
+// 海洋蓝主题 - 专业清新
+.theme-blue {
+  --color-primary-1: #e3f2fd;
+  --color-primary-2: #bbdefb;
+  --color-primary-3: #90caf9;
+  --color-primary-4: #64b5f6;
+  --color-primary-5: #42a5f5;
+  --color-primary-6: #2196f3;
+  --color-primary-7: #1e88e5;
+  --color-primary-8: #1976d2;
+  --color-primary-9: #1565c0;
+  --color-primary-10: #0d47a1;
+  
+  // 海洋蓝背景 - 清新舒适
+  --color-bg-1: #f8fcff;
+  --color-bg-2: #f0f8ff;
+  --color-bg-3: #e6f3ff;
+  --color-bg-4: #dceeff;
+  --color-bg-5: #d2e9ff;
+  
+  // 海洋蓝文本 - 深蓝对比
+  --color-text-1: #0d47a1;  // 深海蓝
+  --color-text-2: #1565c0;  // 中海蓝
+  --color-text-3: #1976d2;  // 标准蓝
+  --color-text-4: #1e88e5;  // 亮蓝
+  
+  // 海洋蓝边框
+  --color-border: #90caf9;
+  --color-border-2: #bbdefb;
+  --color-border-3: #e3f2fd;
+  --color-border-4: #f0f8ff;
+  
+  // 海洋蓝阴影
+  --shadow-1: 0 1px 3px rgba(33, 150, 243, 0.2), 0 1px 2px rgba(33, 150, 243, 0.4);
+  --shadow-2: 0 4px 6px rgba(25, 118, 210, 0.3);
+  
+  // 字体优化
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+}
+
+// 森林绿主题 - 自然护眼 🌲
+.theme-green {
+  --color-primary-1: #e8f5e8;
+  --color-primary-2: #c8e6c8;
+  --color-primary-3: #a5d6a7;
+  --color-primary-4: #81c784;
+  --color-primary-5: #66bb6a;
+  --color-primary-6: #4caf50;
+  --color-primary-7: #43a047;
+  --color-primary-8: #388e3c;
+  --color-primary-9: #2e7d32;
+  --color-primary-10: #1b5e20;
+  
+  // 森林绿背景 - 自然清新
+  --color-bg-1: #f9fdf9;
+  --color-bg-2: #f1f8f1;
+  --color-bg-3: #e8f5e8;
+  --color-bg-4: #e0f2e0;
+  --color-bg-5: #d7efd7;
+  
+  // 森林绿文本 - 深绿对比
+  --color-text-1: #1b5e20;  // 深森林绿
+  --color-text-2: #2e7d32;  // 中森林绿
+  --color-text-3: #388e3c;  // 标准绿
+  --color-text-4: #43a047;  // 亮绿
+  
+  // 森林绿边框
+  --color-border: #a5d6a7;
+  --color-border-2: #c8e6c8;
+  --color-border-3: #e8f5e8;
+  --color-border-4: #f1f8f1;
+  
+  // 森林绿阴影
+  --shadow-1: 0 1px 3px rgba(76, 175, 80, 0.2), 0 1px 2px rgba(76, 175, 80, 0.4);
+  --shadow-2: 0 4px 6px rgba(56, 142, 60, 0.3);
+  
+  // 字体优化
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+  
+  // 森林绿主题特有的装饰元素
+  --theme-icon: '🌲';  // 森林图标
+  --accent-color: #8bc34a;  // 嫩绿色点缀
+}
+
+// 自动主题（跟随系统）- 优化版
+.theme-auto {
+  // 亮色模式下的样式
+  @media (prefers-color-scheme: light) {
+    --color-primary-1: #e6f4ff;
+    --color-primary-2: #bae0ff;
+    --color-primary-3: #91caff;
+    --color-primary-4: #69b1ff;
+    --color-primary-5: #4096ff;
+    --color-primary-6: #1677ff;
+    --color-primary-7: #0958d9;
+    --color-primary-8: #003eb3;
+    --color-primary-9: #002c8c;
+    --color-primary-10: #001d66;
+    
+    --color-bg-1: #ffffff;
+    --color-bg-2: #f8f9fa;
+    --color-bg-3: #f1f3f4;
+    --color-bg-4: #e8eaed;
+    --color-bg-5: #dadce0;
+    
+    --color-text-1: #202124;
+    --color-text-2: #3c4043;
+    --color-text-3: #5f6368;
+    --color-text-4: #80868b;
+    
+    --color-border: #dadce0;
+    --color-border-2: #e8eaed;
+    --color-border-3: #f1f3f4;
+    --color-border-4: #f8f9fa;
+    
+    --shadow-1: 0 1px 3px rgba(60, 64, 67, 0.15), 0 1px 2px rgba(60, 64, 67, 0.3);
+    --shadow-2: 0 4px 6px rgba(32, 33, 36, 0.28);
+    
+    --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+  }
+  
+  // 暗色模式下的样式
+  @media (prefers-color-scheme: dark) {
+    --color-primary-1: #1a2332;
+    --color-primary-2: #1e2a3a;
+    --color-primary-3: #253142;
+    --color-primary-4: #2d3a4b;
+    --color-primary-5: #364354;
+    --color-primary-6: #4285f4;
+    --color-primary-7: #5a9cff;
+    --color-primary-8: #72b3ff;
+    --color-primary-9: #8ac9ff;
+    --color-primary-10: #a2dfff;
+    
+    --color-bg-1: #121212;
+    --color-bg-2: #1e1e1e;
+    --color-bg-3: #2d2d2d;
+    --color-bg-4: #3c3c3c;
+    --color-bg-5: #4a4a4a;
+    
+    --color-text-1: #ffffff;
+    --color-text-2: #e8eaed;
+    --color-text-3: #bdc1c6;
+    --color-text-4: #9aa0a6;
+    
+    --color-border: #3c4043;
+    --color-border-2: #5f6368;
+    --color-border-3: #80868b;
+    --color-border-4: #9aa0a6;
+    
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.6);
+    --shadow-2: 0 4px 6px rgba(0, 0, 0, 0.5);
+    
+    --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 600;
+  }
+}
+
+// 全局字体应用
+body {
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+// 标题字体优化
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+// 森林绿主题特殊样式
+.theme-green {
+  // 为森林绿主题添加特殊的装饰元素
+  &::before {
+    content: var(--theme-icon);
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 1000;
+  }
+  
+  // 森林绿主题的特殊按钮样式
+  .arco-btn-primary {
+    background: linear-gradient(135deg, var(--color-primary-6), var(--accent-color));
+    border: none;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    
+    &:hover {
+      background: linear-gradient(135deg, var(--color-primary-7), var(--color-primary-6));
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+  }
+}
+
+// 主题过渡动画 - 优化版
+body {
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// 为所有使用CSS变量的元素添加平滑过渡效果
+* {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// 高对比度模式支持
+@media (prefers-contrast: high) {
+  .theme-light {
+    --color-text-1: #000000;
+    --color-text-2: #1a1a1a;
+    --color-border: #666666;
+  }
+  
+  .theme-dark {
+    --color-text-1: #ffffff;
+    --color-text-2: #f0f0f0;
+    --color-border: #cccccc;
+  }
+}
+
+// 减少动画模式支持
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

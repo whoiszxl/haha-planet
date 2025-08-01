@@ -19,7 +19,8 @@ export default defineConfig(({ command, mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@use "@/styles/var.scss" as *;`
+          additionalData: `@use "@/styles/var.scss" as *;`,
+          silenceDeprecations: ['legacy-js-api']
         }
       }
     },
