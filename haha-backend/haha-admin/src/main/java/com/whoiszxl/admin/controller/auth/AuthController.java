@@ -12,12 +12,14 @@ import com.whoiszxl.admin.entity.Admin;
 import com.whoiszxl.admin.service.IAdminService;
 import com.whoiszxl.admin.service.ILoginService;
 import com.whoiszxl.cache.redisson.util.RedissonUtil;
+import com.whoiszxl.captcha.graphic.service.GraphicCaptchaService;
 import com.whoiszxl.common.constants.RedisPrefixConstants;
 import com.whoiszxl.common.model.LoginAdmin;
 import com.whoiszxl.common.utils.LoginHelper;
 import com.whoiszxl.common.utils.SecureUtils;
 import com.whoiszxl.starter.core.utils.BeanUtil;
 import com.whoiszxl.starter.core.utils.ExceptionUtils;
+import com.whoiszxl.starter.core.utils.validate.CheckUtils;
 import com.whoiszxl.starter.log.core.annotation.Log;
 import com.whoiszxl.starter.web.model.R;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,16 +46,15 @@ public class AuthController {
     private final ILoginService loginService;
     private final IAdminService adminService;
     private final RedissonUtil redissonUtil;
+    private final GraphicCaptchaService graphicCaptchaService;
 
     @SaIgnore
     @Operation(summary = "账号密码登录", description = "根据账号密码进行登录")
     @PostMapping("/account")
     public R<LoginResponse> passwordLogin(@Validated @RequestBody PasswordLoginCommand command, HttpServletRequest request) {
         // 1.验证码校验
-        String captchaKey = RedisPrefixConstants.Admin.ADMIN_CAPTCHA_IMAGE_KEY + command.getUuid();
-        String captchaValue = redissonUtil.get(captchaKey);
-        Assert.notBlank(captchaValue, "验证码不存在");
-        Assert.equals(captchaValue.toLowerCase(), command.getCaptcha().toLowerCase(), "验证码错误");
+        boolean validate = graphicCaptchaService.validate(command.getUuid(), command.getCaptcha());
+        CheckUtils.throwIf(!validate, "验证码错误");
 
         String truePassword = ExceptionUtils.exToNull(() -> SecureUtils.decryptByRsaPrivateKey(command.getPassword()));
 

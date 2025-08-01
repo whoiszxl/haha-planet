@@ -1,5 +1,7 @@
 package com.whoiszxl.cache.redisson.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.whoiszxl.cache.redisson.codec.SpringJacksonCodec;
 import com.whoiszxl.cache.redisson.properties.RedissonProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import org.springframework.context.annotation.Primary;
 public class RedissonAutoConfiguration {
 
     private final RedissonProperties redissonProperties;
+    private final ObjectMapper objectMapper;
 
     /**
      * 创建RedissonClient Bean
@@ -50,12 +53,19 @@ public class RedissonAutoConfiguration {
         Config config = new Config();
         
         // 设置编解码器
-        try {
-            Class<?> codecClass = Class.forName(redissonProperties.getSerializationConfig().getCodec());
-            config.setCodec((org.redisson.client.codec.Codec) codecClass.getDeclaredConstructor().newInstance());
-        } catch (Exception e) {
-            log.warn("无法加载指定的编解码器: {}, 使用默认编解码器", 
-                    redissonProperties.getSerializationConfig().getCodec(), e);
+        String codecClassName = redissonProperties.getSerializationConfig().getCodec();
+        if ("org.redisson.codec.JsonJacksonCodec".equals(codecClassName)) {
+            // 使用Spring配置的ObjectMapper
+            config.setCodec(new SpringJacksonCodec(objectMapper));
+            log.info("使用SpringJacksonCodec，支持LocalDateTime等Java 8时间类型");
+        } else {
+            try {
+                Class<?> codecClass = Class.forName(codecClassName);
+                config.setCodec((org.redisson.client.codec.Codec) codecClass.getDeclaredConstructor().newInstance());
+            } catch (Exception e) {
+                log.warn("无法加载指定的编解码器: {}, 使用SpringJacksonCodec", codecClassName, e);
+                config.setCodec(new SpringJacksonCodec(objectMapper));
+            }
         }
         
         // 设置线程池

@@ -286,3 +286,69 @@ ai:
       max-size: 200
       # 队列容量
       queue-capacity: 1024
+
+
+# Redisson配置示例
+haha:
+  cache:
+    redisson:
+      enabled: true
+      mode: single  # single, cluster, sentinel, master_slave, replicated
+
+      # 单机配置
+      single-server-config:
+        address: ${REDIS_HOST:redis://117.72.102.228:6379}
+        password: ${REDIS_PWD:G2w2e2A6d1oeRfaCdvg}
+        database: ${REDIS_DB:10}
+        connection-minimum-idle-size: 24
+        connection-pool-size: 64
+        idle-connection-timeout: 10m
+        connect-timeout: 10s
+        timeout: 3s
+        retry-attempts: 3
+        retry-interval: 1500ms
+        client-name: haha-redisson
+        keep-alive: true
+        tcp-no-delay: true
+
+      # 集群配置示例
+      cluster-servers-config:
+        node-addresses:
+          - redis://127.0.0.1:7000
+          - redis://127.0.0.1:7001
+          - redis://127.0.0.1:7002
+        password:
+        master-connection-minimum-idle-size: 24
+        master-connection-pool-size: 64
+        slave-connection-minimum-idle-size: 24
+        slave-connection-pool-size: 64
+        scan-interval: 1000
+
+      # 哨兵配置示例
+      sentinel-servers-config:
+        master-name: mymaster
+        sentinel-addresses:
+          - redis://127.0.0.1:26379
+          - redis://127.0.0.1:26380
+          - redis://127.0.0.1:26381
+        password:
+        sentinel-password:
+        database: 0
+
+      # 线程池配置
+      thread-pool-config:
+        threads: 16
+        netty-threads: 16
+        thread-name-prefix: redisson-
+
+      # 网络配置
+      network-config:
+        ping-connection-interval: 30s
+        keep-alive: true
+        tcp-no-delay: true
+        ping-timeout: 1000
+
+      # 序列化配置
+      serialization-config:
+        codec: org.redisson.codec.JsonJacksonCodec
+        use-linux-native-epoll: false
