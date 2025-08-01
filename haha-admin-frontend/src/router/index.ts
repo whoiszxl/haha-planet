@@ -69,6 +69,12 @@ export const constantRoutes: RouteRecordRaw[] = [
         name: 'SettingMessage',
         component: () => import('@/views/setting/message/index.vue'),
         meta: { title: '消息中心', showInTabs: false }
+      },
+      {
+        path: '/setting/google-test',
+        name: 'GoogleCaptchaTest',
+        component: () => import('@/views/test/GoogleCaptchaTest.vue'),
+        meta: { title: 'Google验证码测试', showInTabs: false }
       }
     ]
   }

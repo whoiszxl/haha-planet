@@ -31,4 +31,7 @@ public class PasswordLoginCommand implements Serializable {
     @Schema(description = "验证码标识", example = "666")
     @NotBlank(message = "验证码标识不能为空")
     private String uuid;
+
+    @Schema(description = "Google验证码（可选）", example = "123456")
+    private String googleCode;
 }

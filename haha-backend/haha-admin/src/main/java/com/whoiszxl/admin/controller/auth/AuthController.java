@@ -58,7 +58,7 @@ public class AuthController {
 
         String truePassword = ExceptionUtils.exToNull(() -> SecureUtils.decryptByRsaPrivateKey(command.getPassword()));
 
-        String token = loginService.login(command.getUsername(), truePassword);
+        String token = loginService.login(command.getUsername(), truePassword, command.getGoogleCode());
         return R.ok(LoginResponse.builder().token(token).build());
     }
 

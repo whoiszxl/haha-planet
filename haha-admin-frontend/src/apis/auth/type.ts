@@ -47,6 +47,7 @@ export interface AccountLoginReq {
   password: string
   captcha: string
   uuid: string
+  googleCode?: string // Google验证码（可选）
 }
 
 /** 手机号登录请求参数 */

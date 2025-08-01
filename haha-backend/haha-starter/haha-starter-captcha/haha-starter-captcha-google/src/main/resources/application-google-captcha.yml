@@ -1,0 +1,24 @@
+haha:
+  captcha:
+    google:
+      enabled: true
+      app-name: "HaHa Platform"
+      issuer: "HaHa"
+      secret-length: 20
+      period: 30
+      digits: 6
+      window-size: 1
+      qr-code:
+        width: 300
+        height: 300
+        format: "PNG"
+        margin: 1
+      storage:
+        type: memory
+        key-prefix: "captcha:google:"
+        key-expire-time: PT24H
+      security:
+        enable-anti-replay: true
+        used-code-expire-time: PT5M
+        max-failure-count: 5
+        lockout-duration: PT15M

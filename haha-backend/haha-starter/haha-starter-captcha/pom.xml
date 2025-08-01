@@ -14,6 +14,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>haha-starter-captcha-graphic</module>
+        <module>haha-starter-captcha-google</module>
     </modules>
 
     <properties>

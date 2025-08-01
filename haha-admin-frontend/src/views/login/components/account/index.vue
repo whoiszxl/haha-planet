@@ -23,6 +23,15 @@
         </div>
       </div>
     </a-form-item>
+    <!-- Google验证码输入框 -->
+    <a-form-item v-if="needGoogleCode" field="googleCode" hide-label>
+      <a-input 
+        v-model="form.googleCode" 
+        placeholder="请输入Google验证码" 
+        :max-length="6" 
+        allow-clear 
+      />
+    </a-form-item>
     <a-form-item>
       <a-row justify="space-between" align="center" class="w-full">
         <a-checkbox v-model="loginConfig.rememberMe">记住我</a-checkbox>
@@ -40,7 +49,7 @@
 <script setup lang="ts">
 import { type FormInstance, Message } from '@arco-design/web-vue'
 import { useStorage } from '@vueuse/core'
-import { getImageCaptcha } from '@/apis'
+import { getImageCaptcha, checkGoogleCaptchaStatusByUsername } from '@/apis'
 import { useUserStore } from '@/stores'
 import { encryptByRsa } from '@/utils/encrypt'
 
@@ -58,12 +67,25 @@ const form = reactive({
   password: loginConfig.value.password,
   captcha: '',
   uuid: '',
-  expired: false
+  expired: false,
+  googleCode: '' // Google验证码
 })
+// 是否需要Google验证码
+const needGoogleCode = ref(false)
+
 const rules: FormInstance['rules'] = {
   username: [{ required: true, message: '请输入用户名' }],
   password: [{ required: true, message: '请输入密码' }],
-  captcha: [{ required: true, message: '请输入验证码' }]
+  captcha: [{ required: true, message: '请输入验证码' }],
+  googleCode: [{ 
+    validator: (value, callback) => {
+      if (needGoogleCode.value && (!value || value.length !== 6)) {
+        callback('请输入6位Google验证码')
+        return
+      }
+      callback()
+    }
+  }]
 }
 
 // 验证码过期定时器
@@ -81,12 +103,6 @@ const startTimer = (expireTime: number) => {
     form.expired = true
   }, remainingTime)
 }
-// 组件销毁时清理定时器
-onBeforeUnmount(() => {
-  if (timer) {
-    clearTimeout(timer)
-  }
-})
 
 const captchaImgBase64 = ref()
 // 获取验证码
@@ -98,6 +114,32 @@ const getCaptcha = () => {
     form.expired = false
     startTimer(expireTime)
   })
+}
+
+// 检查Google验证码绑定状态
+const checkGoogleBindStatus = async () => {
+  try {
+    // 只有在用户名输入后才检查
+    if (!form.username || form.username.length < 2) {
+      needGoogleCode.value = false
+      return
+    }
+    
+    // 通过公开接口检查用户是否绑定Google验证码
+    const response = await checkGoogleCaptchaStatusByUsername(form.username)
+    needGoogleCode.value = response.data.bound || false
+    
+    console.log(`用户 ${form.username} Google验证码绑定状态:`, needGoogleCode.value)
+    
+    // 如果不需要Google验证码，清空输入框
+    if (!needGoogleCode.value) {
+      form.googleCode = ''
+    }
+  } catch (error) {
+    console.error('检查Google验证码绑定状态失败:', error)
+    needGoogleCode.value = false
+    form.googleCode = ''
+  }
 }
 
 const userStore = useUserStore()
@@ -113,7 +155,8 @@ const handleLogin = async () => {
       username: form.username,
       password: encryptByRsa(form.password) || '',
       captcha: form.captcha,
-      uuid: form.uuid
+      uuid: form.uuid,
+      googleCode: form.googleCode // 传递Google验证码
     })
     const { redirect, ...othersQuery } = router.currentRoute.value.query
     router.push({
@@ -128,13 +171,40 @@ const handleLogin = async () => {
   } catch (error) {
     getCaptcha()
     form.captcha = ''
+    form.googleCode = '' // 清空Google验证码
   } finally {
     loading.value = false
   }
 }
 
+// 监听用户名变化
+watch(
+  () => form.username,
+  (newUsername) => {
+    // 防抖处理，用户停止输入500ms后再检查
+    clearTimeout(checkTimer)
+    checkTimer = setTimeout(() => {
+      checkGoogleBindStatus()
+    }, 500)
+  },
+  { immediate: false }
+)
+
+// 检查定时器
+let checkTimer: NodeJS.Timeout
+
 onMounted(() => {
   getCaptcha()
+})
+
+// 组件销毁时清理定时器
+onBeforeUnmount(() => {
+  if (timer) {
+    clearTimeout(timer)
+  }
+  if (checkTimer) {
+    clearTimeout(checkTimer)
+  }
 })
 </script>
 

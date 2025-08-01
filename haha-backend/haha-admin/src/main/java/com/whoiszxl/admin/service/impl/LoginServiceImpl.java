@@ -15,6 +15,7 @@ import com.whoiszxl.common.properties.RsaProperties;
 import com.whoiszxl.admin.service.IAdminService;
 import com.whoiszxl.admin.service.ILoginService;
 import com.whoiszxl.admin.service.IRoleService;
+import com.whoiszxl.captcha.google.service.GoogleCaptchaService;
 import com.whoiszxl.common.model.LoginAdmin;
 import com.whoiszxl.common.utils.LoginHelper;
 import com.whoiszxl.common.utils.SecureUtils;
@@ -24,8 +25,10 @@ import com.whoiszxl.starter.crud.annotation.TreeField;
 import com.whoiszxl.starter.crud.utils.TreeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -48,6 +51,9 @@ public class LoginServiceImpl implements ILoginService {
 
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired(required = false)
+    private GoogleCaptchaService googleCaptchaService;
+
     @Override
     public String login(String username, String password) {
         //1. 校验管理员是否存在
@@ -59,6 +65,39 @@ public class LoginServiceImpl implements ILoginService {
         ValidationUtils.throwIf(!passwordEncoder.matches(password, admin.getPassword()), "密码错误");
 
         //3. 进行登录，并设置权限
+        return this.login(admin);
+    }
+
+    @Override
+    public String login(String username, String password, String googleCode) {
+        //1. 校验管理员是否存在
+        Admin admin = adminService.getOne(Wrappers.<Admin>lambdaQuery()
+                .eq(Admin::getUsername, username));
+        ValidationUtils.throwIfNull(admin, "管理员不存在");
+
+        //2. 校验密码是否正确
+        ValidationUtils.throwIf(!passwordEncoder.matches(password, admin.getPassword()), "密码错误");
+
+        //3. 检查是否绑定Google验证码，如果绑定了则需要验证
+        if (googleCaptchaService != null) {
+            String userId = String.valueOf(admin.getId());
+            boolean isBound = googleCaptchaService.isBound(userId);
+            
+            if (isBound) {
+                // 已绑定Google验证码，必须提供验证码
+                ValidationUtils.throwIf(!StringUtils.hasText(googleCode), "请输入Google验证码");
+                
+                // 验证Google验证码
+                boolean isValid = googleCaptchaService.validate(userId, googleCode);
+                ValidationUtils.throwIf(!isValid, "Google验证码错误");
+                
+                log.info("用户 {} Google验证码验证成功", username);
+            } else {
+                log.debug("用户 {} 未绑定Google验证码，跳过验证", username);
+            }
+        }
+
+        //4. 进行登录，并设置权限
         return this.login(admin);
     }
 

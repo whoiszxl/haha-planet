@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/v1.0.0/admin-column.sql
   - include:
       file: db/changelog/v1.0.0/admin-data.sql
+  - include:
+      file: db/changelog/v1.0.0/admin-google-code-table.sql

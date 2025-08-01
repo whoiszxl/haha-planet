@@ -75,6 +75,18 @@
             <artifactId>volcengine-java-sdk-ark-runtime</artifactId>
             <version>0.2.14</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-captcha-google</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!-- Spring Data JPA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

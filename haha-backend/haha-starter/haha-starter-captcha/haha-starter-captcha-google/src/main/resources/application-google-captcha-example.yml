@@ -1,0 +1,102 @@
+# Google验证码Starter示例配置
+haha:
+  captcha:
+    google:
+      # 是否启用Google验证码功能
+      enabled: true
+      
+      # 应用名称（显示在Google Authenticator中）
+      app-name: "HaHa Platform"
+      
+      # 发行者名称
+      issuer: "HaHa"
+      
+      # 密钥长度（字节）
+      secret-length: 20
+      
+      # 验证码有效期（秒）
+      period: 30
+      
+      # 验证码位数
+      digits: 6
+      
+      # 时间窗口容差
+      window-size: 1
+      
+      # 二维码配置
+      qr-code:
+        width: 300
+        height: 300
+        format: "PNG"
+        margin: 1
+      
+      # 存储配置
+      storage:
+        # 存储类型：MEMORY、REDIS、MYSQL
+        type: MEMORY
+        
+        # Redis配置（当type=REDIS时生效）
+        key-prefix: "captcha:google:"
+        key-expire-time: PT24H  # 24小时
+        
+        # MySQL配置（当type=MYSQL时生效）
+        table-prefix: "google_captcha_"
+      
+      # 安全配置
+      security:
+        # 是否启用防重放攻击
+        enable-anti-replay: true
+        
+        # 验证码使用记录过期时间
+        used-code-expire-time: PT5M  # 5分钟
+        
+        # 最大验证失败次数
+        max-failure-count: 5
+        
+        # 验证失败锁定时间
+        lockout-duration: PT15M  # 15分钟
+      
+      # Web接口配置
+      web:
+        # 是否启用Web接口
+        enabled: true
+
+# Spring Boot配置示例
+spring:
+  # Redis配置（当使用Redis存储时）
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  
+  # 数据源配置（当使用MySQL存储时）
+  datasource:
+    url: jdbc:mysql://localhost:3306/haha_platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  # JPA配置（当使用MySQL存储时）
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+# 日志配置
+logging:
+  level:
+    com.whoiszxl.captcha.google: DEBUG
+    org.springframework.security: DEBUG
