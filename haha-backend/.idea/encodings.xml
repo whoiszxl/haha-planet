@@ -3,12 +3,32 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/haha-admin/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-admin/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-analytics/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-analytics/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-course/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-course/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-gateway/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-im/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-im/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-interview/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-interview/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-order/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-order/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-payment/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-payment/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-planet/haha-planet-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-planet/haha-planet-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-planet/haha-planet-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-planet/haha-planet-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-planet/haha-planet-web/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-planet/haha-planet-web/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-planet/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-planet/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-resume/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/haha-resume/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-starter/haha-starter-auth/haha-starter-auth-justauth/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-starter/haha-starter-auth/haha-starter-auth-justauth/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/haha-starter/haha-starter-auth/haha-starter-auth-satoken/src/main/java" charset="UTF-8" />

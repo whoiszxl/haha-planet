@@ -21,6 +21,14 @@
         <module>haha-user</module>
         <module>haha-common</module>
         <module>haha-im</module>
+        <module>haha-planet</module>
+        <module>haha-payment</module>
+        <module>haha-analytics</module>
+        <module>haha-course</module>
+        <module>haha-interview</module>
+        <module>haha-resume</module>
+        <module>haha-order</module>
+        <module>haha-planet/haha-planet-web</module>
     </modules>
 
     <properties>

@@ -6,16 +6,16 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-backend</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>haha-user</artifactId>
+    <artifactId>haha-payment</artifactId>
     <description>
-        - 用户注册、登录、认证
-        - 用户基本信息管理
-        - 用户权限管理
-        - 用户关系管理（关注、粉丝）
-        - 用户等级和积分系统
+        - 星球付费订阅
+        - 内容付费
+        - 打赏功能
+        - 订单管理
+        - 财务结算
     </description>
 
     <properties>

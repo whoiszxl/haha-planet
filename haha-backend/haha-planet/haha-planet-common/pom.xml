@@ -5,18 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.whoiszxl</groupId>
-        <artifactId>haha-backend</artifactId>
-        <version>${revision}</version>
+        <artifactId>haha-planet</artifactId>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>haha-user</artifactId>
-    <description>
-        - 用户注册、登录、认证
-        - 用户基本信息管理
-        - 用户权限管理
-        - 用户关系管理（关注、粉丝）
-        - 用户等级和积分系统
-    </description>
+    <artifactId>haha-planet-common</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -24,4 +17,16 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-crud</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 </project>

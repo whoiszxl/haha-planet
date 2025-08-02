@@ -1,0 +1,411 @@
+--- ### 项目配置
+project:
+  # URL（跨域配置默认放行此 URL，第三方登录回调默认使用此 URL 为前缀，请注意更改为你实际的前端 URL）
+  url: http://1d58122a.r7.cpolar.cn
+
+
+--- ### spring cloud配置
+spring:
+  cloud:
+    nacos:
+      server-addr: 117.72.102.228:8848
+      config:
+        server-addr: 117.72.102.228:8848
+        file-extension: yaml
+
+--- ### 服务器配置
+server:
+  # HTTP 端口（默认 8080）
+  port: 8002
+
+--- ### 数据源配置
+spring.datasource:
+  type: com.zaxxer.hikari.HikariDataSource
+  ## 动态数据源配置（可配多主多从：m1、s1...；纯粹多库：mysql、oracle...；混合配置：m1、s1、oracle...）
+  dynamic:
+    # 是否启用 P6Spy（SQL 性能分析组件，该插件有性能损耗，不建议生产环境使用）
+    p6spy: true
+    # 设置默认的数据源或者数据源组（默认：master）
+    primary: master
+    # 严格匹配数据源（true：未匹配到指定数据源时抛异常；false：使用默认数据源；默认 false）
+    strict: false
+    datasource:
+      # 主库配置（可配多个，构成多主）
+      master:
+        url: jdbc:mysql://${DB_HOST:117.72.102.228}:${DB_PORT:3306}/${DB_NAME:haha}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
+        username: ${DB_USER:root}
+        password: ${DB_PWD:G2w2e2A6d1oeRfaCdvg}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: ${spring.datasource.type}
+      # 从库配置（可配多个，构成多从）
+      slave_1:
+        url: jdbc:mysql://${DB_HOST:117.72.102.228}:${DB_PORT:3306}/${DB_NAME:haha}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true&autoReconnect=true&maxReconnects=10&failOverReadOnly=false
+        username: ${DB_USER:root}
+        password: ${DB_PWD:G2w2e2A6d1oeRfaCdvg}
+        lazy: true
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: ${spring.datasource.type}
+    # Hikari 连接池配置（完整配置请参阅：https://github.com/brettwooldridge/HikariCP）
+    hikari:
+      # 最大连接数量（默认 10，根据实际环境调整）
+      # 注意：当连接达到上限，并且没有空闲连接可用时，获取连接将在超时前阻塞最多 connectionTimeout 毫秒
+      max-pool-size: 20
+      # 获取连接超时时间（默认 30000 毫秒，30 秒）
+      connection-timeout: 30000
+      # 空闲连接最大存活时间（默认 600000 毫秒，10 分钟）
+      idle-timeout: 600000
+      # 保持连接活动的频率，以防止它被数据库或网络基础设施超时。该值必须小于 maxLifetime（默认 0，禁用）
+      keepaliveTime: 30000
+      # 连接最大生存时间（默认 1800000 毫秒，30 分钟）
+      max-lifetime: 1800000
+## Liquibase 配置
+spring.liquibase:
+  # 是否启用
+  enabled: true
+  # 配置文件路径
+  change-log: classpath:/db/changelog/db.changelog-master.yaml
+
+--- ### 缓存配置
+spring.data:
+  ## Redis 配置（单机模式）
+  redis:
+    # 地址
+    host: ${REDIS_HOST:117.72.102.228}
+    # 端口（默认 6379）
+    port: ${REDIS_PORT:6379}
+    # 密码（未设置密码时可为空或注释掉）
+    password: ${REDIS_PWD:G2w2e2A6d1oeRfaCdvg}
+    # 数据库索引
+    database: ${REDIS_DB:0}
+    # 连接超时时间
+    timeout: 10s
+    # 是否开启 SSL
+    ssl:
+      enabled: false
+
+
+## 项目日志配置（配置重叠部分，优先级高于 logback-spring.xml 中的配置）
+logging:
+  level:
+    com.whoiszxl: DEBUG
+  file:
+    path: ./logs
+
+--- ### 跨域配置
+web.cors:
+  enabled: false
+  # 配置允许跨域的域名
+  allowed-origins: '*'
+  # 配置允许跨域的请求方式
+  allowed-methods: '*'
+  # 配置允许跨域的请求头
+  allowed-headers: '*'
+  # 配置允许跨域的响应头
+  exposed-headers: '*'
+
+--- ### 接口文档配置
+springdoc:
+  swagger-ui:
+    enabled: true
+
+--- ### 短信配置
+sms:
+  # 从 YAML 读取配置
+  config-type: YAML
+  http-log: true
+  is-print: false
+  blends:
+    cloopen:
+      # 短信厂商
+      supplier: cloopen
+      base-url: https://app.cloopen.com:8883/2013-12-26
+      access-key-id: 你的Access Key
+      access-key-secret: 你的Access Key Secret
+      sdk-app-id: 你的应用ID
+
+
+--- ### Just Auth 配置
+justauth:
+  enabled: true
+  type:
+    GITEE:
+      client-id: ${GITEE_CLIENT_ID:G2w2e2A6d1oeRfaCdvg}
+      client-secret: ${GITEE_CLIENT_SECRET:G2w2e2A6d1oeRfaCdvg}
+      redirect-uri: ${project.url}/social/callback?source=gitee
+      http-config:
+        timeout: 10000
+    GITHUB:
+      client-id: ${GITHUB_CLIENT_ID:G2w2e2A6d1oeRfaCdvg}
+      client-secret: ${GITHUB_CLIENT_SECRET:G2w2e2A6d1oeRfaCdvg}
+      redirect-uri: ${project.url}/social/callback?source=github
+      http-config:
+        timeout: 10000
+  cache:
+    type: REDIS
+
+--- ### Sa-Token 扩展配置
+sa-token.extension:
+  # 安全配置：排除（放行）路径配置
+  security.excludes:
+    - /error
+    # 静态资源
+    - /*.html
+    - /*/*.html
+    - /*/*.css
+    - /*/*.js
+    - /webSocket/**
+    # 接口文档相关资源
+    - /favicon.ico
+    - /doc.html
+    - /webjars/**
+    - /swagger-ui/**
+    - /swagger-resources/**
+    - /*/api-docs/**
+    # 本地存储资源
+    - /file/**
+
+--- ### 字段加/解密配置
+security:
+  crypto:
+    enabled: true
+    # 对称加密算法密钥
+    password: abcdefghijklmnop
+    # 非对称加密算法密钥（在线生成 RSA 密钥对：http://web.chacuo.net/netrsakeypair）
+    public-key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAM51dgYtMyF+tTQt80sfFOpSV27a7t9uaUVeFrdGiVxscuizE7H8SMntYqfn9lp8a5GH5P1/GGehVjUD2gF/4kcCAwEAAQ==
+    private-key: MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEAznV2Bi0zIX61NC3zSx8U6lJXbtru325pRV4Wt0aJXGxy6LMTsfxIye1ip+f2WnxrkYfk/X8YZ6FWNQPaAX/iRwIDAQABAkEAk/VcAusrpIqA5Ac2P5Tj0VX3cOuXmyouaVcXonr7f+6y2YTjLQuAnkcfKKocQI/juIRQBFQIqqW/m1nmz1wGeQIhAO8XaA/KxzOIgU0l/4lm0A2Wne6RokJ9HLs1YpOzIUmVAiEA3Q9DQrpAlIuiT1yWAGSxA9RxcjUM/1kdVLTkv0avXWsCIE0X8woEjK7lOSwzMG6RpEx9YHdopjViOj1zPVH61KTxAiBmv/dlhqkJ4rV46fIXELZur0pj6WC3N7a4brR8a+CLLQIhAMQyerWl2cPNVtE/8tkziHKbwW3ZUiBXU24wFxedT9iV
+
+--- ### 密码编码器配置
+security:
+  password:
+    enabled: true
+    # BCryptPasswordEncoder
+    encoding-id: bcrypt
+
+--- ### 文件上传配置
+spring.servlet:
+  multipart:
+    enabled: true
+    # 单文件上传大小限制
+    max-file-size: 10MB
+    # 单次总上传文件大小限制
+    max-request-size: 20MB
+
+--- ### 短信配置
+sms:
+  config-type: yaml
+  http-log: true
+  is-print: false
+  blends:
+    # 阿里短信例子
+    ali:
+      #厂商标识，标定此配置是哪个厂商，详细请看厂商标识介绍部分
+      supplier: alibaba
+      #您的accessKey
+      access-key-id: ${SMS_ALI_ACCESS_KEY_ID:G2w2e2A6d1oeRfaCdvg}
+      #您的accessKeySecret
+      access-key-secret: ${SMS_ALI_ACCESS_KEY_SECRET:G2w2e2A6d1oeRfaCdvg}
+      #您的短信签名
+      signature: zxlvoid验证码
+      #模板ID 非必须配置，如果使用sendMessage的快速发送需此配置
+      template-id: SMS_99220057
+      # 模版名称
+      templateName: 测试app
+
+--- ### RabbitMQ配置
+spring:
+  rabbitmq:
+    host: 117.72.102.228
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: /
+    # 开启发送失败退回
+    publisher-returns: true
+    # 开启ACK
+    listener:
+      direct:
+        acknowledge-mode: manual
+      simple:
+        acknowledge-mode: manual
+
+
+--- ### ES配置
+elasticsearch:
+  hosts: 117.72.102.228:9200
+  username:
+  password:
+
+
+--- # Google验证码Starter示例配置
+haha:
+  captcha:
+    google:
+      # 是否启用Google验证码功能
+      enabled: true
+
+      # 应用名称（显示在Google Authenticator中）
+      app-name: "HaHa Platform"
+
+      # 发行者名称
+      issuer: "HaHa"
+
+      # 密钥长度（字节）
+      secret-length: 20
+
+      # 验证码有效期（秒）
+      period: 30
+
+      # 验证码位数
+      digits: 6
+
+      # 时间窗口容差
+      window-size: 3
+
+      # 二维码配置
+      qr-code:
+        width: 300
+        height: 300
+        format: "PNG"
+        margin: 1
+
+      # 存储配置
+      storage:
+        # 存储类型：MEMORY、REDIS、MYSQL
+        type: MYSQL
+
+        # Redis配置（当type=REDIS时生效）
+        key-prefix: "captcha:google:"
+        key-expire-time: PT24H  # 24小时
+
+        # MySQL配置（当type=MYSQL时生效）
+        table-prefix: "google_captcha_"
+
+      # 安全配置
+      security:
+        # 是否启用防重放攻击
+        enable-anti-replay: true
+
+        # 验证码使用记录过期时间
+        used-code-expire-time: PT5M  # 5分钟
+
+        # 最大验证失败次数
+        max-failure-count: 3
+
+        # 验证失败锁定时间
+        lockout-duration: PT15M  # 15分钟
+
+# Spring Boot配置示例
+spring:
+  # JPA配置（当使用MySQL存储时）
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+# 日志配置
+logging:
+  level:
+    com.whoiszxl.captcha.google: DEBUG
+    org.springframework.security: DEBUG
+
+
+--- # 文件上传服务
+haha:
+  storage:
+    s3:
+      enabled: true
+      access-key: ${STORAGE_S3_ACCESS_KEY:G2w2e2A6d1oeRfaCdvg}
+      secret-key: ${STORAGE_S3_SECRET_KEY:G2w2e2A6d1oeRfaCdvg}
+      region: us-east-1
+      endpoint: http://117.72.102.228:9000
+      default-bucket: haha-private
+      path-style-access: false
+      connection-timeout: 10000
+      socket-timeout: 50000
+      max-connections: 50
+
+--- # Redisson配置示例
+haha:
+  cache:
+    redisson:
+      enabled: true
+      mode: single  # single, cluster, sentinel, master_slave, replicated
+
+      # 单机配置
+      single-server-config:
+        address: ${REDIS_HOST:redis://117.72.102.228:6379}
+        password: ${REDIS_PWD:G2w2e2A6d1oeRfaCdvg}
+        database: ${REDIS_DB:10}
+        connection-minimum-idle-size: 24
+        connection-pool-size: 64
+        idle-connection-timeout: 10m
+        connect-timeout: 10s
+        timeout: 3s
+        retry-attempts: 3
+        retry-interval: 1500ms
+        client-name: haha-redisson
+        keep-alive: true
+        tcp-no-delay: true
+
+      # 集群配置示例
+      cluster-servers-config:
+        node-addresses:
+          - redis://127.0.0.1:7000
+          - redis://127.0.0.1:7001
+          - redis://127.0.0.1:7002
+        password:
+        master-connection-minimum-idle-size: 24
+        master-connection-pool-size: 64
+        slave-connection-minimum-idle-size: 24
+        slave-connection-pool-size: 64
+        scan-interval: 1000
+
+      # 哨兵配置示例
+      sentinel-servers-config:
+        master-name: mymaster
+        sentinel-addresses:
+          - redis://127.0.0.1:26379
+          - redis://127.0.0.1:26380
+          - redis://127.0.0.1:26381
+        password:
+        sentinel-password:
+        database: 0
+
+      # 线程池配置
+      thread-pool-config:
+        threads: 16
+        netty-threads: 16
+        thread-name-prefix: redisson-
+
+      # 网络配置
+      network-config:
+        ping-connection-interval: 30s
+        keep-alive: true
+        tcp-no-delay: true
+        ping-timeout: 1000
+
+      # 序列化配置
+      serialization-config:
+        codec: org.redisson.codec.JsonJacksonCodec
+        use-linux-native-epoll: false
+
+--- # 验证码配置
+haha:
+  captcha:
+    graphic:
+      enabled: true
+      type: NUMBER
+      length: 4
+      width: 130
+      height: 48
+      expire-time: 5m
+      font-name: Arial
+      font-size: 25
+      line-count: 3
+      storage:
+        type: redis
+        key-prefix: "captcha:graphic:"

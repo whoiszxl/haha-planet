@@ -6,17 +6,18 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-backend</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>haha-user</artifactId>
+    <artifactId>haha-analytics</artifactId>
     <description>
-        - 用户注册、登录、认证
-        - 用户基本信息管理
-        - 用户权限管理
-        - 用户关系管理（关注、粉丝）
-        - 用户等级和积分系统
+        - 用户行为分析
+        - 内容热度统计
+        - 业务指标监控
+        - 数据报表生成
     </description>
+
+
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

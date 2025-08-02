@@ -6,17 +6,20 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-backend</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>haha-user</artifactId>
+    <artifactId>haha-interview</artifactId>
     <description>
-        - 用户注册、登录、认证
-        - 用户基本信息管理
-        - 用户权限管理
-        - 用户关系管理（关注、粉丝）
-        - 用户等级和积分系统
+        - 面试题库管理
+        - 题目分类（技术栈、难度、公司）
+        - 在线答题和模拟面试
+        - 答案解析和讨论
+        - 面试经验分享
+        - 智能推题算法
+        - 面试统计分析
     </description>
+
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

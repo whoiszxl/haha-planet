@@ -6,16 +6,18 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-backend</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>haha-user</artifactId>
+    <artifactId>haha-course</artifactId>
     <description>
-        - 用户注册、登录、认证
-        - 用户基本信息管理
-        - 用户权限管理
-        - 用户关系管理（关注、粉丝）
-        - 用户等级和积分系统
+        - 课程创建、编辑、发布管理
+        - 课程分类和标签体系
+        - 课程章节和视频管理
+        - 课程进度跟踪
+        - 课程评价和评分
+        - 课程推荐算法
+        - 学习路径规划
     </description>
 
     <properties>
