@@ -111,7 +111,7 @@ const userInfo = computed(() => userStore.userInfo)
 const avatar = {
   uid: '-2',
   name: 'avatar.png',
-  url: userInfo.value.avatar
+  url: getAvatar(userInfo.value.avatar, undefined)
 }
 const avatarList = ref<FileItem[]>([avatar])
 const fileRef = ref(reactive({ name: 'avatar.png' }))
@@ -184,37 +184,12 @@ const onUpdate = async () => {
   BasicInfoUpdateModalRef.value?.onUpdate()
 }
 
-
-
-import { getAvatarPresignedUrl } from '@/apis/system/user-center'
-
-// 获取头像真实访问URL
-const getAvatarRealUrl = async (avatarKey: string) => {
-  try {
-    const response = await getAvatarPresignedUrl(avatarKey)
-    return response.data.presignedUrl
-  } catch (error) {
-    console.error('获取头像URL失败:', error)
-    return null
+// 监听用户信息变化，更新头像显示
+watch(() => userInfo.value.avatar, (newAvatar) => {
+  if (newAvatar) {
+    avatarList.value[0].url = getAvatar(newAvatar, undefined)
   }
-}
-
-// 在需要显示头像时调用
-const displayAvatar = async () => {
-  if (userInfo.value.avatar) {
-    const realUrl = await getAvatarRealUrl(userInfo.value.avatar)
-    if (realUrl) {
-      avatarList.value[0].url = realUrl
-    }
-  }
-}
-
-// 组件挂载时获取真实URL
-onMounted(() => {
-  displayAvatar()
-})
-
-
+}, { immediate: true })
 </script>
 
 <style scoped lang="scss">

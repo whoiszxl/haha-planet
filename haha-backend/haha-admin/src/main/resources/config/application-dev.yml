@@ -443,7 +443,7 @@ haha:
       secret-key: AgjQnzOPEiyWoSC1M7D30YFwtm5aRs8Nuf4BUIdk
       region: us-east-1
       endpoint: http://117.72.102.228:9000
-      default-bucket: haha
+      default-bucket: haha-private
       path-style-access: false
       connection-timeout: 10000
       socket-timeout: 50000

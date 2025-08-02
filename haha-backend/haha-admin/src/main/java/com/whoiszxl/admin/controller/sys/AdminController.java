@@ -105,9 +105,9 @@ public class AdminController extends BaseController<IAdminService, AdminDetailRe
             String contentType = file.getContentType();
             ValidationUtils.throwIf(!StrUtil.startWith(contentType, "image/"), "只支持图片格式");
             
-            // 文件大小校验 (限制5MB)
-            long maxSize = 5 * 1024 * 1024;
-            ValidationUtils.throwIf(file.getSize() > maxSize, "头像文件大小不能超过5MB");
+            // 文件大小校验 (限制2MB)
+            long maxSize = 2 * 1024 * 1024;
+            ValidationUtils.throwIf(file.getSize() > maxSize, "头像文件大小不能超过2MB");
             
             // 获取当前登录用户ID
             Long currentUserId = StpUtil.getLoginIdAsLong();
@@ -117,8 +117,9 @@ public class AdminController extends BaseController<IAdminService, AdminDetailRe
             String fileExtension = StrUtil.subAfter(originalFilename, ".", true);
             String fileName = "avatar/" + currentUserId + "/" + UUID.randomUUID() + "." + fileExtension;
             
-            // 构建上传请求
+            // 构建上传请求，头像信息上传到公共bucket
             UploadRequest uploadRequest = new UploadRequest()
+                    .setBucketName("haha-public")
                     .setKey(fileName)
                     .setFileName(originalFilename)
                     .setContentType(contentType)
