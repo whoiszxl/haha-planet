@@ -137,6 +137,19 @@ onMounted(() => {
 }
 
 .card {
+  // 设置固定高度与AccessTrendCard保持一致
+  :deep(.arco-card) {
+    height: 410px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  :deep(.arco-card-body) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
   .content {
     padding: 8px 20px;
     .welcome {
@@ -151,8 +164,15 @@ onMounted(() => {
   }
   
   .statistics {
+    flex: 1;
+    display: flex;
+    align-items: center;
     margin-top: 24px;
     padding: 0 20px 20px;
+    
+    .arco-row {
+      width: 100%;
+    }
     
     .arco-col {
       text-align: center;

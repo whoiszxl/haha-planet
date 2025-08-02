@@ -11,11 +11,11 @@
         v-if="!loading && (pvStatisticsData.length > 0 || ipStatisticsData.length > 0)"
         :option="option"
         autoresize
-        :style="{ height: '326px', minHeight: '326px' }"
+        class="chart-container"
       ></VCharts>
       <div 
         v-else-if="!loading"
-        :style="{ height: '326px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }"
+        class="no-data-container"
       >
         暂无数据
       </div>
@@ -239,3 +239,34 @@ onMounted(async () => {
   getChartData(30)
 })
 </script>
+
+<style lang="scss" scoped>
+// 设置固定高度与WorkCard保持一致
+:deep(.arco-card) {
+  height: 410px;
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.arco-card-body) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.chart-container {
+  flex: 1;
+  min-height: 0; // 重要：允许flex子元素缩小
+  width: 100%;
+}
+
+.no-data-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  min-height: 0;
+}
+</style>

@@ -14,22 +14,57 @@
       </a-col>
       <a-col :xs="24" :sm="12" :md="11">
         <div class="login-right">
-          <h3 v-if="isEmailLogin" class="login-right__title">邮箱登录</h3>
-          <EmailLogin v-show="isEmailLogin" />
-          <a-tabs v-show="!isEmailLogin" class="login-right__form">
-            <a-tab-pane key="1" title="账号登录">
-              <AccountLogin />
-            </a-tab-pane>
-            <a-tab-pane key="2" title="手机号登录">
-              <PhoneLogin />
-            </a-tab-pane>
-          </a-tabs>
+          <div class="login-right__content">
+            <h3 v-if="isEmailLogin" class="login-right__title">邮箱登录</h3>
+            <EmailLogin v-show="isEmailLogin" />
+            <a-tabs v-show="!isEmailLogin" class="login-right__form">
+              <a-tab-pane key="1" title="账号登录">
+                <AccountLogin />
+              </a-tab-pane>
+              <a-tab-pane key="2" title="手机号登录">
+                <PhoneLogin />
+              </a-tab-pane>
+            </a-tabs>
+          </div>
           <div class="login-right__oauth">
-            <a-divider orientation="center">其他登录方式</a-divider>
-            <div class="list">
-              <div v-if="isEmailLogin" class="mode item" @click="toggleLoginMode"><icon-user /> 账号/手机号登录</div>
-              <div v-else class="mode item" @click="toggleLoginMode"><icon-email /> 邮箱登录</div>
-
+            <div class="oauth-divider">
+              <div class="divider-line"></div>
+              <span class="divider-text">其他登录方式</span>
+              <div class="divider-line"></div>
+            </div>
+            <div class="oauth-methods">
+              <div 
+                v-if="isEmailLogin" 
+                class="oauth-method" 
+                @click="toggleLoginMode"
+              >
+                <div class="method-icon">
+                  <icon-user />
+                </div>
+                <div class="method-content">
+                  <span class="method-title">账号登录</span>
+                  <span class="method-desc">使用用户名或手机号登录</span>
+                </div>
+                <div class="method-arrow">
+                  <icon-right />
+                </div>
+              </div>
+              <div 
+                v-else 
+                class="oauth-method" 
+                @click="toggleLoginMode"
+              >
+                <div class="method-icon">
+                  <icon-email />
+                </div>
+                <div class="method-content">
+                  <span class="method-title">邮箱登录</span>
+                  <span class="method-desc">使用邮箱地址快速登录</span>
+                </div>
+                <div class="method-arrow">
+                  <icon-right />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -54,25 +89,60 @@
     <a-row align="stretch" class="login-box">
       <a-col :xs="24" :sm="12" :md="11">
         <div class="login-right">
-          <h3 v-if="isEmailLogin" class="login-right__title">邮箱登录</h3>
-          <EmailLogin v-show="isEmailLogin" />
-          <a-tabs v-show="!isEmailLogin" class="login-right__form">
-            <a-tab-pane key="1" title="账号登录">
-              <AccountLogin />
-            </a-tab-pane>
-            <a-tab-pane key="2" title="手机号登录">
-              <PhoneLogin />
-            </a-tab-pane>
-          </a-tabs>
+          <div class="login-right__content">
+            <h3 v-if="isEmailLogin" class="login-right__title">邮箱登录</h3>
+            <EmailLogin v-show="isEmailLogin" />
+            <a-tabs v-show="!isEmailLogin" class="login-right__form">
+              <a-tab-pane key="1" title="账号登录">
+                <AccountLogin />
+              </a-tab-pane>
+              <a-tab-pane key="2" title="手机号登录">
+                <PhoneLogin />
+              </a-tab-pane>
+            </a-tabs>
+          </div>
         </div>
       </a-col>
     </a-row>
     <div class="login-right__oauth">
-      <a-divider orientation="center">其他登录方式</a-divider>
-      <div class="list">
-        <div v-if="isEmailLogin" class="mode item" @click="toggleLoginMode"><icon-user /> 账号/手机号登录</div>
-        <div v-else class="mode item" @click="toggleLoginMode"><icon-email /> 邮箱登录</div>
-
+      <div class="oauth-divider">
+        <div class="divider-line"></div>
+        <span class="oauth-divider-text">其他登录方式</span>
+        <div class="divider-line"></div>
+      </div>
+      <div class="oauth-methods-mobile">
+        <div 
+          v-if="isEmailLogin" 
+          class="oauth-method-mobile" 
+          @click="toggleLoginMode"
+        >
+          <div class="method-icon-mobile">
+            <icon-user />
+          </div>
+          <div class="method-content-mobile">
+            <span class="method-title-mobile">账号登录</span>
+            <span class="method-desc-mobile">用户名/手机号</span>
+          </div>
+          <div class="method-arrow-mobile">
+            <icon-right />
+          </div>
+        </div>
+        <div 
+          v-else 
+          class="oauth-method-mobile" 
+          @click="toggleLoginMode"
+        >
+          <div class="method-icon-mobile">
+            <icon-email />
+          </div>
+          <div class="method-content-mobile">
+            <span class="method-title-mobile">邮箱登录</span>
+            <span class="method-desc-mobile">邮箱地址</span>
+          </div>
+          <div class="method-arrow-mobile">
+            <icon-right />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -169,11 +239,19 @@ onBeforeMount(() => {
   }
   .login-right {
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 104px);
     display: flex;
     flex-direction: column;
-    padding: 30px 30px 0;
+    padding: 0;
     box-sizing: border-box;
+    
+    &__content {
+      flex: 1;
+      padding: 30px 30px 100px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
     &__title {
       color: #f1f5f9;
       font-weight: 600;
@@ -216,56 +294,186 @@ onBeforeMount(() => {
       position: fixed;
       bottom: 0;
       left: 0;
-      padding-bottom: 20px;
-      // margin-top: auto;
-      // margin-bottom: 20px;
-      :deep(.arco-divider-text) {
-        color: #64748b;
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 20px;
-      }
-      .list {
-        align-items: center;
+      padding: 16px 20px 20px;
+      background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.98) 20%, rgba(15, 23, 42, 0.99) 100%);
+      backdrop-filter: blur(25px);
+      border-top: 1px solid rgba(71, 85, 105, 0.2);
+      z-index: 1000;
+      
+      .oauth-divider {
         display: flex;
-        justify-content: center;
-        width: 100%;
-        .item {
-          margin-right: 15px;
+        align-items: center;
+        margin: 20px 0 16px;
+        gap: 12px;
+        
+        .divider-line {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, rgba(71, 85, 105, 0.3) 20%, rgba(71, 85, 105, 0.5) 50%, rgba(71, 85, 105, 0.3) 80%, transparent 100%);
         }
-        .mode {
+        
+        &-text {
           color: #94a3b8;
-          font-size: 12px;
-          font-weight: 400;
-          line-height: 20px;
-          padding: 6px 10px;
-          align-items: center;
-          border: 1px solid rgba(71, 85, 105, 0.3);
-          border-radius: 32px;
-          box-sizing: border-box;
-          display: flex;
-          height: 32px;
-          justify-content: center;
-          cursor: pointer;
-          background: rgba(30, 41, 59, 0.2);
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          white-space: nowrap;
+          padding: 4px 12px;
+          background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+          border-radius: 12px;
+          border: 1px solid rgba(71, 85, 105, 0.2);
           backdrop-filter: blur(10px);
-          transition: all 0.3s ease;
-          .icon {
-            width: 21px;
-            height: 20px;
+          position: relative;
+          
+          &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: calc(100% + 8px);
+            height: 16px;
+            background: radial-gradient(ellipse, rgba(15, 23, 42, 0.8) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            z-index: -1;
           }
         }
-        .mode svg {
-          font-size: 16px;
-          margin-right: 10px;
-        }
-        .mode:hover,
-        .mode svg:hover {
-          background: rgba(30, 58, 138, 0.15);
-          border: 1px solid rgba(96, 165, 250, 0.4);
-          color: #60a5fa;
-          box-shadow: 0 0 12px rgba(96, 165, 250, 0.2);
-          transform: translateY(-1px);
+      }
+      
+      .oauth-methods-mobile {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        .oauth-method-mobile {
+          display: flex;
+          align-items: center;
+          padding: 12px 16px;
+          background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.5) 100%);
+          border: 1px solid rgba(71, 85, 105, 0.4);
+          border-radius: 24px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+          backdrop-filter: blur(15px);
+          min-width: 140px;
+          
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.08), transparent);
+            transition: left 0.5s ease;
+          }
+          
+          .method-icon-mobile {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.15) 0%, rgba(67, 56, 202, 0.12) 100%);
+            border-radius: 8px;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            
+            svg {
+              font-size: 16px;
+              color: #60a5fa;
+              transition: all 0.3s ease;
+            }
+          }
+          
+          .method-content-mobile {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            
+            .method-title-mobile {
+              color: #f1f5f9;
+              font-size: 12px;
+              font-weight: 600;
+              line-height: 1.3;
+              transition: all 0.3s ease;
+            }
+            
+            .method-desc-mobile {
+              color: #94a3b8;
+              font-size: 10px;
+              font-weight: 400;
+              line-height: 1.2;
+              transition: all 0.3s ease;
+            }
+          }
+          
+          .method-arrow-mobile {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            
+            svg {
+              font-size: 12px;
+              color: #64748b;
+              transition: all 0.3s ease;
+            }
+          }
+          
+          &:hover {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(67, 56, 202, 0.25) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.5);
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 
+              0 4px 20px rgba(96, 165, 250, 0.12),
+              0 0 0 1px rgba(96, 165, 250, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            
+            &::before {
+              left: 100%;
+            }
+            
+            .method-icon-mobile {
+              background: linear-gradient(135deg, rgba(96, 165, 250, 0.25) 0%, rgba(67, 56, 202, 0.2) 100%);
+              border: 1px solid rgba(96, 165, 250, 0.4);
+              transform: scale(1.05);
+              
+              svg {
+                color: #93c5fd;
+                transform: scale(1.1);
+              }
+            }
+            
+            .method-content-mobile {
+              .method-title-mobile {
+                color: #f8fafc;
+              }
+              
+              .method-desc-mobile {
+                color: #cbd5e1;
+              }
+            }
+            
+            .method-arrow-mobile {
+              transform: translateX(2px);
+              
+              svg {
+                color: #60a5fa;
+              }
+            }
+          }
+          
+          &:active {
+            transform: translateY(0) scale(1.01);
+            transition: all 0.1s ease;
+          }
         }
       }
     }
@@ -336,9 +544,9 @@ onBeforeMount(() => {
       }
     }
     &-box {
-      width: 86%;
-      max-width: 850px;
-      height: 490px;
+      width: 90%;
+      max-width: 1000px;
+      height: 560px;
       display: flex;
       z-index: 999;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(71, 85, 105, 0.1);
@@ -394,7 +602,7 @@ onBeforeMount(() => {
     border-left: 1px solid rgba(71, 85, 105, 0.2);
     display: flex;
     flex-direction: column;
-    padding: 30px 30px 0;
+    padding: 0;
     box-sizing: border-box;
     position: relative;
     
@@ -408,12 +616,20 @@ onBeforeMount(() => {
       background: linear-gradient(180deg, rgba(30, 41, 59, 0.1) 0%, rgba(15, 23, 42, 0.05) 100%);
       pointer-events: none;
     }
+    
+    &__content {
+      flex: 1;
+      padding: 30px 30px 80px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
     &__title {
       color: #f1f5f9;
       font-weight: 600;
       font-size: 20px;
       line-height: 32px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       position: relative;
       z-index: 1;
@@ -449,55 +665,195 @@ onBeforeMount(() => {
       }
     }
     &__oauth {
-      margin-top: auto;
-      margin-bottom: 20px;
-      :deep(.arco-divider-text) {
-        color: #64748b;
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 20px;
-      }
-      .list {
-        align-items: center;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 30px 20px;
+      background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.8) 30%, rgba(15, 23, 42, 0.95) 100%);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(71, 85, 105, 0.1);
+      z-index: 10;
+      
+      .oauth-divider {
         display: flex;
-        justify-content: center;
-        width: 100%;
-        .item {
-          margin-right: 15px;
+        align-items: center;
+        margin: 0 0 12px;
+        gap: 12px;
+        
+        .divider-line {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, rgba(71, 85, 105, 0.4) 20%, rgba(71, 85, 105, 0.6) 50%, rgba(71, 85, 105, 0.4) 80%, transparent 100%);
         }
-        .mode {
+        
+        .divider-text {
           color: #94a3b8;
           font-size: 12px;
-          font-weight: 400;
-          line-height: 20px;
-          padding: 6px 10px;
-          align-items: center;
-          border: 1px solid rgba(71, 85, 105, 0.3);
-          border-radius: 32px;
-          box-sizing: border-box;
-          display: flex;
-          height: 32px;
-          justify-content: center;
-          cursor: pointer;
-          background: rgba(30, 41, 59, 0.2);
-          backdrop-filter: blur(10px);
-          transition: all 0.3s ease;
-          .icon {
-            width: 21px;
+          font-weight: 500;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          white-space: nowrap;
+          padding: 0 4px;
+          position: relative;
+          
+          &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: calc(100% + 16px);
             height: 20px;
+            background: radial-gradient(ellipse, rgba(15, 23, 42, 0.8) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            z-index: -1;
           }
         }
-        .mode svg {
-          font-size: 16px;
-          margin-right: 10px;
-        }
-        .mode:hover,
-        .mode svg:hover {
-          background: rgba(30, 58, 138, 0.15);
-          border: 1px solid rgba(96, 165, 250, 0.4);
-          color: #60a5fa;
-          box-shadow: 0 0 12px rgba(96, 165, 250, 0.2);
-          transform: translateY(-1px);
+      }
+      
+      .oauth-methods {
+        display: flex;
+        justify-content: center;
+        
+        .oauth-method {
+          display: flex;
+          align-items: center;
+          padding: 10px 16px;
+          background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.5) 100%);
+          border: 1px solid rgba(71, 85, 105, 0.3);
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+          backdrop-filter: blur(20px);
+          min-width: 140px;
+          max-width: 180px;
+          
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.08), transparent);
+            transition: left 0.5s ease;
+          }
+          
+          .method-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.15) 0%, rgba(67, 56, 202, 0.12) 100%);
+            border-radius: 8px;
+            margin-right: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(96, 165, 250, 0.2);
+            flex-shrink: 0;
+            
+            svg {
+              font-size: 16px;
+              color: #60a5fa;
+              transition: all 0.3s ease;
+            }
+          }
+          
+          .method-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+            
+            .method-title {
+              color: #f1f5f9;
+              font-size: 13px;
+              font-weight: 600;
+              line-height: 1.3;
+              transition: all 0.3s ease;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            
+            .method-desc {
+              color: #94a3b8;
+              font-size: 11px;
+              font-weight: 400;
+              line-height: 1.2;
+              transition: all 0.3s ease;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+          
+          .method-arrow {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            
+            svg {
+              font-size: 12px;
+              color: #64748b;
+              transition: all 0.3s ease;
+            }
+          }
+          
+          &:hover {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(67, 56, 202, 0.25) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 
+              0 4px 16px rgba(96, 165, 250, 0.12),
+              0 0 0 1px rgba(96, 165, 250, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            
+            &::before {
+              left: 100%;
+            }
+            
+            .method-icon {
+              background: linear-gradient(135deg, rgba(96, 165, 250, 0.25) 0%, rgba(67, 56, 202, 0.2) 100%);
+              border: 1px solid rgba(96, 165, 250, 0.4);
+              transform: scale(1.05);
+              
+              svg {
+                color: #93c5fd;
+                transform: scale(1.05);
+              }
+            }
+            
+            .method-content {
+              .method-title {
+                color: #f8fafc;
+              }
+              
+              .method-desc {
+                color: #cbd5e1;
+              }
+            }
+            
+            .method-arrow {
+              transform: translateX(2px);
+              
+              svg {
+                color: #60a5fa;
+              }
+            }
+          }
+          
+          &:active {
+            transform: translateY(0) scale(0.98);
+            transition: all 0.1s ease;
+          }
         }
       }
     }

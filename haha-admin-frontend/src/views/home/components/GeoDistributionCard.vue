@@ -11,11 +11,11 @@
         v-if="!loading && currentData.length > 0"
         :option="option"
         autoresize
-        :style="{ height: '400px', minHeight: '400px' }"
+        :style="{ height: '380px', minHeight: '380px' }"
       ></VCharts>
       <div
         v-else-if="!loading"
-        :style="{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }"
+        :style="{ height: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }"
       >
         暂无数据
       </div>

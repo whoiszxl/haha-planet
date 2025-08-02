@@ -1,44 +1,49 @@
 <template>
   <div id="home" class="gi_page home">
-    <WorkCard />
-
-    <!-- 第一行：访问趋势和快捷操作 -->
     <a-row class="home__content">
-      <a-col :xs="24" :sm="24" :md="24" :lg="12" :xl="18" :xxl="18">
-        <div class="home__item"><AccessTrendCard /></div>
-      </a-col>
-      <a-col :xs="24" :sm="24" :md="24" :lg="12" :xl="6" :xxl="6">
-        <div class="home__item"><FastCard /></div>
+      <a-col :span="24">
+        <div class="home__item home__item--compact"><WorkCard /></div>
       </a-col>
     </a-row>
 
-    <!-- 第二行：地域分布和热门模块 -->
+        
     <a-row class="home__content">
-      <a-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" :xxl="12">
+      <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+        <div class="home__item"><ClientStatsCard /></div>
+      </a-col>
+      <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
+        <div class="home__item"><HourlyActivityCard /></div>
+      </a-col>
+    </a-row>
+
+    <a-row class="home__content">
+      <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
         <div class="home__item"><GeoDistributionCard /></div>
       </a-col>
-      <a-col :xs="24" :sm="24" :md="24" :lg="12" :xl="12" :xxl="12">
+      <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12" :xxl="12">
         <div class="home__item"><PopularModuleCard /></div>
       </a-col>
     </a-row>
 
-    <!-- 第三行：客户端统计、24小时活跃分布和系统性能 -->
     <a-row class="home__content">
-      <a-col :xs="24" :sm="24" :md="24" :lg="8" :xl="8" :xxl="8">
-        <div class="home__item"><ClientStatsCard /></div>
-      </a-col>
-      <a-col :xs="24" :sm="24" :md="24" :lg="8" :xl="8" :xxl="8">
-        <div class="home__item"><HourlyActivityCard /></div>
-      </a-col>
-      <a-col :xs="24" :sm="24" :md="24" :lg="8" :xl="8" :xxl="8">
-        <div class="home__item"><PerformanceCard /></div>
+      <a-col :span="24">
+        <div class="home__item"><AccessTrendCard /></div>
       </a-col>
     </a-row>
 
-    <!-- 第四行：最近活跃用户 -->
+
+
+
+
+
+
     <a-row class="home__content">
-      <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" :xxl="24">
+      <a-col :span="12">
         <div class="home__item"><RecentUsersCard /></div>
+      </a-col>
+
+      <a-col :span="12">
+        <div class="home__item"><PerformanceCard /></div>
       </a-col>
     </a-row>
 
@@ -49,7 +54,6 @@
 <script setup lang="ts">
 import WorkCard from './components/WorkCard.vue'
 import AccessTrendCard from './components/AccessTrendCard.vue'
-import FastCard from './components/FastCard.vue'
 import GeoDistributionCard from './components/GeoDistributionCard.vue'
 import PopularModuleCard from './components/PopularModuleCard.vue'
 import ClientStatsCard from './components/ClientStatsCard.vue'
@@ -72,11 +76,24 @@ defineOptions({ name: 'Home' })
     }
   }
   &__content {
-    padding: 6px;
+    padding: 4px;
+    margin-bottom: 8px;
   }
   &__item {
     padding: 6px;
     box-sizing: border-box;
+    
+    &--compact {
+      padding: 4px;
+      
+      :deep(.arco-card) {
+        margin-bottom: 0;
+      }
+      
+      :deep(.arco-card-body) {
+        padding: 16px 20px;
+      }
+    }
   }
   .backtop-icon {
     cursor: pointer;

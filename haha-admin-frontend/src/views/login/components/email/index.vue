@@ -6,6 +6,7 @@
     :label-col-style="{ display: 'none' }"
     :wrapper-col-style="{ flex: 1 }"
     size="large"
+    class="compact-form"
     @submit="handleLogin"
   >
     <a-form-item field="email" hide-label>
@@ -122,6 +123,16 @@ const onCaptcha = async () => {
 </script>
 
 <style lang="scss" scoped>
+.compact-form {
+  :deep(.arco-form-item) {
+    margin-bottom: 16px;
+    
+    &:last-child {
+      margin-bottom: 0;
+      margin-top: 20px;
+    }
+  }
+}
 .arco-input-wrapper,
 :deep(.arco-select-view-single) {
   height: 40px;

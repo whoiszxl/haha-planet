@@ -5,11 +5,11 @@
         v-if="!loading && moduleData.length > 0"
         :option="option"
         autoresize
-        :style="{ height: '350px', minHeight: '350px' }"
+        :style="{ height: '380px', minHeight: '380px' }"
       ></VCharts>
       <div
         v-else-if="!loading"
-        :style="{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }"
+        :style="{ height: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }"
       >
         暂无数据
       </div>

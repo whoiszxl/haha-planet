@@ -388,13 +388,13 @@ haha:
       secret-length: 20
 
       # 验证码有效期（秒）
-      period: 60
+      period: 30
 
       # 验证码位数
       digits: 6
 
       # 时间窗口容差
-      window-size: 1
+      window-size: 3
 
       # 二维码配置
       qr-code:
@@ -424,7 +424,7 @@ haha:
         used-code-expire-time: PT5M  # 5分钟
 
         # 最大验证失败次数
-        max-failure-count: 5
+        max-failure-count: 3
 
         # 验证失败锁定时间
         lockout-duration: PT15M  # 15分钟

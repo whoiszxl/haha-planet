@@ -6,6 +6,7 @@
     :label-col-style="{ display: 'none' }"
     :wrapper-col-style="{ flex: 1 }"
     size="large"
+    class="compact-form"
     @submit="handleLogin"
   >
     <a-form-item field="username" hide-label>
@@ -210,6 +211,26 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss" scoped>
+.compact-form {
+  :deep(.arco-form-item) {
+    margin-bottom: 16px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  // 记住我和忘记密码行的特殊处理
+  :deep(.arco-form-item:nth-last-child(2)) {
+    margin-bottom: 12px;
+  }
+  
+  // 登录按钮行
+  :deep(.arco-form-item:last-child) {
+    margin-bottom: 0;
+    margin-top: 20px;
+  }
+}
 .arco-input-wrapper,
 :deep(.arco-select-view-single) {
   height: 40px;

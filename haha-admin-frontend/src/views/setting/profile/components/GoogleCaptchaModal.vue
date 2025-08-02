@@ -31,19 +31,15 @@
             </ol>
             <div class="secret-key">
               <p>如果无法扫描，请手动输入密钥：</p>
-              <a-input-group compact>
-                <a-input
-                  :value="secretKey"
-                  readonly
-                  class="secret-input"
-                />
-                <a-button @click="copySecretKey">
+              <div class="secret-display">
+                <span class="secret-text">{{ secretKey }}</span>
+                <a-button @click="copySecretKey" size="small">
                   <template #icon>
                     <icon-copy />
                   </template>
                   复制
                 </a-button>
-              </a-input-group>
+              </div>
             </div>
           </div>
         </div>
@@ -69,10 +65,6 @@
             @input="onCodeInput"
             @keyup.enter="verifyCode.length === 6 && handleVerify()"
           />
-          <!-- 调试信息 -->
-          <div style="margin-top: 10px; font-size: 12px; color: #666;">
-            当前输入: {{ verifyCode }} | 长度: {{ verifyCode.length }} | 有效: {{ isCodeValid }}
-          </div>
           <div class="step-actions">
             <a-button @click="prevStep">上一步</a-button>
             <a-button
@@ -82,10 +74,6 @@
               :disabled="verifyCode.length !== 6"
             >
               验证并绑定
-            </a-button>
-            <!-- 测试按钮 -->
-            <a-button @click="testButton" type="outline">
-              测试按钮
             </a-button>
           </div>
         </div>
@@ -125,7 +113,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Message } from '@arco-design/web-vue'
 import { generateGoogleCaptcha, validateGoogleCaptcha } from '@/apis'
 
@@ -189,22 +177,10 @@ const prevStep = () => {
 
 // 输入监听函数
 const onCodeInput = (value: string) => {
-  console.log('输入事件:', value, '长度:', value.length)
   verifyCode.value = value
-  // 强制触发响应式更新
-  nextTick(() => {
-    console.log('更新后的值:', verifyCode.value, '长度:', verifyCode.value.length)
-  })
 }
 
-// 测试按钮
-const testButton = () => {
-  console.log('测试按钮被点击')
-  console.log('当前验证码:', verifyCode.value)
-  console.log('验证码长度:', verifyCode.value.length)
-  console.log('按钮是否应该被禁用:', verifyCode.value.length !== 6)
-  Message.info(`当前验证码: ${verifyCode.value}, 长度: ${verifyCode.value.length}`)
-}
+
 
 // 验证码验证
 const handleVerify = async () => {
@@ -215,36 +191,24 @@ const handleVerify = async () => {
 
   verifying.value = true
   try {
-    console.log('开始验证验证码:', verifyCode.value)
     const response = await validateGoogleCaptcha({ code: verifyCode.value })
-    console.log('完整响应:', response)
     const { data } = response
-    console.log('验证结果:', data)
     
     if (data.valid) {
       Message.success('验证成功！')
       nextStep()
     } else {
       const errorMsg = data.message || '验证失败，请检查验证码是否正确'
-      console.error('验证失败:', errorMsg)
       Message.error(errorMsg)
     }
   } catch (error: any) {
-    console.error('验证请求失败:', error)
-    
     let errorMessage = '验证失败，请重试'
     
     if (error.response) {
-      // 服务器响应错误
-      console.error('服务器响应错误:', error.response.data)
       errorMessage = error.response.data?.message || error.response.data || '服务器错误'
     } else if (error.request) {
-      // 网络请求错误
-      console.error('网络请求错误:', error.request)
       errorMessage = '网络连接失败，请检查网络连接'
     } else {
-      // 其他错误
-      console.error('其他错误:', error.message)
       errorMessage = error.message || '未知错误'
     }
     
@@ -360,9 +324,25 @@ watch(verifyCode, (newVal) => {
           font-size: 14px;
         }
 
-        .secret-input {
-          font-family: 'Courier New', monospace;
-          font-size: 12px;
+        .secret-display {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          background-color: var(--color-fill-2);
+          border: 1px solid var(--color-border-2);
+          border-radius: 6px;
+          
+          .secret-text {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text-1);
+            letter-spacing: 1px;
+            word-break: break-all;
+            user-select: all;
+          }
         }
       }
     }
