@@ -1,0 +1,72 @@
+{
+  "properties": [
+    {
+      "name": "haha.storage.s3.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否启用S3存储服务",
+      "defaultValue": true
+    },
+    {
+      "name": "haha.storage.s3.access-key",
+      "type": "java.lang.String",
+      "description": "S3访问密钥ID"
+    },
+    {
+      "name": "haha.storage.s3.secret-key",
+      "type": "java.lang.String",
+      "description": "S3秘密访问密钥"
+    },
+    {
+      "name": "haha.storage.s3.region",
+      "type": "java.lang.String",
+      "description": "S3区域",
+      "defaultValue": "us-east-1"
+    },
+    {
+      "name": "haha.storage.s3.endpoint",
+      "type": "java.lang.String",
+      "description": "S3端点URL（用于兼容S3的服务）"
+    },
+    {
+      "name": "haha.storage.s3.default-bucket",
+      "type": "java.lang.String",
+      "description": "默认存储桶名称"
+    },
+    {
+      "name": "haha.storage.s3.path-style-access",
+      "type": "java.lang.Boolean",
+      "description": "是否启用路径样式访问",
+      "defaultValue": false
+    },
+    {
+      "name": "haha.storage.s3.connection-timeout",
+      "type": "java.lang.Integer",
+      "description": "连接超时时间（毫秒）",
+      "defaultValue": 10000
+    },
+    {
+      "name": "haha.storage.s3.socket-timeout",
+      "type": "java.lang.Integer",
+      "description": "读取超时时间（毫秒）",
+      "defaultValue": 50000
+    },
+    {
+      "name": "haha.storage.s3.max-connections",
+      "type": "java.lang.Integer",
+      "description": "最大连接数",
+      "defaultValue": 50
+    },
+    {
+      "name": "haha.storage.s3.use-ssl",
+      "type": "java.lang.Boolean",
+      "description": "是否启用SSL",
+      "defaultValue": true
+    },
+    {
+      "name": "haha.storage.s3.default-presigned-url-expiration",
+      "type": "java.lang.Long",
+      "description": "预签名URL默认过期时间（秒）",
+      "defaultValue": 3600
+    }
+  ]
+}

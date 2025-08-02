@@ -27,6 +27,7 @@
         <module>haha-starter-messaging</module>
         <module>haha-starter-security</module>
         <module>haha-starter-log</module>
+        <module>haha-starter-storage</module>
     </modules>
 
     <properties>

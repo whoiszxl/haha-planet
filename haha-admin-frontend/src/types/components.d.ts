@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Breadcrumb: typeof import('./../components/Breadcrumb/index.vue')['default']
+    CachedAvatar: typeof import('./../components/CachedAvatar.vue')['default']
     DateRangePicker: typeof import('./../components/DateRangePicker/index.vue')['default']
     GiCellAvatar: typeof import('./../components/GiCell/GiCellAvatar.vue')['default']
     GiCellGender: typeof import('./../components/GiCell/GiCellGender.vue')['default']

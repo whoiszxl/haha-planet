@@ -256,5 +256,12 @@ public class AdminServiceImpl extends BaseServiceImpl<AdminMapper, Admin, AdminD
         return null != count && count > 0;
     }
 
+    @Override
+    public void updateAvatar(Long userId, String avatarUrl) {
+        Admin admin = new Admin();
+        admin.setId(userId);
+        admin.setAvatar(avatarUrl);
+        updateById(admin);
+    }
 
 }

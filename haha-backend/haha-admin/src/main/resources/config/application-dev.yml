@@ -274,20 +274,6 @@ spring.servlet:
 avatar:
   support-suffix: jpg,jpeg,png,gif
 
---- ### AI生成接口配置
-ai:
-  generate:
-    # 超时时间，默认60秒
-    timeout: 60000
-    thread:
-      # 核心线程数
-      core-size: 20
-      # 最大线程数
-      max-size: 200
-      # 队列容量
-      queue-capacity: 1024
-
-
 # Redisson配置示例
 haha:
   cache:
@@ -446,3 +432,25 @@ logging:
   level:
     com.whoiszxl.captcha.google: DEBUG
     org.springframework.security: DEBUG
+
+
+--- # 文件上传服务
+haha:
+  storage:
+    s3:
+      enabled: true
+      access-key: vDbW384BwOIrKPFdqJmx
+      secret-key: AgjQnzOPEiyWoSC1M7D30YFwtm5aRs8Nuf4BUIdk
+      region: us-east-1
+      endpoint: http://117.72.102.228:9000
+      default-bucket: haha
+      path-style-access: false
+      connection-timeout: 10000
+      socket-timeout: 50000
+      max-connections: 50
+      # 预签名URL默认过期时间（小时）
+      default-presigned-expiration: 1
+      # 是否启用URL签名
+      enable-url-signing: true
+      # 公共读取权限（如果为true，则不需要预签名URL）
+      public-read: false

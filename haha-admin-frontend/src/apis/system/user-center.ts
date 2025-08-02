@@ -28,4 +28,11 @@ export function updateUserEmail(data: { email: string, captcha: string, oldPassw
   return http.patch(`${BASE_URL}/email`, data)
 }
 
+/** @desc 获取头像预签名URL */
+export function getAvatarPresignedUrl(avatarKey: string) {
+  return http.post(`${BASE_URL}/avatar/presigned-url`, {
+    avatarKey
+  })
+}
+
 

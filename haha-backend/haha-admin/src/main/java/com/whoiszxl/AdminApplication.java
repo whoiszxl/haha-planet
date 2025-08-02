@@ -51,7 +51,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.whoiszxl")
 @RequiredArgsConstructor
 @EnableCrudRestController
 @EnableGlobalExceptionHandler

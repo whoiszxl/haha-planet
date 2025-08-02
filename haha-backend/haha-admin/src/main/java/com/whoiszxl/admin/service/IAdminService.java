@@ -110,4 +110,12 @@ public interface IAdminService extends BaseService<AdminDetailResponse, AdminDet
      * @return 是否过期
      */
     Boolean isPasswordExpired(LocalDateTime pwdResetTime);
+
+    /**
+     * 更新用户头像
+     *
+     * @param userId 用户ID
+     * @param avatarUrl 头像URL
+     */
+    void updateAvatar(Long userId, String avatarUrl);
 }
