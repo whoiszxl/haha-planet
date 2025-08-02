@@ -175,11 +175,12 @@ onBeforeMount(() => {
     padding: 30px 30px 0;
     box-sizing: border-box;
     &__title {
-      color: var(--color-text-1);
-      font-weight: 500;
+      color: #f1f5f9;
+      font-weight: 600;
       font-size: 20px;
       line-height: 32px;
       margin-bottom: 20px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
     &__form {
       :deep(.arco-tabs-nav-tab) {
@@ -219,7 +220,7 @@ onBeforeMount(() => {
       // margin-top: auto;
       // margin-bottom: 20px;
       :deep(.arco-divider-text) {
-        color: var(--color-text-4);
+        color: #64748b;
         font-size: 12px;
         font-weight: 400;
         line-height: 20px;
@@ -233,19 +234,22 @@ onBeforeMount(() => {
           margin-right: 15px;
         }
         .mode {
-          color: var(--color-text-2);
+          color: #94a3b8;
           font-size: 12px;
           font-weight: 400;
           line-height: 20px;
           padding: 6px 10px;
           align-items: center;
-          border: 1px solid var(--color-border-3);
+          border: 1px solid rgba(71, 85, 105, 0.3);
           border-radius: 32px;
           box-sizing: border-box;
           display: flex;
           height: 32px;
           justify-content: center;
           cursor: pointer;
+          background: rgba(30, 41, 59, 0.2);
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
           .icon {
             width: 21px;
             height: 20px;
@@ -257,9 +261,11 @@ onBeforeMount(() => {
         }
         .mode:hover,
         .mode svg:hover {
-          background: rgba(var(--primary-6), 0.05);
-          border: 1px solid rgb(var(--primary-3));
-          color: rgb(var(--arcoblue-6));
+          background: rgba(30, 58, 138, 0.15);
+          border: 1px solid rgba(96, 165, 250, 0.4);
+          color: #60a5fa;
+          box-shadow: 0 0 12px rgba(96, 165, 250, 0.2);
+          transform: translateY(-1px);
         }
       }
     }
@@ -309,14 +315,20 @@ onBeforeMount(() => {
       top: 20px;
       left: 30px;
       z-index: 9999;
-      color: var(--color-text-1);
-      font-weight: 500;
+      color: #f1f5f9;
+      font-weight: 600;
       font-size: 20px;
       line-height: 32px;
       margin-bottom: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      background: rgba(15, 23, 42, 0.3);
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(71, 85, 105, 0.2);
       img {
         width: 34px;
         height: 34px;
@@ -329,7 +341,10 @@ onBeforeMount(() => {
       height: 490px;
       display: flex;
       z-index: 999;
-      box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(71, 85, 105, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
     }
   }
 
@@ -341,7 +356,20 @@ onBeforeMount(() => {
     align-items: center;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(60deg, rgb(var(--primary-6)), rgb(var(--primary-4)));
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #1e293b 75%, #0f172a 100%);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 30% 70%, rgba(30, 58, 138, 0.1) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 30%, rgba(67, 56, 202, 0.08) 0%, transparent 50%);
+      z-index: 1;
+    }
+    
     &__img {
       width: 100%;
       position: absolute;
@@ -352,23 +380,43 @@ onBeforeMount(() => {
       transform: translateX(-50%) translateY(-50%);
       transition: all 0.3s;
       object-fit: cover;
+      z-index: 2;
+      opacity: 0.9;
+      filter: brightness(1.1) contrast(1.05);
     }
   }
 
   .login-right {
     width: 100%;
     height: 100%;
-    background: var(--color-bg-1);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(71, 85, 105, 0.2);
     display: flex;
     flex-direction: column;
     padding: 30px 30px 0;
     box-sizing: border-box;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.1) 0%, rgba(15, 23, 42, 0.05) 100%);
+      pointer-events: none;
+    }
     &__title {
-      color: var(--color-text-1);
-      font-weight: 500;
+      color: #f1f5f9;
+      font-weight: 600;
       font-size: 20px;
       line-height: 32px;
       margin-bottom: 20px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
     }
     &__form {
       :deep(.arco-tabs-nav-tab) {
@@ -377,7 +425,8 @@ onBeforeMount(() => {
         align-items: center;
       }
       :deep(.arco-tabs-tab) {
-        color: var(--color-text-2);
+        color: #94a3b8;
+        transition: all 0.3s ease;
       }
       :deep(.arco-tabs-tab-title) {
         font-size: 16px;
@@ -389,7 +438,8 @@ onBeforeMount(() => {
       }
       :deep(.arco-tabs-tab-active),
       :deep(.arco-tabs-tab-title:hover) {
-        color: rgb(var(--arcoblue-6));
+        color: #60a5fa;
+        text-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
       }
       :deep(.arco-tabs-nav::before) {
         display: none;
@@ -402,7 +452,7 @@ onBeforeMount(() => {
       margin-top: auto;
       margin-bottom: 20px;
       :deep(.arco-divider-text) {
-        color: var(--color-text-4);
+        color: #64748b;
         font-size: 12px;
         font-weight: 400;
         line-height: 20px;
@@ -416,19 +466,22 @@ onBeforeMount(() => {
           margin-right: 15px;
         }
         .mode {
-          color: var(--color-text-2);
+          color: #94a3b8;
           font-size: 12px;
           font-weight: 400;
           line-height: 20px;
           padding: 6px 10px;
           align-items: center;
-          border: 1px solid var(--color-border-3);
+          border: 1px solid rgba(71, 85, 105, 0.3);
           border-radius: 32px;
           box-sizing: border-box;
           display: flex;
           height: 32px;
           justify-content: center;
           cursor: pointer;
+          background: rgba(30, 41, 59, 0.2);
+          backdrop-filter: blur(10px);
+          transition: all 0.3s ease;
           .icon {
             width: 21px;
             height: 20px;
@@ -440,9 +493,11 @@ onBeforeMount(() => {
         }
         .mode:hover,
         .mode svg:hover {
-          background: rgba(var(--primary-6), 0.05);
-          border: 1px solid rgb(var(--primary-3));
-          color: rgb(var(--arcoblue-6));
+          background: rgba(30, 58, 138, 0.15);
+          border: 1px solid rgba(96, 165, 250, 0.4);
+          color: #60a5fa;
+          box-shadow: 0 0 12px rgba(96, 165, 250, 0.2);
+          transform: translateY(-1px);
         }
       }
     }

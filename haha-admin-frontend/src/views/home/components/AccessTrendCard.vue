@@ -2,21 +2,35 @@
   <a-spin :loading="loading" style="width: 100%">
     <a-card title="访问趋势" :bordered="false" class="gi_card_title">
       <template #extra>
-        <a-radio-group v-model:model-value="dateRange" type="button" size="small" @change="onChange">
+        <a-radio-group v-model="dateRange" type="button" size="small" @change="onChange">
           <a-radio :value="7">近7天</a-radio>
           <a-radio :value="30">近30天</a-radio>
         </a-radio-group>
       </template>
-      <VCharts :option="option" autoresize :style="{ height: '326px' }"></VCharts>
+      <VCharts
+        v-if="!loading && (pvStatisticsData.length > 0 || ipStatisticsData.length > 0)"
+        :option="option"
+        autoresize
+        :style="{ height: '326px', minHeight: '326px' }"
+      ></VCharts>
+      <div 
+        v-else-if="!loading"
+        :style="{ height: '326px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }"
+      >
+        暂无数据
+      </div>
     </a-card>
   </a-spin>
 </template>
 
 <script lang="ts" setup>
+import { nextTick, onMounted, ref } from 'vue'
 import VCharts from 'vue-echarts'
 import { graphic } from 'echarts'
 import { type DashboardAccessTrendResp, listDashboardAccessTrend } from '@/apis'
 import { useChart } from '@/hooks'
+
+defineOptions({ name: 'AccessTrendCard' })
 
 // 提示框
 const tooltipItemsHtmlString = (items) => {
@@ -198,11 +212,18 @@ const getChartData = async (days: number) => {
     pvStatisticsData.value = []
     ipStatisticsData.value = []
     const { data: chartData } = await listDashboardAccessTrend(days)
-    chartData.forEach((el: DashboardAccessTrendResp) => {
-      xData.value.unshift(el.date)
-      pvStatisticsData.value.unshift(el.pvCount)
-      ipStatisticsData.value.unshift(el.ipCount)
-    })
+    if (Array.isArray(chartData)) {
+      chartData.forEach((el: DashboardAccessTrendResp) => {
+        if (el && typeof el === 'object') {
+          xData.value.unshift(el.date || '')
+          pvStatisticsData.value.unshift(el.pvCount || 0)
+          ipStatisticsData.value.unshift(el.ipCount || 0)
+        }
+      })
+    }
+  } catch (error) {
+    console.error('获取访问趋势数据失败:', error)
+    // 保持空数组
   } finally {
     loading.value = false
   }
@@ -213,7 +234,8 @@ const onChange = (days: number) => {
   getChartData(days)
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
   getChartData(30)
 })
 </script>

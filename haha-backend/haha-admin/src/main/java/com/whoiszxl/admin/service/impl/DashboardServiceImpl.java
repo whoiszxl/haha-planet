@@ -2,16 +2,15 @@ package com.whoiszxl.admin.service.impl;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.NumberUtil;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardAccessTrendResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardGeoDistributionResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardPopularModuleResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardTotalResp;
+import com.whoiszxl.admin.cqrs.response.dashboard.*;
+import com.whoiszxl.admin.cqrs.response.dashboard.DashboardClientStatsResp.ClientStatItem;
 import com.whoiszxl.admin.service.DashboardService;
 import com.whoiszxl.admin.service.IAdminLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,10 +27,10 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     public DashboardTotalResp getTotal() {
         DashboardTotalResp totalResp = logService.getDashboardTotal();
-        Long todayPvCount = totalResp.getTodayPvCount();
-        Long yesterdayPvCount = totalResp.getYesterdayPvCount();
+        Long todayPvCount = totalResp.getTodayPvCount() != null ? totalResp.getTodayPvCount() : 0L;
+        Long yesterdayPvCount = totalResp.getYesterdayPvCount() != null ? totalResp.getYesterdayPvCount() : 0L;
         BigDecimal newPvCountFromYesterday = NumberUtil.sub(todayPvCount, yesterdayPvCount);
-        BigDecimal newPvFromYesterday = (0 == yesterdayPvCount)
+        BigDecimal newPvFromYesterday = (yesterdayPvCount == null || yesterdayPvCount == 0)
             ? BigDecimal.valueOf(100)
             : NumberUtil.round(NumberUtil.mul(NumberUtil.div(newPvCountFromYesterday, yesterdayPvCount), 100), 1);
         totalResp.setNewPvFromYesterday(newPvFromYesterday);
@@ -47,10 +46,10 @@ public class DashboardServiceImpl implements DashboardService {
     public List<DashboardPopularModuleResp> listPopularModule() {
         List<DashboardPopularModuleResp> popularModuleList = logService.listDashboardPopularModule();
         for (DashboardPopularModuleResp popularModule : popularModuleList) {
-            Long todayPvCount = popularModule.getTodayPvCount();
-            Long yesterdayPvCount = popularModule.getYesterdayPvCount();
+            Long todayPvCount = popularModule.getTodayPvCount() != null ? popularModule.getTodayPvCount() : 0L;
+            Long yesterdayPvCount = popularModule.getYesterdayPvCount() != null ? popularModule.getYesterdayPvCount() : 0L;
             BigDecimal newPvCountFromYesterday = NumberUtil.sub(todayPvCount, yesterdayPvCount);
-            BigDecimal newPvFromYesterday = (0 == yesterdayPvCount)
+            BigDecimal newPvFromYesterday = (yesterdayPvCount == null || yesterdayPvCount == 0)
                 ? BigDecimal.valueOf(100)
                 : NumberUtil.round(NumberUtil.mul(NumberUtil.div(newPvCountFromYesterday, yesterdayPvCount), 100), 1);
             popularModule.setNewPvFromYesterday(newPvFromYesterday);
@@ -65,5 +64,49 @@ public class DashboardServiceImpl implements DashboardService {
         geoDistribution.setLocationIpStatistics(locationIpStatistics);
         geoDistribution.setLocations(locationIpStatistics.stream().map(m -> Convert.toStr(m.get("name"))).toList());
         return geoDistribution;
+    }
+
+    @Override
+    public DashboardPerformanceResp getPerformance() {
+        return logService.getDashboardPerformance();
+    }
+
+    @Override
+    public List<DashboardHourlyActivityResp> listHourlyActivity() {
+        return logService.listDashboardHourlyActivity();
+    }
+
+    @Override
+    public DashboardClientStatsResp getClientStats() {
+        List<Map<String, Object>> clientStats = logService.listDashboardClientStats();
+        
+        DashboardClientStatsResp result = new DashboardClientStatsResp();
+        List<ClientStatItem> browsers = new ArrayList<>();
+        List<ClientStatItem> operatingSystems = new ArrayList<>();
+        
+        for (Map<String, Object> stat : clientStats) {
+            String type = Convert.toStr(stat.get("type"));
+            String name = Convert.toStr(stat.get("name"));
+            Long value = Convert.toLong(stat.get("value"));
+            
+            ClientStatItem item = new ClientStatItem();
+            item.setName(name);
+            item.setValue(value);
+            
+            if ("browsers".equals(type)) {
+                browsers.add(item);
+            } else if ("os".equals(type)) {
+                operatingSystems.add(item);
+            }
+        }
+        
+        result.setBrowsers(browsers);
+        result.setOperatingSystems(operatingSystems);
+        return result;
+    }
+
+    @Override
+    public List<DashboardRecentUsersResp> listRecentUsers() {
+        return logService.listDashboardRecentUsers();
     }
 }

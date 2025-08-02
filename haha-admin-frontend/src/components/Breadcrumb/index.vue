@@ -13,6 +13,8 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { RouteLocationMatched } from 'vue-router'
 import { findTree } from 'xe-utils'
 import { useRouteStore } from '@/stores'

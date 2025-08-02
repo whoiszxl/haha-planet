@@ -127,23 +127,40 @@ const onCaptcha = async () => {
   height: 40px;
   border-radius: 4px;
   font-size: 13px;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  transition: all 0.3s ease;
+}
+
+.arco-input-wrapper:hover {
+  border-color: rgba(96, 165, 250, 0.5);
+  background-color: rgba(30, 41, 59, 0.9);
+}
+
+.arco-input-wrapper:focus-within {
+  border-color: #60a5fa;
+  background-color: rgba(30, 41, 59, 0.95);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
 }
 
 .arco-input-wrapper.arco-input-error {
-  background-color: rgb(var(--danger-1));
-  border-color: rgb(var(--danger-3));
+  background-color: rgba(127, 29, 29, 0.8);
+  border-color: rgba(239, 68, 68, 0.5);
 }
+
 .arco-input-wrapper.arco-input-error:hover {
-  background-color: rgb(var(--danger-1));
-  border-color: rgb(var(--danger-6));
+  background-color: rgba(127, 29, 29, 0.9);
+  border-color: rgba(239, 68, 68, 0.7);
 }
 
 .arco-input-wrapper :deep(.arco-input) {
   font-size: 13px;
-  color: var(--color-text-1);
+  color: #f1f5f9;
+  background-color: transparent;
 }
-.arco-input-wrapper:hover {
-  border-color: rgb(var(--arcoblue-6));
+
+.arco-input-wrapper :deep(.arco-input::placeholder) {
+  color: #94a3b8;
 }
 
 .captcha-btn {
@@ -151,9 +168,48 @@ const onCaptcha = async () => {
   margin-left: 12px;
   min-width: 98px;
   border-radius: 4px;
+  background: rgba(30, 58, 138, 0.8);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  color: #f1f5f9;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.captcha-btn:hover:not(:disabled) {
+  background: rgba(30, 58, 138, 0.9);
+  border-color: rgba(96, 165, 250, 0.6);
+  box-shadow: 0 0 12px rgba(96, 165, 250, 0.2);
+  transform: translateY(-1px);
+}
+
+.captcha-btn:disabled {
+  background: rgba(71, 85, 105, 0.5);
+  border-color: rgba(71, 85, 105, 0.3);
+  color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .btn {
   height: 40px;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(67, 56, 202, 0.8));
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  color: #f1f5f9;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 1), rgba(67, 56, 202, 0.9));
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  background: rgba(71, 85, 105, 0.5);
+  border-color: rgba(71, 85, 105, 0.3);
+  color: #64748b;
+  cursor: not-allowed;
 }
 </style>

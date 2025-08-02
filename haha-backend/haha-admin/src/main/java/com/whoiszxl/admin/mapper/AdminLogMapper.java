@@ -5,9 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.whoiszxl.admin.cqrs.command.LogResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardAccessTrendResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardPopularModuleResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardTotalResp;
+import com.whoiszxl.admin.cqrs.response.dashboard.*;
 import com.whoiszxl.admin.entity.AdminLog;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -85,7 +83,7 @@ public interface AdminLogMapper extends BaseMapper<AdminLog> {
                 COUNT(*) AS pvCount,
                 COUNT(DISTINCT ip) AS ipCount
             FROM sys_admin_log
-            WHERE DATE(created_at) != CURRENT_DATE
+            WHERE created_at < CURRENT_DATE
             GROUP BY DATE(created_at)
             ORDER BY DATE(created_at) DESC
             LIMIT #{days}
@@ -101,8 +99,14 @@ public interface AdminLogMapper extends BaseMapper<AdminLog> {
         SELECT
             module,
             COUNT(*) AS pvCount,
-            SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 ELSE 0 END) AS todayPvCount,
-            SUM(CASE WHEN DATE(created_at) = CURRENT_DATE - 1 THEN 1 ELSE 0 END) AS yesterdayPvCount
+            CASE 
+                WHEN SUM(CASE WHEN DATE(created_at) = CURRENT_DATE - 1 THEN 1 ELSE 0 END) = 0 THEN 0
+                ELSE ROUND(
+                    (SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 ELSE 0 END) - 
+                     SUM(CASE WHEN DATE(created_at) = CURRENT_DATE - 1 THEN 1 ELSE 0 END)) * 100.0 / 
+                    SUM(CASE WHEN DATE(created_at) = CURRENT_DATE - 1 THEN 1 ELSE 0 END), 1
+                )
+            END AS newPvFromYesterday
         FROM sys_admin_log
         WHERE module != '验证码' AND module != '登录'
         GROUP BY module
@@ -118,15 +122,91 @@ public interface AdminLogMapper extends BaseMapper<AdminLog> {
      */
     @Select("""
     SELECT
-        CASE
-            WHEN POSITION(' ' IN ip_address) > 0 THEN SUBSTRING(ip_address FROM 1 FOR POSITION(' ' IN ip_address) - 1)
-            ELSE ip_address
-        END AS name,
-        COUNT(DISTINCT ip) AS value
+        ip_address AS name,
+        COUNT(*) AS value
     FROM sys_admin_log
-    GROUP BY name
+    WHERE ip_address IS NOT NULL AND ip_address != ''
+    GROUP BY ip_address
     ORDER BY value DESC
     LIMIT 10
     """)
     List<Map<String, Object>> selectListDashboardGeoDistribution();
+
+    /**
+     * 查询仪表盘系统性能指标
+     *
+     * @return 仪表盘系统性能指标
+     */
+    @Select("""
+    SELECT
+        ROUND(AVG(consuming_time), 2) AS avgResponseTime,
+        COUNT(CASE WHEN consuming_time > 1000 THEN 1 END) AS slowRequestCount,
+        ROUND(COUNT(CASE WHEN status_code >= 400 THEN 1 END) * 100.0 / COUNT(*), 2) AS errorRate,
+        COUNT(*) AS totalRequests
+    FROM sys_admin_log
+    WHERE DATE(created_at) >= CURRENT_DATE - INTERVAL 7 DAY
+    """)
+    DashboardPerformanceResp selectDashboardPerformance();
+
+    /**
+     * 查询仪表盘24小时活跃分布
+     *
+     * @return 仪表盘24小时活跃分布
+     */
+    @Select("""
+    SELECT
+        HOUR(created_at) AS hour,
+        COUNT(*) AS count
+    FROM sys_admin_log
+    WHERE DATE(created_at) >= CURRENT_DATE - INTERVAL 7 DAY
+    GROUP BY HOUR(created_at)
+    ORDER BY hour
+    """)
+    List<DashboardHourlyActivityResp> selectListDashboardHourlyActivity();
+
+    /**
+     * 查询仪表盘客户端统计信息
+     *
+     * @return 仪表盘客户端统计信息
+     */
+    @Select("""
+    SELECT
+        'browsers' AS type,
+        browser AS name,
+        COUNT(*) AS value
+    FROM sys_admin_log
+    WHERE DATE(created_at) >= CURRENT_DATE - INTERVAL 7 DAY
+    GROUP BY browser
+    UNION ALL
+    SELECT
+        'os' AS type,
+        os AS name,
+        COUNT(*) AS value
+    FROM sys_admin_log
+    WHERE DATE(created_at) >= CURRENT_DATE - INTERVAL 7 DAY
+    GROUP BY os
+    ORDER BY type, value DESC
+    """)
+    List<Map<String, Object>> selectListDashboardClientStats();
+
+    /**
+     * 查询仪表盘最近活跃用户
+     *
+     * @return 仪表盘最近活跃用户
+     */
+    @Select("""
+    SELECT
+        t2.nickname,
+        MAX(t1.created_at) AS lastAccessTime,
+        COUNT(*) AS accessCount,
+        t1.ip_address AS ipAddress
+    FROM sys_admin_log t1
+    LEFT JOIN sys_admin t2 ON t2.id = t1.created_by
+    WHERE t1.created_by IS NOT NULL
+      AND DATE(t1.created_at) >= CURRENT_DATE - INTERVAL 7 DAY
+    GROUP BY t1.created_by, t1.ip_address
+    ORDER BY lastAccessTime DESC
+    LIMIT 10
+    """)
+    List<DashboardRecentUsersResp> selectListDashboardRecentUsers();
 }

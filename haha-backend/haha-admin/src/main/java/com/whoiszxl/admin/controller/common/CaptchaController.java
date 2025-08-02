@@ -1,5 +1,6 @@
 package com.whoiszxl.admin.controller.common;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.stp.StpUtil;
 import com.whoiszxl.admin.cqrs.response.CaptchaResponse;
@@ -52,6 +53,7 @@ public class CaptchaController {
     }
 
     @Log(ignore = true)
+    @SaCheckLogin
     @GetMapping("/google")
     @Operation(summary = "生成Google验证码", description = "为当前用户生成Google验证码密钥和二维码")
     public R<Object> generateGoogleCaptcha() {
@@ -72,6 +74,7 @@ public class CaptchaController {
     }
 
     @Log(ignore = true)
+    @SaCheckLogin
     @PostMapping("/google/validate")
     @Operation(summary = "验证Google验证码", description = "验证当前用户输入的Google验证码")
     public R<Object> validateGoogleCaptcha(
@@ -96,6 +99,7 @@ public class CaptchaController {
     }
 
     @Log(ignore = true)
+    @SaCheckLogin
     @GetMapping("/google/status")
     @Operation(summary = "检查Google验证码绑定状态", description = "检查当前用户是否已绑定Google验证器")
     public R<Object> checkGoogleCaptchaStatus() {
@@ -117,6 +121,7 @@ public class CaptchaController {
     }
 
     @Log(ignore = true)
+    @SaCheckLogin
     @GetMapping("/google/status/public")
     @Operation(summary = "公开检查Google验证码绑定状态", description = "通过用户名检查用户是否已绑定Google验证器（登录前使用）")
     public R<Object> checkGoogleCaptchaStatusByUsername(
@@ -139,6 +144,7 @@ public class CaptchaController {
     }
 
     @Log(ignore = true)
+    @SaCheckLogin
     @PostMapping("/google/backup-codes")
     @Operation(summary = "生成备用恢复码", description = "为当前用户生成备用恢复码")
     public R<Object> generateBackupCodes(
@@ -162,6 +168,7 @@ public class CaptchaController {
     }
 
     @Log(ignore = true)
+    @SaCheckLogin
     @PostMapping("/google/backup-codes/validate")
     @Operation(summary = "验证备用恢复码", description = "验证当前用户输入的备用恢复码")
     public R<Object> validateBackupCode(
@@ -185,6 +192,7 @@ public class CaptchaController {
     }
 
     @Log(ignore = true)
+    @SaCheckLogin
     @DeleteMapping("/google/unbind")
     @Operation(summary = "解绑Google验证器", description = "解绑当前用户的Google验证器")
     public R<Object> unbindGoogleCaptcha() {

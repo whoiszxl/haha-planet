@@ -12,9 +12,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.whoiszxl.admin.cqrs.command.LogResp;
 import com.whoiszxl.admin.cqrs.query.AdminLogQuery;
 import com.whoiszxl.admin.cqrs.response.LogDetailResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardAccessTrendResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardPopularModuleResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardTotalResp;
+import com.whoiszxl.admin.cqrs.response.dashboard.*;
 import com.whoiszxl.admin.cqrs.response.log.LoginLogExportResp;
 import com.whoiszxl.admin.cqrs.response.log.OperationLogExportResp;
 import com.whoiszxl.admin.entity.AdminLog;
@@ -96,6 +94,26 @@ public class AdminLogServiceImpl extends ServiceImpl<AdminLogMapper, AdminLog> i
     @Override
     public List<Map<String, Object>> listDashboardGeoDistribution() {
         return baseMapper.selectListDashboardGeoDistribution();
+    }
+
+    @Override
+    public DashboardPerformanceResp getDashboardPerformance() {
+        return baseMapper.selectDashboardPerformance();
+    }
+
+    @Override
+    public List<DashboardHourlyActivityResp> listDashboardHourlyActivity() {
+        return baseMapper.selectListDashboardHourlyActivity();
+    }
+
+    @Override
+    public List<Map<String, Object>> listDashboardClientStats() {
+        return baseMapper.selectListDashboardClientStats();
+    }
+
+    @Override
+    public List<DashboardRecentUsersResp> listDashboardRecentUsers() {
+        return baseMapper.selectListDashboardRecentUsers();
     }
 
     /**

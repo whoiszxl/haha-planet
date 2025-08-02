@@ -3,9 +3,7 @@ package com.whoiszxl.admin.service;
 import com.whoiszxl.admin.cqrs.command.LogResp;
 import com.whoiszxl.admin.cqrs.query.AdminLogQuery;
 import com.whoiszxl.admin.cqrs.response.LogDetailResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardAccessTrendResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardPopularModuleResp;
-import com.whoiszxl.admin.cqrs.response.dashboard.DashboardTotalResp;
+import com.whoiszxl.admin.cqrs.response.dashboard.*;
 import com.whoiszxl.admin.entity.AdminLog;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.whoiszxl.starter.crud.model.PageQuery;
@@ -89,4 +87,32 @@ public interface IAdminLogService extends IService<AdminLog> {
      * @return 仪表盘访客地域分布信息
      */
     List<Map<String, Object>> listDashboardGeoDistribution();
+
+    /**
+     * 查询仪表盘系统性能指标
+     *
+     * @return 仪表盘系统性能指标
+     */
+    DashboardPerformanceResp getDashboardPerformance();
+
+    /**
+     * 查询仪表盘24小时活跃分布
+     *
+     * @return 仪表盘24小时活跃分布
+     */
+    List<DashboardHourlyActivityResp> listDashboardHourlyActivity();
+
+    /**
+     * 查询仪表盘客户端统计信息
+     *
+     * @return 仪表盘客户端统计信息
+     */
+    List<Map<String, Object>> listDashboardClientStats();
+
+    /**
+     * 查询仪表盘最近活跃用户
+     *
+     * @return 仪表盘最近活跃用户
+     */
+    List<DashboardRecentUsersResp> listDashboardRecentUsers();
 }

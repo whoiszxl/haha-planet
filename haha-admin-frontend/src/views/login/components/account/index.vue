@@ -25,11 +25,11 @@
     </a-form-item>
     <!-- Google验证码输入框 -->
     <a-form-item v-if="needGoogleCode" field="googleCode" hide-label>
-      <a-input 
-        v-model="form.googleCode" 
-        placeholder="请输入Google验证码" 
-        :max-length="6" 
-        allow-clear 
+      <a-input
+        v-model="form.googleCode"
+        placeholder="请输入Google验证码"
+        :max-length="6"
+        allow-clear
       />
     </a-form-item>
     <a-form-item>
@@ -47,9 +47,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import { type FormInstance, Message } from '@arco-design/web-vue'
 import { useStorage } from '@vueuse/core'
-import { getImageCaptcha, checkGoogleCaptchaStatusByUsername } from '@/apis'
+import { checkGoogleCaptchaStatusByUsername, getImageCaptcha } from '@/apis'
 import { useUserStore } from '@/stores'
 import { encryptByRsa } from '@/utils/encrypt'
 
@@ -77,7 +79,7 @@ const rules: FormInstance['rules'] = {
   username: [{ required: true, message: '请输入用户名' }],
   password: [{ required: true, message: '请输入密码' }],
   captcha: [{ required: true, message: '请输入验证码' }],
-  googleCode: [{ 
+  googleCode: [{
     validator: (value, callback) => {
       if (needGoogleCode.value && (!value || value.length !== 6)) {
         callback('请输入6位Google验证码')
@@ -135,8 +137,7 @@ const checkGoogleBindStatus = async () => {
     if (!needGoogleCode.value) {
       form.googleCode = ''
     }
-  } catch (error) {
-    console.error('检查Google验证码绑定状态失败:', error)
+  } catch {
     needGoogleCode.value = false
     form.googleCode = ''
   }
@@ -168,7 +169,7 @@ const handleLogin = async () => {
     const { rememberMe } = loginConfig.value
     loginConfig.value.username = rememberMe ? form.username : ''
     Message.success('欢迎使用')
-  } catch (error) {
+  } catch {
     getCaptcha()
     form.captcha = ''
     form.googleCode = '' // 清空Google验证码
@@ -180,7 +181,7 @@ const handleLogin = async () => {
 // 监听用户名变化
 watch(
   () => form.username,
-  (newUsername) => {
+  () => {
     // 防抖处理，用户停止输入500ms后再检查
     clearTimeout(checkTimer)
     checkTimer = setTimeout(() => {
@@ -191,7 +192,7 @@ watch(
 )
 
 // 检查定时器
-let checkTimer: NodeJS.Timeout
+let checkTimer: ReturnType<typeof setTimeout>
 
 onMounted(() => {
   getCaptcha()
@@ -214,25 +215,48 @@ onBeforeUnmount(() => {
   height: 40px;
   border-radius: 4px;
   font-size: 13px;
+  background-color: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  transition: all 0.3s ease;
+}
+
+.arco-input-wrapper:hover {
+  border-color: rgba(96, 165, 250, 0.5);
+  background-color: rgba(30, 41, 59, 0.9);
+}
+
+.arco-input-wrapper:focus-within {
+  border-color: #60a5fa;
+  background-color: rgba(30, 41, 59, 0.95);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
 }
 
 .arco-input-wrapper.arco-input-error {
-  background-color: rgb(var(--danger-1));
-  border-color: rgb(var(--danger-3));
+  background-color: rgba(127, 29, 29, 0.8);
+  border-color: rgba(239, 68, 68, 0.5);
 }
 
 .arco-input-wrapper.arco-input-error:hover {
-  background-color: rgb(var(--danger-1));
-  border-color: rgb(var(--danger-6));
+  background-color: rgba(127, 29, 29, 0.9);
+  border-color: rgba(239, 68, 68, 0.7);
 }
 
 .arco-input-wrapper :deep(.arco-input) {
   font-size: 13px;
-  color: var(--color-text-1);
+  color: #f1f5f9;
+  background-color: transparent;
 }
 
-.arco-input-wrapper:hover {
-  border-color: rgb(var(--arcoblue-6));
+.arco-input-wrapper :deep(.arco-input::placeholder) {
+  color: #94a3b8;
+}
+
+:deep(.arco-checkbox-label) {
+  color: #f1f5f9;
+}
+
+:deep(.arco-link) {
+  color: #60a5fa;
 }
 
 .captcha {

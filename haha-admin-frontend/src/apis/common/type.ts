@@ -19,6 +19,64 @@ export interface DashboardNoticeResp {
   type: number
 }
 
+/** 仪表盘总计信息类型 */
+export interface DashboardTotalResp {
+  pvCount: number
+  ipCount: number
+  todayPvCount: number
+  newPvFromYesterday: number
+}
+
+/** 仪表盘热门模块类型 */
+export interface DashboardPopularModuleResp {
+  module: string
+  pvCount: number
+  newPvFromYesterday: number
+}
+
+/** 仪表盘地域分布类型 */
+export interface DashboardGeoDistributionResp {
+  locations: string[]
+  locationIpStatistics: Array<{
+    name: string
+    value: number
+  }>
+}
+
+/** 系统性能指标类型 */
+export interface DashboardPerformanceResp {
+  avgResponseTime: number
+  slowRequestCount: number
+  errorRate: number
+  totalRequests: number
+}
+
+/** 活跃时段分布类型 */
+export interface DashboardHourlyActivityResp {
+  hour: number
+  count: number
+}
+
+/** 浏览器/操作系统分布类型 */
+export interface DashboardClientStatsResp {
+  browsers: Array<{
+    name: string
+    value: number
+  }>
+  operatingSystems: Array<{
+    name: string
+    value: number
+  }>
+}
+
+/** 最近活跃用户类型 */
+export interface DashboardRecentUsersResp {
+  nickname: string
+  lastAccessTime: string
+  accessCount: number
+  ipAddress: string
+}
+
 /* 行为验证码类型 */
 export interface BehaviorCaptchaResp {
   originalImageBase64: string

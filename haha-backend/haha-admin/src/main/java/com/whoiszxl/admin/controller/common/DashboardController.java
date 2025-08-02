@@ -59,4 +59,28 @@ public class DashboardController {
         return R.ok(dashboardService.getGeoDistribution());
     }
 
+    @Operation(summary = "查询系统性能指标", description = "查询系统性能指标")
+    @GetMapping("/performance")
+    public R<DashboardPerformanceResp> getPerformance() {
+        return R.ok(dashboardService.getPerformance());
+    }
+
+    @Operation(summary = "查询活跃时段分布", description = "查询24小时活跃时段分布")
+    @GetMapping("/hourly/activity")
+    public R<List<DashboardHourlyActivityResp>> listHourlyActivity() {
+        return R.ok(dashboardService.listHourlyActivity());
+    }
+
+    @Operation(summary = "查询客户端统计信息", description = "查询浏览器和操作系统分布")
+    @GetMapping("/client/stats")
+    public R<DashboardClientStatsResp> getClientStats() {
+        return R.ok(dashboardService.getClientStats());
+    }
+
+    @Operation(summary = "查询最近活跃用户", description = "查询最近活跃用户列表")
+    @GetMapping("/recent/users")
+    public R<List<DashboardRecentUsersResp>> listRecentUsers() {
+        return R.ok(dashboardService.listRecentUsers());
+    }
+
 }

@@ -91,34 +91,40 @@ onBeforeUnmount(() => {
   }
 })
 const createWebSocket = (token) => {
-  socket = new WebSocket(`${import.meta.env.VITE_API_WS_URL}/ws?token=${token}`)
+  try {
+    socket = new WebSocket(`${import.meta.env.VITE_API_WS_URL}/ws?token=${token}`)
 
-  socket.onopen = () => {
-    console.log('WebSocket connection opened')
-  }
-
-  socket.onmessage = (event) => {
-    // fetchData()
-    const data = JSON.parse(event.data)
-    // const data = messageData.content
-    console.log(data)
-    if (data.msgType === 1) {
-      list.value.unshift({
-        createdByString: data.fromName,
-        content: data?.content,
-        createdAt:
-          data?.sendTime
-          && moment(data.sendTime).format('YYYY-MM-DD HH:mm:ss')
-      })
+    socket.onopen = () => {
+      console.log('WebSocket connection opened')
     }
-  }
 
-  socket.onerror = (error) => {
-    console.error('WebSocket error:', error)
-  }
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        console.log('WebSocket message received:', data)
+        if (data.msgType === 1) {
+          list.value.unshift({
+            createdByString: data.fromName,
+            content: data?.content,
+            createdAt:
+              data?.sendTime
+              && moment(data.sendTime).format('YYYY-MM-DD HH:mm:ss')
+          })
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error)
+      }
+    }
 
-  socket.onclose = () => {
-    console.log('WebSocket connection closed')
+    socket.onerror = (error) => {
+      console.warn('WebSocket connection failed, notifications will not be real-time:', error)
+    }
+
+    socket.onclose = (event) => {
+      console.log('WebSocket connection closed:', event.code, event.reason)
+    }
+  } catch (error) {
+    console.warn('Failed to create WebSocket connection, notifications will not be real-time:', error)
   }
 }
 

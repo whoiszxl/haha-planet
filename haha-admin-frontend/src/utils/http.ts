@@ -60,45 +60,64 @@ http.interceptors.request.use(
 http.interceptors.response.use(
   (response: AxiosResponse) => {
     const { data } = response
-    const { success, code, msg } = data
+    
+    // 处理 blob 类型响应
     if (response.request.responseType === 'blob') {
       NProgress.done()
       return response
     }
-    // 成功
-    if (success) {
+    
+    // 检查响应数据结构
+    if (!data || typeof data !== 'object') {
       NProgress.done()
       return response
     }
-
-    // Token 失效
-    if (code === 401 && response.config.url !== '/auth/user/info') {
-      modalErrorWrapper({
-        title: '提示',
-        content: msg,
-        maskClosable: false,
-        escToClose: false,
-        okText: '重新登录',
-        async onOk() {
-          NProgress.done()
-          const userStore = useUserStore()
-          userStore.logoutCallBack()
-          router.replace('/login')
-        }
-      })
-    } else {
+    
+    const { success, code, msg } = data
+    
+    // 成功响应
+    if (success === true) {
       NProgress.done()
-      // 如果错误信息长度过长，使用 Notification 进行提示
-      if (msg.length <= 15) {
-        messageErrorWrapper({
-          content: msg || '服务器端错误',
-          duration: 5 * 1000
+      return response
+    }
+    
+    // 失败响应处理
+    if (success === false) {
+      NProgress.done()
+      
+      // Token 失效
+      if (code === 401 && response.config.url !== '/auth/user/info') {
+        modalErrorWrapper({
+          title: '提示',
+          content: msg || '登录已过期，请重新登录',
+          maskClosable: false,
+          escToClose: false,
+          okText: '重新登录',
+          async onOk() {
+            const userStore = useUserStore()
+            userStore.logoutCallBack()
+            router.replace('/login')
+          }
         })
       } else {
-        notificationErrorWrapper(msg || '服务器端错误')
+        // 其他错误处理
+        const errorMsg = msg || '服务器端错误'
+        if (errorMsg.length <= 15) {
+          messageErrorWrapper({
+            content: errorMsg,
+            duration: 5 * 1000
+          })
+        } else {
+          notificationErrorWrapper(errorMsg)
+        }
       }
+      
+      return Promise.reject(new Error(msg || '服务器端错误'))
     }
-    return Promise.reject(new Error(msg || '服务器端错误'))
+    
+    // 如果没有 success 字段，认为是正常响应
+    NProgress.done()
+    return response
   },
   (error) => {
     NProgress.done()

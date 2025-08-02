@@ -39,4 +39,32 @@ public interface DashboardService {
      */
     DashboardGeoDistributionResp getGeoDistribution();
 
+    /**
+     * 查询系统性能指标
+     *
+     * @return 系统性能指标
+     */
+    DashboardPerformanceResp getPerformance();
+
+    /**
+     * 查询活跃时段分布
+     *
+     * @return 活跃时段分布
+     */
+    List<DashboardHourlyActivityResp> listHourlyActivity();
+
+    /**
+     * 查询客户端统计信息
+     *
+     * @return 客户端统计信息
+     */
+    DashboardClientStatsResp getClientStats();
+
+    /**
+     * 查询最近活跃用户
+     *
+     * @return 最近活跃用户
+     */
+    List<DashboardRecentUsersResp> listRecentUsers();
+
 }
