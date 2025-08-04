@@ -2,7 +2,6 @@ package com.whoiszxl.messaging.mail.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.UUID;
-import cn.hutool.core.util.StrUtil;
 import com.whoiszxl.messaging.mail.model.MailAttachment;
 import com.whoiszxl.messaging.mail.model.MailInlineResource;
 import com.whoiszxl.messaging.mail.model.MailMessage;
@@ -10,6 +9,9 @@ import com.whoiszxl.messaging.mail.model.MailSendResult;
 import com.whoiszxl.messaging.mail.properties.MailProperties;
 import com.whoiszxl.messaging.mail.service.MailService;
 import com.whoiszxl.messaging.mail.service.MailTemplateService;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -22,9 +24,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -204,7 +205,7 @@ public class MailServiceImpl implements MailService {
     /**
      * 发送MIME邮件
      */
-    private void sendMimeMessage(MailMessage message) throws MessagingException {
+    private void sendMimeMessage(MailMessage message) throws MessagingException, UnsupportedEncodingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         
@@ -301,7 +302,7 @@ public class MailServiceImpl implements MailService {
         for (MailInlineResource resource : inlineResources) {
             if (resource.getData() != null) {
                 helper.addInline(resource.getContentId(), 
-                        () -> new ByteArrayInputStream(resource.getData()));
+                        new ByteArrayDataSource(resource.getData(), "application/octet-stream"));
             } else if (StringUtils.hasText(resource.getFilePath())) {
                 helper.addInline(resource.getContentId(), 
                         new org.springframework.core.io.FileSystemResource(resource.getFilePath()));

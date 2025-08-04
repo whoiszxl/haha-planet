@@ -131,7 +131,7 @@ captcha:
     # 内容长度
     length: 4
     # 过期时间
-    expirationInMinutes: 2
+
   ## 邮箱验证码配置
   mail:
     # 内容长度

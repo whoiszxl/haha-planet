@@ -4,10 +4,8 @@ import com.whoiszxl.messaging.mail.properties.MailProperties;
 import com.whoiszxl.messaging.mail.service.MailTemplateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.exceptions.TemplateInputException;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import java.util.Map;
@@ -19,7 +17,6 @@ import java.util.Set;
  * @author whoiszxl
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class ThymeleafMailTemplateService implements MailTemplateService {
 

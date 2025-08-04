@@ -106,11 +106,11 @@ $stars-large: 10;
 .star-1 {
   @for $i from 1 through $stars-small {
     &:nth-child(#{$i}) {
-      top: #{random(100)}vh;
-      left: #{random(100)}vw;
+      top: #{math.random(100)}vh;
+      left: #{math.random(100)}vw;
       width: 1px;
       height: 1px;
-      animation-delay: #{math.div(random(20), 10)}s;
+      animation-delay: #{math.div(math.random(20), 10)}s;
     }
   }
 }
@@ -118,11 +118,11 @@ $stars-large: 10;
 .star-2 {
   @for $i from 1 through $stars-medium {
     &:nth-child(#{$i}) {
-      top: #{random(100)}vh;
-      left: #{random(100)}vw;
+      top: #{math.random(100)}vh;
+      left: #{math.random(100)}vw;
       width: 2px;
       height: 2px;
-      animation-delay: #{math.div(random(20), 10)}s;
+      animation-delay: #{math.div(math.random(20), 10)}s;
     }
   }
 }
@@ -130,11 +130,11 @@ $stars-large: 10;
 .star-3 {
   @for $i from 1 through $stars-large {
     &:nth-child(#{$i}) {
-      top: #{random(100)}vh;
-      left: #{random(100)}vw;
+      top: #{math.random(100)}vh;
+      left: #{math.random(100)}vw;
       width: 3px;
       height: 3px;
-      animation-delay: #{math.div(random(20), 10)}s;
+      animation-delay: #{math.div(math.random(20), 10)}s;
     }
   }
 }
@@ -219,9 +219,9 @@ $stars-large: 10;
 
 @for $i from 1 through 15 {
   .particle:nth-child(#{$i}) {
-    left: #{random(100)}%;
-    animation-delay: #{random(120) * 0.1}s;
-    animation-duration: #{8 + random(80) * 0.1}s;
+    left: #{math.random(100)}%;
+    animation-delay: #{math.random(120) * 0.1}s;
+    animation-duration: #{8 + math.random(80) * 0.1}s;
   }
 }
 

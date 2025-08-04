@@ -1,9 +1,6 @@
 package com.whoiszxl.messaging.mail.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -120,6 +117,7 @@ public class MailMessage {
     /**
      * 邮件优先级
      */
+    @Getter
     public enum Priority {
         LOW(5), NORMAL(3), HIGH(1);
 
@@ -129,8 +127,5 @@ public class MailMessage {
             this.value = value;
         }
 
-        public int getValue() {
-            return value;
-        }
     }
 }

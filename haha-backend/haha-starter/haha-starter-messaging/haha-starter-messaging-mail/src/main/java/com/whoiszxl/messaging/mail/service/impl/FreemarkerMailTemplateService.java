@@ -6,7 +6,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.io.StringWriter;
 import java.util.Map;
@@ -17,7 +16,6 @@ import java.util.Map;
  * @author whoiszxl
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class FreemarkerMailTemplateService implements MailTemplateService {
 
