@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 /**
  * 请求基类
+ * @author whoiszxl
  */
 public class BaseReq implements Serializable {
 

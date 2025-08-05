@@ -61,5 +61,5 @@ export function delete${classNamePrefix}(id: string) {
 
 /** @desc 导出${businessName} */
 export function export${classNamePrefix}(query: ${classNamePrefix}Query) {
-  return http.download<any>(`${'$'}{BASE_URL}/export`, query)
+  return http.download(`${'$'}{BASE_URL}/export`, query)
 }

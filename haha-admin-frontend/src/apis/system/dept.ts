@@ -30,5 +30,5 @@ export function deleteDept(id: string) {
 
 /** @desc 导出部门 */
 export function exportDept(query: System.DeptQuery) {
-  return http.download<any>(`${BASE_URL}/export`, query)
+  return http.download(`${BASE_URL}/export`, query)
 }

@@ -30,7 +30,7 @@ export function deleteUser(ids: string | Array<string>) {
 
 /** @desc 导出用户 */
 export function exportUser(query: System.UserQuery) {
-  return http.download<any>(`${BASE_URL}/export`, query)
+  return http.download(`${BASE_URL}/export`, query)
 }
 
 /** @desc 重置密码 */

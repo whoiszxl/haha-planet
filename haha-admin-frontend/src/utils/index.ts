@@ -2,6 +2,7 @@ import { browse, mapTree } from 'xe-utils'
 import { camelCase, upperFirst } from 'lodash-es'
 import { Message } from '@arco-design/web-vue'
 import { isExternal } from '@/utils/validate'
+import { formatDateTime, formatAmount, formatFileSize } from './format'
 
 export function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
   return obj[key]
@@ -239,17 +240,14 @@ export function goodTimeText() {
 }
 
 /** @desc 格式化文件大小 */
-export const formatFileSize = (fileSize: number) => {
-  if (fileSize == null || fileSize === 0) {
-    return '0 Bytes'
-  }
-  const unitArr = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-  let index = 0
-  const srcSize = Number.parseFloat(fileSize.toString())
-  index = Math.floor(Math.log(srcSize) / Math.log(1024))
-  const size = srcSize / 1024 ** index
-  return `${size.toFixed(2)} ${unitArr[index]}`
-}
+// 移除或注释掉第243行的 formatFileSize 函数定义
+// export const formatFileSize = (fileSize: number) => {
+//   const unitArr = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+//   const srcSize = parseFloat(fileSize.toString())
+//   const index = Math.floor(Math.log(srcSize) / Math.log(1024))
+//   const size = srcSize / 1024 ** index
+//   return `${size.toFixed(2)} ${unitArr[index]}`
+// }
 
 /** @desc 复制文本 */
 export const copyText = (text: any) => {
@@ -261,3 +259,6 @@ export const copyText = (text: any) => {
   document.body.removeChild(textarea)
   Message.success('复制成功')
 }
+
+// 保留第267行的导出语句
+export { formatDateTime, formatAmount, formatFileSize } from './format'

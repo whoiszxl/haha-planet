@@ -89,9 +89,8 @@ public class GeneratorServiceImpl implements GeneratorService {
         GenConfigDO genConfig = genConfigMapper.selectById(tableName);
         if (null == genConfig) {
             genConfig = new GenConfigDO(tableName);
-            // 默认包名（当前包名）
-            String packageName = ClassUtil.getPackage(GeneratorService.class);
-            genConfig.setPackageName(StrUtil.subBefore(packageName, StringConstants.DOT, true));
+            // 默认包名
+            genConfig.setPackageName("com.whoiszxl");
             // 默认业务名（表注释）
             List<Table> tableList = MetaUtils.getTables(dataSource, tableName);
             if (CollUtil.isNotEmpty(tableList)) {
@@ -104,6 +103,8 @@ public class GeneratorServiceImpl implements GeneratorService {
                 .last("LIMIT 1"));
             if (null != lastGenConfig) {
                 genConfig.setAuthor(lastGenConfig.getAuthor());
+            }else {
+                genConfig.setAuthor("whoiszxl");
             }
             // 默认表前缀（sys_user -> sys_）
             int underLineIndex = StrUtil.indexOf(tableName, StringConstants.C_UNDERLINE);
