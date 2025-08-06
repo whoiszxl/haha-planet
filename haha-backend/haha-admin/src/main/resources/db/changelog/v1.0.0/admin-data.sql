@@ -57,12 +57,6 @@ values  (1, '系统管理', 0, 1, '/system', 'System', 'Layout', null, null, 'se
         (32, '配置', 30, 3, '', '', '', null, null, '', 0, 1, 0, 'tool:generator:config', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 22:16:48'),
         (33, '预览', 30, 3, '', '', '', null, null, '', 0, 1, 0, 'tool:generator:preview', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 22:16:48'),
         (34, '生成代码', 30, 3, '', '', '', null, null, '', 0, 1, 0, 'tool:generator:generator', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 22:16:48'),
-        (35, '会员管理', 0, 1, '/member', 'Member', 'Layout', null, '', 'user', 0, 1, 0, 'member', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
-        (36, '会员账号管理', 35, 2, '/member/member', 'MemberMember', 'member/member/index', null, '', 'user', 0, 1, 0, 'member:member:list', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
-        (37, '账号新增', 36, 3, null, null, null, null, null, null, 0, 0, 1, 'member:member:add', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
-        (38, '账号修改', 36, 3, null, null, null, null, null, null, 0, 0, 1, 'member:member:update', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
-        (39, '账号删除', 36, 3, null, null, null, null, null, null, 0, 0, 1, 'member:member:delete', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
-        (40, '账号导出', 36, 3, null, null, null, null, null, null, 0, 0, 1, 'member:member:export', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
         (41, '星球管理', 0, 1, '/planet', 'Planet', 'Layout', null, '', 'code', 0, 1, 0, 'planet', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2025-03-06 09:05:13'),
         (42, '星球管理', 41, 2, '/planet/planet', 'PlanetPlanet', 'planet/planet/index', null, '', 'code', 0, 1, 0, 'planet:planet:list', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2025-03-06 09:05:12'),
         (43, '星球新增', 42, 3, null, null, null, null, null, null, 0, 0, 1, 'planet:planet:add', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
@@ -108,7 +102,38 @@ values  (1, '系统管理', 0, 1, '/system', 'System', 'Layout', null, null, 'se
         (83, '星球申请新增', 82, 3, null, null, null, null, null, null, 0, 0, 1, 'planet:planetApply:add', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
         (84, '星球申请修改', 82, 3, null, null, null, null, null, null, 0, 0, 1, 'planet:planetApply:update', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
         (85, '星球申请删除', 82, 3, null, null, null, null, null, null, 0, 0, 1, 'planet:planetApply:delete', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
-        (86, '星球申请导出', 82, 3, null, null, null, null, null, null, 0, 0, 1, 'planet:planetApply:export', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20')
+        (86, '星球申请导出', 82, 3, null, null, null, null, null, null, 0, 0, 1, 'planet:planetApply:export', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        
+
+        (87, '用户管理', 0, 1, '/user', 'User', 'Layout', null, '', 'user', 0, 1, 0, 'user', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (88, '用户账号管理', 87, 2, '/user/userInfo', 'UserUserInfo', 'user/userInfo/index', null, '', 'user', 0, 1, 0, 'user:userInfo:list', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (89, '账号新增', 88, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userInfo:add', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (90, '账号修改', 88, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userInfo:update', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (91, '账号删除', 88, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userInfo:delete', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (92, '账号导出', 88, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userInfo:export', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        
+        (93, '客户端管理', 87, 2, '/user/userClient', 'UserUserClient', 'user/userClient/index', null, '', 'user', 0, 1, 0, 'user:userClient:list', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (94, '客户端新增', 93, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userClient:add', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (95, '客户端修改', 93, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userClient:update', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (96, '客户端删除', 93, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userClient:delete', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (97, '客户端导出', 93, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userClient:export', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+
+
+        (98, '用户等级管理', 87, 2, '/user/userLevel', 'UserUserLevel', 'user/userLevel/index', null, '', 'user', 0, 1, 0, 'user:userLevel:list', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (99, '用户等级新增', 98, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userLevel:add', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (100, '用户等级修改', 98, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userLevel:update', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (101, '用户等级删除', 98, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userLevel:delete', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (102, '用户等级导出', 98, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userLevel:export', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (103, '用户设置管理', 87, 2, '/user/userSettings', 'UserUserSettings', 'user/userSettings/index', null, '', 'user', 0, 1, 0, 'user:userSettings:list', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (104, '用户设置新增', 103, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userSettings:add', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (105, '用户设置修改', 103, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userSettings:update', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (106, '用户设置删除', 103, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userSettings:delete', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (107, '用户设置导出', 103, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userSettings:export', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (108, '用户令牌管理', 87, 2, '/user/userToken', 'UserUserToken', 'user/userToken/index', null, '', 'user', 0, 1, 0, 'user:userToken:list', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (109, '用户令牌新增', 108, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userToken:add', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (110, '用户令牌修改', 108, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userToken:update', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (111, '用户令牌删除', 108, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userToken:delete', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20'),
+        (112, '用户令牌导出', 108, 3, null, null, null, null, null, null, 0, 0, 1, 'user:userToken:export', 1, 1, 1, 0, 1, 1, '2024-05-28 15:17:20', '2024-05-28 15:17:20')
         ;
 
 

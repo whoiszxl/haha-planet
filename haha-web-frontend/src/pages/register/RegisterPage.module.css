@@ -1,0 +1,85 @@
+.loginContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    background-image: url("https://community.fastly.steamstatic.com/public/shared/images/joinsteam/new_login_bg_strong_mask.jpg");
+    background-color: #1b1b1b;
+  }
+  
+  .loginBox {
+    background-color: #2c2f36;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    width: 400px;
+  }
+  
+  .loginTitle {
+    font-size: 32px;
+    color: white;
+  }
+
+  .inputGroup {
+    margin-bottom: 15px;
+  }
+  
+  .inputGroup label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .inputGroup input {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+  }
+  
+  .checkboxGroup {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .checkboxGroup input {
+    margin-right: 5px;
+  }
+  
+  .loginButton {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .qrLogin {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .qrLogin img {
+    width: 100px;
+    height: 100px;
+    margin: 10px 0;
+  }
+  
+  a {
+    color: #007bff;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .inputGroup input {
+    background-color: black;
+    color: white;
+    border: 1px solid #ccc; /* 可选：调整边框颜色 */
+    padding: 8px; /* 可选：调整内边距 */
+    border-radius: 4px; /* 可选：调整圆角 */
+}

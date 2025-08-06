@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="planetGradient" cx="0.3" cy="0.3" r="0.7">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="50%" stop-color="#FF6B35"/>
+      <stop offset="100%" stop-color="#FF1744"/>
+    </linearGradient>
+    <linearGradient id="orbitGradient" cx="0" cy="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#64B5F6" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#42A5F5" stop-opacity="0.4"/>
+    </linearGradient>
+    <radialGradient id="glowEffect" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- 背景星空 -->
+  <rect width="200" height="200" fill="#0D1B2A"/>
+  
+  <!-- 星星装饰 -->
+  <circle cx="30" cy="40" r="1.5" fill="#FFFFFF" opacity="0.8">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="170" cy="30" r="1" fill="#FFFFFF" opacity="0.6">
+    <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="180" cy="160" r="1.2" fill="#FFFFFF" opacity="0.7">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="20" cy="170" r="0.8" fill="#FFFFFF" opacity="0.5">
+    <animate attributeName="opacity" values="0.3;0.9;0.3" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- 外层轨道 -->
+  <ellipse cx="100" cy="100" rx="85" ry="25" fill="none" stroke="url(#orbitGradient)" stroke-width="2" opacity="0.6">
+    <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" dur="20s" repeatCount="indefinite"/>
+  </ellipse>
+  
+  <!-- 中层轨道 -->
+  <ellipse cx="100" cy="100" rx="65" ry="18" fill="none" stroke="url(#orbitGradient)" stroke-width="1.5" opacity="0.4">
+    <animateTransform attributeName="transform" type="rotate" values="0 100 100;-360 100 100" dur="15s" repeatCount="indefinite"/>
+  </ellipse>
+  
+  <!-- 主星球 -->
+  <circle cx="100" cy="100" r="35" fill="url(#planetGradient)">
+    <animate attributeName="r" values="35;37;35" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- 星球表面纹理 -->
+  <circle cx="100" cy="100" r="35" fill="url(#glowEffect)"/>
+  
+  <!-- 星球上的笑脸 -->
+  <g transform="translate(100,100)">
+    <!-- 左眼 -->
+    <circle cx="-12" cy="-8" r="4" fill="#0D1B2A">
+      <animate attributeName="cy" values="-8;-6;-8" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- 右眼 -->
+    <circle cx="12" cy="-8" r="4" fill="#0D1B2A">
+      <animate attributeName="cy" values="-8;-6;-8" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- 嘴巴 -->
+    <path d="M -15 8 Q 0 20 15 8" fill="none" stroke="#0D1B2A" stroke-width="3" stroke-linecap="round">
+      <animate attributeName="d" values="M -15 8 Q 0 20 15 8;M -15 8 Q 0 25 15 8;M -15 8 Q 0 20 15 8" dur="3s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- 小卫星 -->
+  <g>
+    <circle cx="100" cy="100" r="3" fill="#64B5F6">
+      <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" dur="8s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="60 0;60 0" additive="sum"/>
+    </circle>
+  </g>
+  
+  <!-- 另一个小卫星 -->
+  <g>
+    <circle cx="100" cy="100" r="2" fill="#42A5F5">
+      <animateTransform attributeName="transform" type="rotate" values="180 100 100;540 100 100" dur="12s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="-45 0;-45 0" additive="sum"/>
+    </circle>
+  </g>
+  
+  <!-- 文字 HAHA -->
+  <text x="100" y="180" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FFD700">
+    <tspan>HAHA PLANET</tspan>
+    <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+  </text>
+</svg>

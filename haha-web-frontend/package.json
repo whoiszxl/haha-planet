@@ -1,0 +1,92 @@
+{
+  "name": "haha-web-frontend",
+  "description": "哈哈星球C端",
+  "version": "1.0.0",
+  "private": true,
+  "author": {
+    "name": "哈哈星球团队",
+    "email": "whoiszxl@gmail.com"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "antd",
+    "social-platform",
+    "frontend"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/whoiszxl/haha-planet.git",
+    "directory": "haha-web-frontend"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "@chatui/core": "^2.4.2",
+    "@fingerprintjs/fingerprintjs": "^4.6.1",
+    "@testing-library/react": "^13.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/node": "^16.11.35",
+    "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.0.4",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/styled-components": "^5.1.34",
+    "antd": "^4.24.16",
+    "axios": "^1.11.0",
+    "buffer": "^6.0.3",
+    "crypto-js": "^4.2.0",
+    "framer-motion": "^11.15.0",
+    "html2canvas": "^1.4.1",
+    "i18next": "^21.8.3",
+    "idb": "^8.0.2",
+    "jsencrypt": "^3.3.2",
+    "jspdf": "^3.0.1",
+    "jwt-decode": "^3.1.2",
+    "mermaid": "^11.6.0",
+    "mermaid-react": "^0.1.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-i18next": "^11.16.9",
+    "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
+    "react-payment-inputs": "^1.1.9",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "react-syntax-highlighter": "^15.6.1",
+    "remark-gfm": "^4.0.1",
+    "styled-components": "^6.1.13",
+    "typescript": "^4.6.4",
+    "web-vitals": "^2.1.4",
+    "zustand": "^5.0.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@types/crypto-js": "^4.2.2",
+    "@types/jest": "^27.5.2",
+    "typescript-plugin-css-modules": "^3.4.0"
+  }
+}

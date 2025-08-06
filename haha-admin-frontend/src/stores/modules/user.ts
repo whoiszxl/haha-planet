@@ -8,7 +8,7 @@ import {
   type UserInfo,
   accountLogin as accountLoginApi,
   emailLogin as emailLoginApi,
-  getUserInfo as getUserInfoApi,
+  getAdminUserInfo as getUserInfoApi,
   logout as logoutApi,
   phoneLogin as phoneLoginApi,
 

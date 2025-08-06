@@ -1,0 +1,507 @@
+/* Header 主容器 */
+.header {
+  background-color: #ffffff;
+  height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Left, Middle, Right Sections */
+.leftSection,
+.middleSection,
+.rightSection {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.middleSection {
+  flex: 1;
+  justify-content: center;
+  min-width: 200px;
+  padding: 0 16px;
+}
+
+/* Left Section Elements */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.3s ease;
+}
+
+.logoContainer:hover {
+  transform: scale(1.05);
+}
+
+.logoText {
+  font-size: 20px;
+  font-weight: 600;
+  background: linear-gradient(45deg, #2a8cff, #17cf97);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tagBlue,
+.tagOrange {
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.tagBlue {
+  background: rgba(42, 140, 255, 0.1);
+  color: #2a8cff;
+}
+
+.tagOrange {
+  background: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+}
+
+/* Middle Section Elements */
+.searchInput {
+  max-width: 480px;
+  width: 100%;
+  height: 32px;
+  border-radius: 16px;
+  background-color: #f5f5f5;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput:hover,
+.searchInput:focus-within {
+  background-color: #fff;
+  border-color: #2a8cff;
+  box-shadow: 0 0 0 2px rgba(42, 140, 255, 0.2);
+}
+
+.searchIcon {
+  color: #999;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Right Section Elements */
+.manageLink {
+  font-size: 14px;
+  color: #666;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  line-height: 1;
+}
+
+.manageLink:hover {
+  color: #2a8cff;
+}
+
+.todoButton {
+  border-radius: 14px;
+  font-weight: 500;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.todoButton:hover {
+  color: #2a8cff;
+  border-color: #2a8cff;
+}
+
+.actions {
+  gap: 16px !important;
+  height: 32px;
+  align-items: center !important;
+}
+
+.actions .ant-space-item {
+  display: flex;
+  align-items: center;
+  height: 32px;
+}
+
+.actions .ant-badge {
+  display: flex;
+  align-items: center;
+  height: 32px;
+}
+
+.actionIcon {
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.actionIcon:hover {
+  color: #2a8cff;
+  transform: scale(1.15);
+}
+
+.avatar {
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar:hover {
+  border-color: #2a8cff;
+  transform: scale(1.1);
+}
+
+
+/* For tablets and smaller desktops (< 992px) */
+@media (max-width: 992px) {
+  .manageLink,
+  .tagBlue,
+  .tagOrange {
+    display: none;
+  }
+
+  .middleSection {
+    padding: 0 16px;
+  }
+}
+
+/* For mobile devices (< 768px) */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 16px;
+  }
+
+  .todoButton {
+    display: none;
+  }
+
+  .searchInput {
+    max-width: 200px;
+  }
+
+  .actions {
+    gap: 16px !important;
+  }
+}
+
+/* For small mobile devices (< 576px) */
+@media (max-width: 576px) {
+  .logoText {
+    display: none;
+  }
+
+  .middleSection {
+    display: none; /* On very small screens, hide the search bar to save space */
+  }
+
+  .leftSection {
+    flex-grow: 1; /* Allow logo to take up remaining space */
+  }
+}
+
+/* 中间导航区域 */
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex: 1;
+  justify-content: center;
+}
+
+.navItem {
+  color: #595959;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.navItem:hover {
+  color: #1890ff;
+  background-color: #f0f8ff;
+  transform: translateY(-1px);
+}
+
+.navItem.active {
+  color: #1890ff;
+  background-color: #e6f7ff;
+  font-weight: 600;
+}
+
+.navItem.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: linear-gradient(90deg, #1890ff, #40a9ff);
+  border-radius: 2px;
+}
+
+/* 右侧功能区域 */
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+/* 搜索框 */
+.searchWrapper {
+  position: relative;
+}
+
+.searchInput {
+  width: 780px !important;
+  height: 40px !important;
+  border-radius: 6px !important;
+  border: 1px solid #d9d9d9 !important;
+  background-color: #fafafa !important;
+  transition: all 0.3s ease !important;
+}
+
+.searchInput:hover {
+  border-color: #40a9ff !important;
+  background-color: #ffffff !important;
+}
+
+.searchInput:focus {
+  border-color: #1890ff !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+.searchIcon {
+  color: #8c8c8c;
+  font-size: 16px;
+}
+
+/* 用户操作区域 */
+.userActions {
+  display: flex;
+  align-items: center;
+}
+
+.publishBtn {
+  height: 36px !important;
+  border-radius: 18px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.publishBtn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.4) !important;
+}
+
+/* 通知图标 */
+.notification {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.notification:hover {
+  background-color: #e6f7ff;
+  transform: scale(1.1);
+}
+
+.notificationIcon {
+  font-size: 18px;
+  color: #595959;
+  transition: color 0.3s ease;
+}
+
+.notification:hover .notificationIcon {
+  color: #1890ff;
+}
+
+/* 用户信息 */
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+}
+
+.userInfo:hover {
+  background-color: #e6f7ff;
+  transform: translateY(-1px);
+}
+
+.userAvatar {
+  border-radius: 50% !important;
+  border: 2px solid #e8e8e8 !important;
+  transition: all 0.3s ease !important;
+}
+
+.userInfo:hover .userAvatar {
+  border-color: #1890ff !important;
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 500;
+  color: #262626;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdownIcon {
+  font-size: 12px;
+  color: #8c8c8c;
+  transition: all 0.3s ease;
+}
+
+.userInfo:hover .dropdownIcon {
+  color: #1890ff;
+  transform: rotate(180deg);
+}
+
+/* 未登录状态 */
+.authButtons {
+  display: flex;
+  align-items: center;
+}
+
+.loginLink {
+  color: #595959;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.loginLink:hover {
+  color: #1890ff;
+  background-color: #f0f8ff;
+}
+
+.registerBtn {
+  height: 36px !important;
+  border-radius: 18px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.registerBtn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.4) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 16px;
+  }
+  
+  .navigation {
+    gap: 20px;
+  }
+  
+  .searchInput {
+    width: 220px !important;
+  }
+  
+  .logo {
+    margin-right: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navigation {
+    display: none;
+  }
+  
+  .searchInput {
+    width: 180px !important;
+  }
+  
+  .container {
+    padding: 0 12px;
+  }
+  
+  .rightSection {
+    gap: 12px;
+  }
+  
+  .username {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .logoText {
+    display: none;
+  }
+  
+  .searchInput {
+    width: 140px !important;
+  }
+  
+  .publishBtn span {
+    display: none;
+  }
+  
+  .authButtons .loginLink {
+    padding: 6px 12px;
+  }
+}

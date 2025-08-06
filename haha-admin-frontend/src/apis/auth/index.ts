@@ -26,7 +26,7 @@ export function logout() {
 }
 
 /** @desc 获取用户信息 */
-export const getUserInfo = () => {
+export const getAdminUserInfo = () => {
   return http.get<Auth.UserInfo>(`${BASE_URL}/user/info`)
 }
 

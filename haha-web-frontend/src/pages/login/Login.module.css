@@ -1,0 +1,233 @@
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 56px - 169px); /* 视口高度 - header高度 - footer高度 */
+  background-color: #f0f2f5;
+  padding: 24px 0;
+}
+
+.loginBox {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: #333;
+  width: 360px;
+}
+
+.loginTitle {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.inputGroup {
+  margin-bottom: 16px;
+}
+
+.inputGroup label {
+  display: block;
+  margin-bottom: 4px;
+  color: #595959;
+  font-size: 13px;
+}
+
+.inputGroup input {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 40px;
+}
+
+/* 处理 Chrome 浏览器的自动填充背景色 */
+.inputGroup input:-webkit-autofill,
+.inputGroup input:-webkit-autofill:hover,
+.inputGroup input:-webkit-autofill:focus,
+.inputGroup input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: #333 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.inputGroup input::placeholder {
+  color: #bfbfbf;
+}
+
+.inputGroup input:focus {
+  border-color: #2a8cff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 140, 255, 0.2);
+}
+
+.loginButton {
+  width: 100%;
+  padding: 10px;
+  height: 40px;
+  background-color: #2a8cff;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.loginButton:hover {
+  background-color: #53a5ff;
+  transform: translateY(-1px);
+}
+
+.loginButton:disabled {
+  background-color: #a0cfff;
+  cursor: not-allowed;
+  transform: none;
+}
+
+a {
+  color: #2a8cff;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #53a5ff;
+  text-decoration: underline;
+}
+
+.socialLogin {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.socialButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 0;
+  color: #595959;
+}
+
+.socialButton:hover {
+  transform: translateY(-2px);
+  border-color: #2a8cff;
+  color: #2a8cff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.socialButton .icon {
+  font-size: 20px;
+}
+
+.socialButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+  transform: none;
+  box-shadow: none;
+  border-color: #d9d9d9;
+}
+
+.captchaContainer {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.captchaContainer input {
+  flex: 1;
+  min-width: 0;
+}
+
+.captchaContainer img {
+  height: 40px;
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.captchaLoading {
+  width: 120px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  color: #8c8c8c;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.errorTip {
+  color: #ff4d4f;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.inputError {
+  border-color: #ff4d4f !important;
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 24px 0 16px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: calc(50% - 70px);
+  height: 1px;
+  background-color: #e8e8e8;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
+
+.dividerText {
+  display: inline-block;
+  padding: 0 10px;
+  color: #8c8c8c;
+  background-color: #fff;
+  font-size: 12px;
+  position: relative;
+  z-index: 1;
+}

@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>haha-user</artifactId>
+    <packaging>pom</packaging>
     <description>
         - 用户注册、登录、认证
         - 用户基本信息管理
@@ -17,6 +18,11 @@
         - 用户关系管理（关注、粉丝）
         - 用户等级和积分系统
     </description>
+    <modules>
+        <module>haha-user-api</module>
+        <module>haha-user-common</module>
+        <module>haha-user-web</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

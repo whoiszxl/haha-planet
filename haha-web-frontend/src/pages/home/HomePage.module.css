@@ -1,0 +1,12 @@
+.page-content {
+  width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 75vh;
+  background-color: transparent;
+}
+
+.bg-img {
+  background-repeat: repeat; /* 让背景图片重复填充 */
+  background-position: top left;  /* 设置背景图的位置 */
+}
