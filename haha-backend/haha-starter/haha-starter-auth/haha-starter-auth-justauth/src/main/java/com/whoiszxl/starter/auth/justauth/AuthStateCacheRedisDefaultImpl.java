@@ -1,6 +1,6 @@
 package com.whoiszxl.starter.auth.justauth;
 
-import com.whoiszxl.starter.redisson.RedisUtils;
+import com.whoiszxl.cache.redisson.util.RedissonUtil;
 import me.zhyd.oauth.cache.AuthStateCache;
 
 import java.time.Duration;
@@ -12,6 +12,12 @@ public class AuthStateCacheRedisDefaultImpl implements AuthStateCache {
 
     private static final String KEY_PREFIX = "SOCIAL_AUTH_STATE";
 
+    private final RedissonUtil redissonUtil;
+
+    public AuthStateCacheRedisDefaultImpl(RedissonUtil redissonUtil) {
+        this.redissonUtil = redissonUtil;
+    }
+
     /**
      * 存入缓存
      *
@@ -21,7 +27,7 @@ public class AuthStateCacheRedisDefaultImpl implements AuthStateCache {
     @Override
     public void cache(String key, String value) {
         // 参考：在 JustAuth 中，内置了一个基于 map 的 state 缓存器，默认缓存有效期为 3 分钟
-        RedisUtils.set(RedisUtils.formatKey(KEY_PREFIX, key), value, Duration.ofMinutes(3));
+        redissonUtil.set(redissonUtil.formatKey(KEY_PREFIX, key), value, Duration.ofMinutes(3));
     }
 
     /**
@@ -33,7 +39,7 @@ public class AuthStateCacheRedisDefaultImpl implements AuthStateCache {
      */
     @Override
     public void cache(String key, String value, long timeout) {
-        RedisUtils.set(RedisUtils.formatKey(KEY_PREFIX, key), value, Duration.ofMillis(timeout));
+        redissonUtil.set(redissonUtil.formatKey(KEY_PREFIX, key), value, Duration.ofMillis(timeout));
     }
 
     /**
@@ -44,7 +50,7 @@ public class AuthStateCacheRedisDefaultImpl implements AuthStateCache {
      */
     @Override
     public String get(String key) {
-        return RedisUtils.get(RedisUtils.formatKey(KEY_PREFIX, key));
+        return redissonUtil.get(redissonUtil.formatKey(KEY_PREFIX, key));
     }
 
     /**
@@ -55,6 +61,6 @@ public class AuthStateCacheRedisDefaultImpl implements AuthStateCache {
      */
     @Override
     public boolean containsKey(String key) {
-        return RedisUtils.exists(RedisUtils.formatKey(KEY_PREFIX, key));
+        return redissonUtil.exists(redissonUtil.formatKey(KEY_PREFIX, key));
     }
 }

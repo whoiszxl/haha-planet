@@ -1,6 +1,6 @@
 import http from '../../utils/http'
 import type * as T from './type'
-const BASE_URL = '/member/api/captcha'
+const BASE_URL = '/user/api/captcha'
 
 
 /** @desc 三方账号登录 */

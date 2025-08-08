@@ -58,7 +58,6 @@
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <caffeine.version>3.1.8</caffeine.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
-        <jetcache.version>2.7.6</jetcache.version>
         <poi.version>5.4.1</poi.version>
         <xmlunit-core.version>2.10.3</xmlunit-core.version>
         <okio-jvm.version>3.16.0</okio-jvm.version>
@@ -478,28 +477,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
-            </dependency>
-
-            <!-- JetCache 缓存框架 -->
-            <dependency>
-                <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-starter-redis</artifactId>
-                <version>${jetcache.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-starter-redis-lettuce</artifactId>
-                <version>${jetcache.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-anno</artifactId>
-                <version>${jetcache.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.alicp.jetcache</groupId>
-                <artifactId>jetcache-core</artifactId>
-                <version>${jetcache.version}</version>
             </dependency>
 
             <dependency>

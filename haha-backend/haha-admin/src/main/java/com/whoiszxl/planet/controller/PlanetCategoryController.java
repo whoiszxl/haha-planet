@@ -21,5 +21,5 @@ import com.whoiszxl.planet.service.PlanetCategoryService;
  */
 @Tag(name = "星球分类管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetCategory", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT, Api.TREE})
+@CrudRequestMapping(value = "/planet/planetCategory", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT, Api.TREE})
 public class PlanetCategoryController extends BaseController<PlanetCategoryService, PlanetCategoryResp, PlanetCategoryDetailResp, PlanetCategoryQuery, PlanetCategoryReq> {}

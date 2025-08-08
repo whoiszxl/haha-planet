@@ -21,5 +21,5 @@ import com.whoiszxl.planet.service.PlanetCollectService;
  */
 @Tag(name = "收藏记录管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetCollect", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetCollect", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetCollectController extends BaseController<PlanetCollectService, PlanetCollectResp, PlanetCollectDetailResp, PlanetCollectQuery, PlanetCollectReq> {}

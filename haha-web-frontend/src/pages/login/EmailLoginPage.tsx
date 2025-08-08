@@ -7,6 +7,7 @@ import NotifyUtils from '../../utils/notify';
 import useMemberStore from '../../stores/memberStore';
 import { sendEmailcaptcha } from '../../apis/captcha/captcha';
 import { login } from '../../apis/auth/auth';
+import { ExclamationCircleIcon } from '../../components/icons/SocialIcons';
 import { AUTH, ERROR_MESSAGES } from '../../constants/auth';
 
 interface FormData {
@@ -152,7 +153,7 @@ export const EmailLoginPage: React.FC = () => {
                                 <label>邮箱地址</label>
                                 {errors.email && (
                                     <span className={styles.errorTip}>
-                                        {errors.email}
+                                        <ExclamationCircleIcon /> {errors.email}
                                     </span>
                                 )}
                             </div>
@@ -170,7 +171,7 @@ export const EmailLoginPage: React.FC = () => {
                                 <label>验证码</label>
                                 {errors.captcha && (
                                     <span className={styles.errorTip}>
-                                        {errors.captcha}
+                                        <ExclamationCircleIcon /> {errors.captcha}
                                     </span>
                                 )}
                             </div>
@@ -205,22 +206,16 @@ export const EmailLoginPage: React.FC = () => {
                     </form>
 
                     <div className={styles.switchLogin}>
-                        <button 
-                            className={styles.linkButton}
-                            onClick={() => navigate('/login')}
-                        >
+                        <a href="#" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>
                             使用账号密码登录
-                        </button>
-                        <button
-                            className={styles.linkButton}
-                            onClick={() => navigate('/register')}
-                        >
+                        </a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>
                             没有账号？立即创建
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
             <Footer />
         </>
     );
-}; 
+};

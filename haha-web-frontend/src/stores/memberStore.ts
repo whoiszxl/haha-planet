@@ -34,6 +34,12 @@ const useMemberStore = create<MemberStore>()(
     }),
     {
       name: 'member-info-storage', // 使用 localStorage 持久化数据
+      // 添加这个配置来避免额外的 state 包装
+      partialize: (state) => ({
+        member: state.member,
+        isLoading: state.isLoading,
+        error: state.error,
+      }),
     }
   )
 );

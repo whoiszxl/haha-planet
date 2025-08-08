@@ -1,15 +1,18 @@
 import React from 'react';
 import styles from './Header.module.css';
-import { Input, Badge, Avatar, Dropdown, Button, Space, Tag } from 'antd';
+import { Input, Badge, Avatar, Dropdown, Button, Space } from 'antd';
 import {
   SearchOutlined,
   MessageOutlined,
   BellOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useMemberStore from '../../stores/memberStore';
 import type { MenuProps } from 'antd';
+import { logout } from '../../apis/auth/auth';
+import { clearToken } from '../../utils/auth';
+
 
 // 临时的Logo图标，可以替换为SVG或图片
 const LogoIcon = () => (
@@ -18,13 +21,35 @@ const LogoIcon = () => (
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { member } = useMemberStore();
+  // 修改这里，直接获取整个 store 状态
+  const memberStore = useMemberStore();
+  // 然后从 state 中获取 member，如果存在 state 包装的话
+  const member = memberStore.member || (memberStore as any).state?.member;
+
+  console.log("fffffffffffffffffff", member);
+
+  // 获取图片基础URL - 修改为使用 process.env
+  const imageBaseUrl = process.env.REACT_APP_IMAGE_BASE_URL || '';
+
+  // 处理头像URL
+  const getAvatarUrl = (avatar?: string) => {
+    if (!avatar) return undefined;
+    // 如果已经是完整URL，直接返回
+    if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+      return avatar;
+    }
+    // 否则拼接基础URL
+    return `${imageBaseUrl}${avatar}`;
+  };
 
   const userMenuItems: MenuProps['items'] = [
     { key: '1', label: '我的主页', onClick: () => navigate('/profile') },
     { key: '2', label: '账号设置', onClick: () => navigate('/settings') },
     { type: 'divider' },
-    { key: '3', label: '退出登录', danger: true, onClick: () => console.log('logout') },
+    { key: '3', label: '退出登录', danger: true, onClick: () => {
+      logout();
+      clearToken();
+    } },
   ];
 
   return (
@@ -36,8 +61,8 @@ export const Header: React.FC = () => {
               <LogoIcon />
               <span className={styles.logoText}>哈哈星球</span>
             </div>
-            <Tag className={styles.tagBlue}>社群工具</Tag>
-            <Tag className={styles.tagOrange}>笔记</Tag>
+            <div className={styles.tagBlue}>私域社群</div>
+            <div className={styles.tagOrange}>笔记</div>
           </Space>
         </div>
 
@@ -54,7 +79,7 @@ export const Header: React.FC = () => {
         <div className={styles.rightSection}>
           <Space align="center" size="middle">
             
-            <Button className={styles.todoButton}>待办</Button>
+            <div className={styles.todoButton}>待办</div>
             <Space size="middle" align="center" className={styles.actions}>
             <Badge count={1} dot>
               <MessageOutlined className={styles.actionIcon} />
@@ -64,7 +89,7 @@ export const Header: React.FC = () => {
             </Badge>
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <Avatar
-                src={member?.avatar}
+                src={getAvatarUrl(member?.avatar)}
                 icon={<UserOutlined />}
                 className={styles.avatar}
               />

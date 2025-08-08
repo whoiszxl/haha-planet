@@ -21,5 +21,5 @@ import com.whoiszxl.planet.service.PlanetSettingService;
  */
 @Tag(name = "星球设置管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetSetting", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetSetting", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetSettingController extends BaseController<PlanetSettingService, PlanetSettingResp, PlanetSettingDetailResp, PlanetSettingQuery, PlanetSettingReq> {}

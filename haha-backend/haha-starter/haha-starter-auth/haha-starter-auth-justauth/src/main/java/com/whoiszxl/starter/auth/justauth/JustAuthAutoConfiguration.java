@@ -1,7 +1,9 @@
 package com.whoiszxl.starter.auth.justauth;
 
+import com.whoiszxl.cache.redisson.util.RedissonUtil;
 import com.whoiszxl.starter.core.constants.PropertiesConstants;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import me.zhyd.oauth.cache.AuthStateCache;
 import org.redisson.client.RedisClient;
 import org.slf4j.Logger;
@@ -13,7 +15,9 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * JustAuth 自动配置
+ * @author whoiszxl
  */
+@RequiredArgsConstructor
 @AutoConfiguration(before = com.xkcoding.justauth.autoconfigure.JustAuthAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "justauth", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class JustAuthAutoConfiguration {
@@ -24,10 +28,10 @@ public class JustAuthAutoConfiguration {
      * State 缓存 Redis 实现（默认）
      */
     @Bean
-    @ConditionalOnClass(RedisClient.class)
+    @ConditionalOnClass(RedissonUtil.class)
     @ConditionalOnProperty(prefix = "justauth.cache", name = "type", havingValue = "redis")
-    public AuthStateCache authStateCache() {
-        return new AuthStateCacheRedisDefaultImpl();
+    public AuthStateCache authStateCache(RedissonUtil redissonUtil) {
+        return new AuthStateCacheRedisDefaultImpl(redissonUtil);
     }
 
     @PostConstruct

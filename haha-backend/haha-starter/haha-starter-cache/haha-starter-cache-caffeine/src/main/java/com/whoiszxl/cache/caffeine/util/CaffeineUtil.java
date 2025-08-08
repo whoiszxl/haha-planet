@@ -42,7 +42,6 @@ public class CaffeineUtil {
     /**
      * 获取缓存值，如果不存在则通过loader加载
      */
-    @SuppressWarnings("unchecked")
     public <T> T get(String cacheName, Object key, Function<Object, T> loader) {
         T value = get(cacheName, key);
         if (value == null) {

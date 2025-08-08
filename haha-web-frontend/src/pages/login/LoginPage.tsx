@@ -28,7 +28,7 @@ export const LoginPage: React.FC = () => {
     const fetchMemberData = useMemberStore((state) => state.fetchMemberData);
 
     const [formData, setFormData] = useState<FormData>({
-        clientKey: '666',
+        clientKey: 'web_client_001',
         authType: 'ACCOUNT',
         username: '',
         password: '',

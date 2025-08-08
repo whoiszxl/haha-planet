@@ -21,5 +21,5 @@ import com.whoiszxl.planet.model.resp.PlanetNotificationResp;
  */
 @Tag(name = "星球通知管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetNotification", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetNotification", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetNotificationController extends BaseController<PlanetNotificationService, PlanetNotificationResp, PlanetNotificationDetailResp, PlanetNotificationQuery, PlanetNotificationReq> {}

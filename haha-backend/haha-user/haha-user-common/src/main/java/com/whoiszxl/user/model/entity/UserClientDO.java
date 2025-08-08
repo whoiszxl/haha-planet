@@ -51,7 +51,7 @@ public class UserClientDO extends BaseDO {
     private Long timeout;
 
     /**
-     * 状态(0:无效 1:有效)
+     * 状态(0:禁用 1:启用)
      */
     private Integer status;
 

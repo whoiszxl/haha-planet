@@ -23,7 +23,7 @@ export const OAuthRedirectPage: React.FC = () => {
     const { redirect, ...othersQuery } = Object.fromEntries(new URLSearchParams(window.location.search));
     console.log("othersQuery", othersQuery);
     console.log("source", source);
-    login({ source, ...othersQuery, authType: "SOCIAL", clientKey: "666" })
+    login({ source, ...othersQuery, authType: "SOCIAL", clientKey: "web_client_001" })
       .then((result) => {
         console.log("获取到社交登录用户信息: ", result);
         const response = result.data;

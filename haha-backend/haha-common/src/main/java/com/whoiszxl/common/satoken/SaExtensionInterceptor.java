@@ -3,7 +3,7 @@ package com.whoiszxl.common.satoken;
 import cn.dev33.satoken.fun.SaParamFunction;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.stp.StpUtil;
-import com.whoiszxl.common.context.MemberContextHolder;
+import com.whoiszxl.common.context.UserContextHolder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.Nullable;
@@ -20,8 +20,8 @@ public class SaExtensionInterceptor extends SaInterceptor {
                              Object handler) throws Exception {
         boolean flag = super.preHandle(request, response, handler);
         if (flag && StpUtil.isLogin()) {
-            MemberContextHolder.getContext();
-            MemberContextHolder.getExtraContext();
+            UserContextHolder.getContext();
+            UserContextHolder.getExtraContext();
         }
         return flag;
     }
@@ -34,7 +34,7 @@ public class SaExtensionInterceptor extends SaInterceptor {
         try {
             super.afterCompletion(request, response, handler, e);
         } finally {
-            MemberContextHolder.clearContext();
+            UserContextHolder.clearContext();
         }
     }
 }

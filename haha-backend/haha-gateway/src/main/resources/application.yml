@@ -1,0 +1,71 @@
+--- ### 项目配置
+project:
+  # 名称
+  name: haha gateway
+  # 应用名称
+  app-name: haha-gateway
+  # 版本
+  version: 1.0.0
+  # 描述
+  description: 网关服务
+  # 基本包
+  base-package: com.whoiszxl
+  ## 作者信息配置
+  contact:
+    name: whoiszxl
+    email: whoiszxl@gmail.com
+    url: https://whoiszxl.com
+  ## 许可协议信息配置
+  license:
+    name: Apache-2.0
+    url: https://github.com/whoiszxl
+
+--- ### 服务器配置
+server:
+  port: 80
+spring:
+  application:
+    name: haha-gateway
+  cloud:
+    nacos:
+      server-addr: 117.72.102.228:8848
+      config:
+        server-addr: 117.72.102.228:8848
+        file-extension: yaml
+
+    gateway:
+      globalcors: # 全局的跨域处理
+        add-to-simple-url-handler-mapping: true # 解决options请求被拦截问题
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods: # 允许的跨域ajax的请求方式
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*" # 允许在请求中携带的头信息
+            maxAge: 360000 # 这次跨域检测的有效期
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: haha-user-router
+          uri: lb://haha-user-web
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+
+        - id: test_router
+          uri: https://github.com/whoiszxl/haha-planet
+          predicates:
+            - Path=/test
+
+--- # 允许 bean 覆盖
+spring:
+  main:
+    allow-bean-definition-overriding: true

@@ -38,7 +38,7 @@
 }
 
 .logoContainer:hover {
-  transform: scale(1.05);
+  transform: scale(10);
 }
 
 .logoText {
@@ -55,27 +55,36 @@
   font-size: 12px;
   font-weight: 500;
   border: none;
-  padding: 4px 8px;
+  padding: 4px 12px;
   border-radius: 4px;
   height: 24px;
   display: flex;
   align-items: center;
   line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #4a90e2;
+  color: #ffffff;
 }
 
-.tagBlue {
-  background: rgba(42, 140, 255, 0.1);
-  color: #2a8cff;
+.tagBlue:hover {
+  background: #357abd;
+  color: #ffffff;
+  border-color: transparent;
 }
 
 .tagOrange {
-  background: rgba(255, 152, 0, 0.1);
-  color: #ff9800;
+  background: #f5a623;
+  color: #ffffff;
+}
+
+.tagOrange:hover {
+  background: #e8941a;
 }
 
 /* Middle Section Elements */
 .searchInput {
-  max-width: 480px;
+  max-width: 980px;
   width: 100%;
   height: 32px;
   border-radius: 16px;
@@ -120,19 +129,23 @@
 }
 
 .todoButton {
-  border-radius: 14px;
+  font-size: 12px;
   font-weight: 500;
-  border: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
-  height: 28px;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  height: 24px;
   display: flex;
   align-items: center;
-  padding: 0 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #4a90e2;
+  color: #ffffff;
 }
 
 .todoButton:hover {
-  color: #2a8cff;
-  border-color: #2a8cff;
+  background: #357abd;
 }
 
 .actions {
@@ -167,7 +180,6 @@
 
 .actionIcon:hover {
   color: #2a8cff;
-  transform: scale(1.15);
 }
 
 .avatar {
@@ -333,7 +345,6 @@
 }
 
 .publishBtn:hover {
-  transform: translateY(-1px) !important;
   box-shadow: 0 4px 8px rgba(24, 144, 255, 0.4) !important;
 }
 

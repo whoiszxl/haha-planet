@@ -21,5 +21,5 @@ import com.whoiszxl.planet.service.PlanetMemberService;
  */
 @Tag(name = "星球成员管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetMember", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetMember", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetMemberController extends BaseController<PlanetMemberService, PlanetMemberResp, PlanetMemberDetailResp, PlanetMemberQuery, PlanetMemberReq> {}

@@ -2,216 +2,207 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 56px - 169px); /* 视口高度 - header高度 - footer高度 */
-  background-color: #f0f2f5;
+  min-height: calc(100vh - 56px - 169px);
+  background-color: #f8fafc;
   padding: 24px 0;
+  position: relative;
+}
+
+.loginContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+  pointer-events: none;
 }
 
 .loginBox {
-  background-color: #ffffff;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.2);
   color: #333;
-  width: 360px;
+  width: 400px;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.loginBox:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
 
 .loginTitle {
-  font-size: 22px;
-  color: #333;
-  margin-bottom: 20px;
+  font-size: 28px;
+  color: #1e293b;
+  margin-bottom: 24px;
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .inputGroup {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.labelWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .inputGroup label {
   display: block;
-  margin-bottom: 4px;
-  color: #595959;
-  font-size: 13px;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .inputGroup input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 14px 16px;
   background-color: #fff;
   color: #333;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
   transition: all 0.3s ease;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 40px;
-}
-
-/* 处理 Chrome 浏览器的自动填充背景色 */
-.inputGroup input:-webkit-autofill,
-.inputGroup input:-webkit-autofill:hover,
-.inputGroup input:-webkit-autofill:focus,
-.inputGroup input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
-  -webkit-text-fill-color: #333 !important;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-.inputGroup input::placeholder {
-  color: #bfbfbf;
+  font-size: 15px;
+  height: 48px;
+  box-sizing: border-box;
 }
 
 .inputGroup input:focus {
-  border-color: #2a8cff;
+  border-color: #3b82f6;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(42, 140, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+.inputGroup input::placeholder {
+  color: #a0a0a0;
 }
 
 .loginButton {
   width: 100%;
-  padding: 10px;
-  height: 40px;
-  background-color: #2a8cff;
+  padding: 14px;
+  height: 48px;
+  background-color: #3b82f6;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   color: #fff;
   cursor: pointer;
-  font-weight: 500;
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 16px;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.loginButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.loginButton:hover::before {
+  left: 100%;
 }
 
 .loginButton:hover {
-  background-color: #53a5ff;
-  transform: translateY(-1px);
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
 }
 
 .loginButton:disabled {
-  background-color: #a0cfff;
+  background: #d1d5db;
   cursor: not-allowed;
   transform: none;
-}
-
-a {
-  color: #2a8cff;
-  text-decoration: none;
-  display: block;
-  text-align: center;
-  margin-top: 16px;
-  font-size: 13px;
-  transition: color 0.3s ease;
-}
-
-a:hover {
-  color: #53a5ff;
-  text-decoration: underline;
+  box-shadow: none;
 }
 
 .socialLogin {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  margin: 16px 0;
+  gap: 12px;
+  margin: 20px 0;
 }
 
 .socialButton {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid #d9d9d9;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
   background: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  padding: 0;
-  color: #595959;
+  position: relative;
+  overflow: hidden;
+}
+
+.socialButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #3b82f6;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.socialButton:hover::before {
+  opacity: 1;
 }
 
 .socialButton:hover {
-  transform: translateY(-2px);
-  border-color: #2a8cff;
-  color: #2a8cff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+  border-color: #3b82f6;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+}
+
+.socialButton:hover .icon {
+  color: #fff;
+  z-index: 1;
+  position: relative;
 }
 
 .socialButton .icon {
   font-size: 20px;
-}
-
-.socialButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-  transform: none;
-  box-shadow: none;
-  border-color: #d9d9d9;
-}
-
-.captchaContainer {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.captchaContainer input {
-  flex: 1;
-  min-width: 0;
-}
-
-.captchaContainer img {
-  height: 40px;
-  cursor: pointer;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-
-.captchaLoading {
-  width: 120px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  color: #8c8c8c;
-  font-size: 13px;
-  flex-shrink: 0;
-}
-
-.errorTip {
-  color: #ff4d4f;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.inputError {
-  border-color: #ff4d4f !important;
-}
-
-.inputError:focus {
-  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+  color: #666;
+  transition: color 0.3s ease;
+  z-index: 1;
+  position: relative;
 }
 
 .divider {
   position: relative;
   text-align: center;
-  margin: 24px 0 16px;
+  margin: 28px 0 20px;
 }
 
 .divider::before, .divider::after {
   content: '';
   position: absolute;
   top: 50%;
-  width: calc(50% - 70px);
+  width: calc(50% - 80px);
   height: 1px;
-  background-color: #e8e8e8;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
 }
 
 .divider::before {
@@ -224,10 +215,172 @@ a:hover {
 
 .dividerText {
   display: inline-block;
-  padding: 0 10px;
-  color: #8c8c8c;
-  background-color: #fff;
-  font-size: 12px;
+  padding: 0 16px;
+  color: #666;
+  background-color: rgba(255, 255, 255, 0.95);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.switchLogin {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.switchLogin a {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
   position: relative;
-  z-index: 1;
+}
+
+.switchLogin a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+.switchLogin a:hover::after {
+  width: 100%;
+}
+
+.switchLogin a:hover {
+  color: #2563eb;
+}
+
+.errorTip {
+  color: #e74c3c;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.inputError {
+  border-color: #e74c3c !important;
+  background-color: #fdf2f2;
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.smsCodeContainer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.smsCodeInput {
+  flex: 1;
+}
+
+.sendCodeButton {
+  padding: 14px 20px;
+  background-color: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.sendCodeButton:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+}
+
+.sendCodeButton:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.captchaContainer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.captchaContainer input {
+  flex: 1;
+}
+
+.captchaContainer img {
+  height: 48px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.captchaContainer img:hover {
+  border-color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.captchaLoading {
+  width: 120px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  color: #666;
+  font-size: 13px;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .loginBox {
+    width: 90%;
+    padding: 24px;
+    margin: 0 16px;
+  }
+  
+  .loginTitle {
+    font-size: 24px;
+  }
+  
+  .socialLogin {
+    gap: 8px;
+  }
+  
+  .socialButton {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loginBox {
+  animation: fadeInUp 0.6s ease-out;
 }

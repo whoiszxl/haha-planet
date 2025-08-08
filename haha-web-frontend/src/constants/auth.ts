@@ -1,5 +1,5 @@
 export const AUTH = {
-    CLIENT_KEY: '666',
+    CLIENT_KEY: 'web_client_001',
     AUTH_TYPES: {
         SMS: 'SMS',
         EMAIL: 'EMAIL',

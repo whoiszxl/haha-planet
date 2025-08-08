@@ -1,5 +1,6 @@
 package com.whoiszxl.cache.redisson.util;
 
+import com.whoiszxl.starter.core.constants.StringConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.*;
@@ -393,5 +394,15 @@ public class RedissonUtil {
      */
     public Collection<String> keys(String pattern) {
         return redissonClient.getKeys().getKeysStreamByPattern(pattern).toList();
+    }
+
+    /**
+     * 格式化键，将各子键用 : 拼接起来
+     *
+     * @param subKeys 子键列表
+     * @return 键
+     */
+    public String formatKey(String... subKeys) {
+        return String.join(StringConstants.COLON, subKeys);
     }
 }

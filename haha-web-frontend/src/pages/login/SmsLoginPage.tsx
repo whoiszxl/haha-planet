@@ -8,6 +8,7 @@ import useMemberStore from '../../stores/memberStore';
 import { sendSmsCode } from '../../apis/captcha/captcha';
 import { login } from '../../apis/auth/auth';
 import { AUTH, ERROR_MESSAGES } from '../../constants/auth';
+import { ExclamationCircleIcon } from '../../components/icons/SocialIcons';
 
 interface FormData {
     clientKey: string;
@@ -160,7 +161,7 @@ export const SmsLoginPage: React.FC = () => {
                                 <label>手机号</label>
                                 {errors.phone && (
                                     <span className={styles.errorTip}>
-                                     {errors.phone}
+                                        <ExclamationCircleIcon /> {errors.phone}
                                     </span>
                                 )}
                             </div>
@@ -178,7 +179,7 @@ export const SmsLoginPage: React.FC = () => {
                                 <label>验证码</label>
                                 {errors.smsCode && (
                                     <span className={styles.errorTip}>
-                                      {errors.smsCode}
+                                        <ExclamationCircleIcon /> {errors.smsCode}
                                     </span>
                                 )}
                             </div>
@@ -221,4 +222,4 @@ export const SmsLoginPage: React.FC = () => {
             <Footer />
         </>
     );
-}; 
+};

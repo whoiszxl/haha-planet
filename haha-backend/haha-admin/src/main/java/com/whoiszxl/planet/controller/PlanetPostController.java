@@ -21,5 +21,5 @@ import com.whoiszxl.planet.model.resp.PlanetPostResp;
  */
 @Tag(name = "星球帖子管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetPost", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetPost", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetPostController extends BaseController<PlanetPostService, PlanetPostResp, PlanetPostDetailResp, PlanetPostQuery, PlanetPostReq> {}

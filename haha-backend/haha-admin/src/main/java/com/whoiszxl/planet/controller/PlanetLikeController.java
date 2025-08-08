@@ -21,5 +21,5 @@ import com.whoiszxl.planet.service.PlanetLikeService;
  */
 @Tag(name = "点赞记录管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetLike", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetLike", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetLikeController extends BaseController<PlanetLikeService, PlanetLikeResp, PlanetLikeDetailResp, PlanetLikeQuery, PlanetLikeReq> {}

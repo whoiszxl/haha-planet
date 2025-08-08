@@ -14,7 +14,6 @@
     <modules>
         <module>haha-starter-cache-redisson</module>
         <module>haha-starter-cache-caffeine</module>
-        <module>haha-starter-cache-jetcache</module>
     </modules>
 
     <properties>

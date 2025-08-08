@@ -1,7 +1,7 @@
 --- ### 项目配置
 project:
   # URL（跨域配置默认放行此 URL，第三方登录回调默认使用此 URL 为前缀，请注意更改为你实际的前端 URL）
-  url: http://1d58122a.r7.cpolar.cn
+  url: http://73f27668.r7.cpolar.cn
 
 
 --- ### spring cloud配置
@@ -129,8 +129,10 @@ justauth:
   enabled: true
   type:
     GITEE:
+      # https://gitee.com/oauth/applications 中获取 Client ID & Client Secret
       client-id: ${GITEE_CLIENT_ID:G2w2e2A6d1oeRfaCdvg}
       client-secret: ${GITEE_CLIENT_SECRET:G2w2e2A6d1oeRfaCdvg}
+      # 此地址为 haha-web-frontend 中 OAuthRedirectPage 页面的访问地址
       redirect-uri: ${project.url}/social/callback?source=gitee
       http-config:
         timeout: 10000

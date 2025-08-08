@@ -21,5 +21,5 @@ import com.whoiszxl.planet.service.PlanetInviteService;
  */
 @Tag(name = "星球邀请管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetInvite", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetInvite", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetInviteController extends BaseController<PlanetInviteService, PlanetInviteResp, PlanetInviteDetailResp, PlanetInviteQuery, PlanetInviteReq> {}

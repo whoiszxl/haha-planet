@@ -21,5 +21,5 @@ import com.whoiszxl.planet.service.PlanetTagService;
  */
 @Tag(name = "星球标签管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetTag", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetTag", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetTagController extends BaseController<PlanetTagService, PlanetTagResp, PlanetTagDetailResp, PlanetTagQuery, PlanetTagReq> {}

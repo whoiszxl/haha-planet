@@ -21,5 +21,5 @@ import com.whoiszxl.planet.service.PlanetCommentService;
  */
 @Tag(name = "帖子评论管理 API")
 @RestController
-@CrudRequestMapping(value = "/whoiszxl/planetComment", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
+@CrudRequestMapping(value = "/planet/planetComment", api = {Api.PAGE, Api.GET, Api.ADD, Api.UPDATE, Api.DELETE, Api.EXPORT})
 public class PlanetCommentController extends BaseController<PlanetCommentService, PlanetCommentResp, PlanetCommentDetailResp, PlanetCommentQuery, PlanetCommentReq> {}
