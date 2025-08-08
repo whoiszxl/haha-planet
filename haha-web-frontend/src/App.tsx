@@ -11,6 +11,7 @@ import {
 import { SmsLoginPage } from "./pages/login/SmsLoginPage";
 import { EmailLoginPage } from "./pages/login/EmailLoginPage";
 import { NotFoundPage } from "./pages/common/NotFoundPage";
+import { DiscoveryPage } from "./pages/discovery/DiscoveryPage";
 
 // 滚动到顶部组件
 const ScrollToTop = () => {
@@ -37,6 +38,8 @@ function App() {
           <Route path="/social/bind" element={<BindPage />} />
           <Route path="/sms-login" element={<SmsLoginPage />} />
           <Route path="/email-login" element={<EmailLoginPage />} />
+
+          <Route path="/discovery" element={<DiscoveryPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
