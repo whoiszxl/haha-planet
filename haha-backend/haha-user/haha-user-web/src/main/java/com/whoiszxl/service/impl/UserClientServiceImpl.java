@@ -2,7 +2,7 @@ package com.whoiszxl.service.impl;
 
 import com.whoiszxl.model.response.UserClientResponse;
 import com.whoiszxl.service.UserClientService;
-import com.whoiszxl.starter.core.utils.BeanUtil;
+import com.whoiszxl.starter.core.utils.HahaBeanUtil;
 import com.whoiszxl.user.mapper.UserClientMapper;
 import com.whoiszxl.user.model.entity.UserClientDO;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class UserClientServiceImpl implements UserClientService {
         return userClientMapper.lambdaQuery()
                 .eq(UserClientDO::getClientKey, clientKey)
                 .oneOpt()
-                .map(memberClient -> BeanUtil.copyProperties(memberClient, UserClientResponse.class))
+                .map(memberClient -> HahaBeanUtil.copyProperties(memberClient, UserClientResponse.class))
                 .orElse(null);
     }
 }

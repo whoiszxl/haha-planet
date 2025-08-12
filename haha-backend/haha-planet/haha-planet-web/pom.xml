@@ -120,5 +120,11 @@
             <groupId>com.whoiszxl</groupId>
             <artifactId>haha-starter-captcha-graphic</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-starter-cache-caffeine</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 </project>

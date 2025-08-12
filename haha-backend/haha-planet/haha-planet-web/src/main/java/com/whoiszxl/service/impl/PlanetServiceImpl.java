@@ -40,10 +40,12 @@ public class PlanetServiceImpl implements PlanetService {
         
         // 构建查询条件
         LambdaQueryWrapper<PlanetDO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(PlanetDO::getCategoryId, req.getCategoryId())
-                   .eq(PlanetDO::getStatus, 1)
-                   .eq(PlanetDO::getIsDeleted, 0)
+        queryWrapper.eq(PlanetDO::getStatus, 1)
                    .eq(PlanetDO::getIsPublic, 1);
+
+        if(req.getCategoryId() != null) {
+            queryWrapper.eq(PlanetDO::getCategoryId, req.getCategoryId());
+        }
         
         // 根据排序类型设置排序规则
         switch (req.getSortType()) {

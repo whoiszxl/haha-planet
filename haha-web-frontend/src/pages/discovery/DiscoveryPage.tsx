@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import styles from "./DiscoveryPage.module.css";
+import React, { useState, useEffect } from 'react';
+import { SearchIcon } from '../../components/icons/SocialIcons';
+import styles from './DiscoveryPage.module.css';
 import { Footer, Header } from "../../components";
 import { 
   getPlanetCategories, 
@@ -43,11 +44,15 @@ export const DiscoveryPage: React.FC = () => {
     setLoading(true);
     try {
       const params: PlanetListReq = {
-        categoryId,
         page,
         pageSize,
         sortType: sort
       };
+      
+      // 只有选择具体分类时才传入categoryId参数，全部分类(categoryId=0)时不传
+      if (categoryId !== 0) {
+        params.categoryId = categoryId;
+      }
       const response = await getPlanetsByCategory(params);
       if (response.data && response.data.list) {
         setPlanets(response.data.list || []);
@@ -85,6 +90,55 @@ export const DiscoveryPage: React.FC = () => {
     console.log('搜索关键词:', searchKeyword);
   };
 
+  // 处理分页变化
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > Math.ceil(total / pageSize)) return;
+    loadPlanets(selectedCategory, sortType, page);
+    // 翻页后滚动到页面顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 生成页码数组
+  const generatePageNumbers = () => {
+    const totalPages = Math.ceil(total / pageSize);
+    const pages: (number | string)[] = [];
+    
+    if (totalPages <= 7) {
+      // 总页数少于等于7页，显示所有页码
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // 总页数大于7页，显示省略号
+      if (currentPage <= 4) {
+        // 当前页在前4页
+        for (let i = 1; i <= 5; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        // 当前页在后4页
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        // 当前页在中间
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
   // 页面加载时获取默认数据
   useEffect(() => {
     loadPlanets(0, 1, 1);
@@ -105,6 +159,27 @@ export const DiscoveryPage: React.FC = () => {
     return num.toString();
   };
 
+  // 格式化价格显示
+  const formatPrice = (planet: Planet) => {
+    // priceType: 1=免费, 2=付费
+    if (planet.priceType === 1) {
+      return { type: 'free', display: '免费' };
+    } else if (planet.priceType === 2) {
+      // 如果有优惠价且不等于原价，显示为限时优惠
+      if (planet.discountPrice && planet.originalPrice && planet.discountPrice < planet.originalPrice) {
+        return { 
+          type: 'discount', 
+          display: `¥${planet.discountPrice}`,
+          originalPrice: `¥${planet.originalPrice}`
+        };
+      } else {
+        // 正常付费价格
+        return { type: 'paid', display: `¥${planet.price}` };
+      }
+    }
+    return { type: 'free', display: '免费' };
+  };
+
   return (
     <div className={styles.discoveryPage}>
       <Header />
@@ -123,7 +198,7 @@ export const DiscoveryPage: React.FC = () => {
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
             <button className={styles.searchButton} onClick={handleSearch}>
-              🔍
+              <SearchIcon className={styles.searchIcon} />
             </button>
           </div>
         </div>
@@ -207,6 +282,7 @@ export const DiscoveryPage: React.FC = () => {
                       <div className={styles.planetMeta}>
                         <span>分类: {planet.categoryName || '未分类'}</span>
                         <span>内容: {planet.postCount} 篇</span>
+                        <span>成员: {formatNumber(planet.memberCount)} 人</span>
                         <span>
                           {planet.createTime ? (
                             `创建时间: ${new Date(planet.createTime).toLocaleDateString()}`
@@ -217,10 +293,23 @@ export const DiscoveryPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* 成员数统计 */}
-                    <div className={styles.planetStats}>
-                      <div className={styles.memberCount}>{formatNumber(planet.memberCount)}</div>
-                      <div className={styles.memberLabel}>成员</div>
+                    {/* 价格信息 */}
+                    <div className={styles.priceInfo}>
+                      {(() => {
+                        const priceInfo = formatPrice(planet);
+                        return (
+                          <div className={`${styles.price} ${styles[priceInfo.type]}`}>
+                            {priceInfo.type === 'discount' ? (
+                              <>
+                                <span className={styles.discountPrice}>{priceInfo.display}</span>
+                                <span className={styles.originalPrice}>{priceInfo.originalPrice}</span>
+                              </>
+                            ) : (
+                              <span>{priceInfo.display}</span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))
@@ -230,8 +319,44 @@ export const DiscoveryPage: React.FC = () => {
             {/* 分页 */}
             {total > pageSize && (
               <div className={styles.pagination}>
-                {/* 这里可以添加分页组件 */}
-                <div>共 {total} 个星球，第 {currentPage} 页</div>
+                <div className={styles.paginationInfo}>
+                  共 {total} 个星球，第 {currentPage} 页，共 {Math.ceil(total / pageSize)} 页
+                </div>
+                <div className={styles.paginationButtons}>
+                  {/* 上一页按钮 */}
+                  <button
+                    className={`${styles.pageButton} ${currentPage === 1 ? styles.disabled : ''}`}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    上一页
+                  </button>
+
+                  {/* 页码按钮 */}
+                  {generatePageNumbers().map((page, index) => (
+                    <button
+                      key={index}
+                      className={`${styles.pageButton} ${
+                        page === currentPage ? styles.active : ''
+                      } ${page === '...' ? styles.ellipsis : ''}`}
+                      onClick={() => typeof page === 'number' && handlePageChange(page)}
+                      disabled={page === '...'}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  {/* 下一页按钮 */}
+                  <button
+                    className={`${styles.pageButton} ${
+                      currentPage === Math.ceil(total / pageSize) ? styles.disabled : ''
+                    }`}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === Math.ceil(total / pageSize)}
+                  >
+                    下一页
+                  </button>
+                </div>
               </div>
             )}
           </div>

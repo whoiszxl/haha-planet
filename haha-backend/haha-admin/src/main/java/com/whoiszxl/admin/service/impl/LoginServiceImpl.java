@@ -11,15 +11,13 @@ import com.whoiszxl.admin.entity.Menu;
 import com.whoiszxl.admin.service.IMenuService;
 import com.whoiszxl.common.constants.SysConstants;
 import com.whoiszxl.common.enums.MenuTypeEnum;
-import com.whoiszxl.common.properties.RsaProperties;
 import com.whoiszxl.admin.service.IAdminService;
 import com.whoiszxl.admin.service.ILoginService;
 import com.whoiszxl.admin.service.IRoleService;
 import com.whoiszxl.captcha.google.service.GoogleCaptchaService;
 import com.whoiszxl.common.model.LoginAdmin;
 import com.whoiszxl.common.utils.LoginHelper;
-import com.whoiszxl.common.utils.SecureUtils;
-import com.whoiszxl.starter.core.utils.BeanUtil;
+import com.whoiszxl.starter.core.utils.HahaBeanUtil;
 import com.whoiszxl.starter.core.utils.validate.ValidationUtils;
 import com.whoiszxl.starter.crud.annotation.TreeField;
 import com.whoiszxl.starter.crud.utils.TreeUtils;
@@ -103,7 +101,7 @@ public class LoginServiceImpl implements ILoginService {
 
     private String login(Admin admin) {
         Long adminId = admin.getId();
-        LoginAdmin loginAdmin = BeanUtil.copyProperties(admin, LoginAdmin.class);
+        LoginAdmin loginAdmin = HahaBeanUtil.copyProperties(admin, LoginAdmin.class);
         loginAdmin.setPermissions(roleService.listPermissionByAdminId(adminId));
         loginAdmin.setRoles(roleService.listByAdminId(adminId));
         loginAdmin.setRoleCodes(roleService.listRoleCodeByAdminId(adminId));
@@ -129,7 +127,7 @@ public class LoginServiceImpl implements ILoginService {
 
         List<Menu> menuList = menuSet.stream()
                 .filter(m -> !MenuTypeEnum.BUTTON.equals(m.getType())).toList();
-        List<MenuResponse> menuResponseList = BeanUtil.copyToList(menuList, MenuResponse.class);
+        List<MenuResponse> menuResponseList = HahaBeanUtil.copyToList(menuList, MenuResponse.class);
 
         TreeField treeField = MenuResponse.class.getDeclaredAnnotation(TreeField.class);
         TreeNodeConfig treeNodeConfig = TreeUtils.genTreeNodeConfig(treeField);
@@ -150,6 +148,6 @@ public class LoginServiceImpl implements ILoginService {
             tree.putExtra("isHidden", m.getIsVisible());
             tree.putExtra("permission", m.getPermission());
         });
-        return BeanUtil.copyToList(treeList, RouteResponse.class);
+        return HahaBeanUtil.copyToList(treeList, RouteResponse.class);
     }
 }

@@ -44,7 +44,7 @@
 .logoText {
   font-size: 20px;
   font-weight: 600;
-  background: linear-gradient(45deg, #2a8cff, #17cf97);
+  background: #0060dd;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -63,23 +63,23 @@
   line-height: 1;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #4a90e2;
+  background: #0060dd;
   color: #ffffff;
 }
 
 .tagBlue:hover {
-  background: #357abd;
+  background: #0052b4;
   color: #ffffff;
   border-color: transparent;
 }
 
 .tagOrange {
-  background: #f5a623;
+  background: #ffa310;
   color: #ffffff;
 }
 
 .tagOrange:hover {
-  background: #e8941a;
+  background: #eb981b;
 }
 
 /* Middle Section Elements */
@@ -140,12 +140,12 @@
   line-height: 1;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #4a90e2;
+  background: #0060dd;
   color: #ffffff;
 }
 
 .todoButton:hover {
-  background: #357abd;
+  background: #0052b4;
 }
 
 .actions {

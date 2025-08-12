@@ -47,14 +47,10 @@ export const Footer: React.FC = () => {
             alignItems: 'center',
             gap: '8px'
           }}>
-            <span>🌟</span>
             <span style={{
-              background: 'linear-gradient(45deg, #2a8cff, #17cf97)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+              color: '#0060dd',
             }}>
-              哈哈星球 HAHA PLANET
+              HAHA PLANET
             </span>
           </div>
         </div>

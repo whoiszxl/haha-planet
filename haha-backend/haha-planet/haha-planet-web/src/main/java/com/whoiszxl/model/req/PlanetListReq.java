@@ -15,8 +15,7 @@ import lombok.Data;
 public class PlanetListReq {
 
     @Schema(description = "分类ID")
-    @NotNull(message = "分类ID不能为空")
-    private Long categoryId;
+    private Long categoryId = -1L;
 
     @Schema(description = "页码", example = "1")
     @Min(value = 1, message = "页码必须大于0")

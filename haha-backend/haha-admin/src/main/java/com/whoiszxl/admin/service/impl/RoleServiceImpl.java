@@ -11,10 +11,9 @@ import com.whoiszxl.admin.entity.Role;
 import com.whoiszxl.admin.mapper.RoleMapper;
 import com.whoiszxl.admin.service.*;
 import com.whoiszxl.common.constants.SysConstants;
-import com.whoiszxl.common.enums.DataScopeEnum;
 import com.whoiszxl.common.model.LabelValueResp;
 import com.whoiszxl.common.model.RoleDTO;
-import com.whoiszxl.starter.core.utils.BeanUtil;
+import com.whoiszxl.starter.core.utils.HahaBeanUtil;
 import com.whoiszxl.starter.core.utils.validate.CheckUtils;
 import com.whoiszxl.starter.crud.service.impl.BaseServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +55,7 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleMapper, Role, RoleRespo
         String code = command.getCode();
         CheckUtils.throwIf(this.isCodeExists(code, null), "新增失败，[{}] 已存在", code);
 
-        Role role = BeanUtil.copyProperties(command, Role.class);
+        Role role = HahaBeanUtil.copyProperties(command, Role.class);
         super.save(role);
         Long roleId = role.getId();
 
@@ -129,7 +128,7 @@ public class RoleServiceImpl extends BaseServiceImpl<RoleMapper, Role, RoleRespo
     public Set<RoleDTO> listByAdminId(Long adminId) {
         List<Long> roleIdList = adminRoleService.listRoleIdByAdminId(adminId);
         List<Role> roleList = this.lambdaQuery().in(Role::getId, roleIdList).list();
-        return new HashSet<>(BeanUtil.copyToList(roleList, RoleDTO.class));
+        return new HashSet<>(HahaBeanUtil.copyToList(roleList, RoleDTO.class));
     }
 
     @Override

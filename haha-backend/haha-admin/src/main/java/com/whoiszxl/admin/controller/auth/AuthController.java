@@ -2,10 +2,8 @@ package com.whoiszxl.admin.controller.auth;
 
 import cn.dev33.satoken.annotation.SaIgnore;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.core.lang.Assert;
 import com.whoiszxl.admin.cqrs.command.PasswordLoginCommand;
 import com.whoiszxl.admin.cqrs.response.AdminLoginResponse;
-import com.whoiszxl.admin.cqrs.response.AdminResponse;
 import com.whoiszxl.admin.cqrs.response.LoginResponse;
 import com.whoiszxl.admin.cqrs.response.RouteResponse;
 import com.whoiszxl.admin.entity.Admin;
@@ -13,11 +11,10 @@ import com.whoiszxl.admin.service.IAdminService;
 import com.whoiszxl.admin.service.ILoginService;
 import com.whoiszxl.cache.redisson.util.RedissonUtil;
 import com.whoiszxl.captcha.graphic.service.GraphicCaptchaService;
-import com.whoiszxl.common.constants.RedisPrefixConstants;
 import com.whoiszxl.common.model.LoginAdmin;
 import com.whoiszxl.common.utils.LoginHelper;
 import com.whoiszxl.common.utils.SecureUtils;
-import com.whoiszxl.starter.core.utils.BeanUtil;
+import com.whoiszxl.starter.core.utils.HahaBeanUtil;
 import com.whoiszxl.starter.core.utils.ExceptionUtils;
 import com.whoiszxl.starter.core.utils.validate.CheckUtils;
 import com.whoiszxl.starter.log.core.annotation.Log;
@@ -78,7 +75,7 @@ public class AuthController {
     public R<AdminLoginResponse> getAdminInfo() {
         LoginAdmin loginAdmin = LoginHelper.getLoginAdmin();
         Admin admin = adminService.getById(loginAdmin.getId());
-        AdminLoginResponse adminLoginResponse = BeanUtil.copyProperties(admin, AdminLoginResponse.class);
+        AdminLoginResponse adminLoginResponse = HahaBeanUtil.copyProperties(admin, AdminLoginResponse.class);
         adminLoginResponse.setPermissions(loginAdmin.getPermissions());
         adminLoginResponse.setRoles(loginAdmin.getRoleCodes());
         return R.ok(adminLoginResponse);

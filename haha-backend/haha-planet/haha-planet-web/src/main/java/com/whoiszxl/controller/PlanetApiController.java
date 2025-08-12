@@ -1,11 +1,12 @@
 package com.whoiszxl.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.whoiszxl.model.cache.PlanetCategoryListCache;
+import com.whoiszxl.model.cache.PlanetListCache;
 import com.whoiszxl.model.req.PlanetListReq;
 import com.whoiszxl.model.resp.PlanetCategoryResp;
 import com.whoiszxl.model.resp.PlanetResp;
-import com.whoiszxl.service.PlanetCategoryService;
-import com.whoiszxl.service.PlanetService;
+import com.whoiszxl.model.resp.VersionedResponse;
+import com.whoiszxl.service.PlanetCachedService;
 import com.whoiszxl.starter.crud.model.PageResponse;
 import com.whoiszxl.starter.web.model.R;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,34 +32,70 @@ import java.util.List;
 @Validated
 public class PlanetApiController {
 
-    private final PlanetCategoryService planetCategoryService;
-    private final PlanetService planetService;
+    private final PlanetCachedService planetCachedService;
 
     @Operation(summary = "查询星球一级分类列表", description = "获取所有启用状态的一级分类，使用多级缓存优化性能")
-    @GetMapping("/categories")
-    public R<List<PlanetCategoryResp>> listFirstLevelCategories() {
-        log.info("[星球API] 查询一级分类列表");
+    @GetMapping("/categories/{version}")
+    public R<VersionedResponse<List<PlanetCategoryResp>>> listFirstLevelCategories(@PathVariable Long version) {
+        log.info("[星球API] 查询一级分类列表，版本号: {}", version);
         
-        List<PlanetCategoryResp> categories = planetCategoryService.listFirstLevelCategories();
+        PlanetCategoryListCache categoryListCache = planetCachedService.getCachedPlanetCategoryList(version);
         
-        log.info("[星球API] 查询到 {} 个一级分类", categories.size());
-        return R.ok(categories);
+        // 如果需要稍后重试
+        if (categoryListCache.isLater()) {
+            log.warn("[星球API] 分类列表缓存获取失败，请稍后再试");
+            return R.ok(VersionedResponse.tryLater());
+        }
+
+        List<PlanetCategoryResp> categories = categoryListCache.getCategoryList();
+        Long currentVersion = categoryListCache.getVersion();
+        
+        log.info("[星球API] 查询到 {} 个一级分类，版本号: {}", 
+                categories != null ? categories.size() : 0, currentVersion);
+        
+        // 如果数据不存在
+        if (!categoryListCache.isExist()) {
+            return R.ok(VersionedResponse.notExist(currentVersion));
+        }
+        
+        // 返回成功响应
+        return R.ok(VersionedResponse.success(categories, currentVersion));
     }
 
     @Operation(summary = "根据分类ID查询星球列表", description = "分页查询指定分类下的星球，支持多种排序方式，使用多级缓存")
-    @PostMapping("/list")
-    public R<PageResponse<PlanetResp>> listPlanetsByCategory(@Valid @RequestBody PlanetListReq req) {
-        log.info("[星球API] 查询分类ID: {} 的星球列表，页码: {}, 页大小: {}, 排序: {}", 
-                req.getCategoryId(), req.getPage(), req.getPageSize(), req.getSortType());
+    @PostMapping("/list/{version}")
+    public R<VersionedResponse<PageResponse<PlanetResp>>> listPlanetsByCategory(@Valid @RequestBody PlanetListReq req, @PathVariable Long version) {
+        log.info("[星球API] 查询分类ID: {} 的星球列表，页码: {}, 页大小: {}, 排序: {}, 版本号: {}", 
+                req.getCategoryId(), req.getPage(), req.getPageSize(), req.getSortType(), version);
 
-        Page<PlanetResp> planetPage = planetService.listPlanetsByCategory(req);
+        PlanetListCache planetListCache = planetCachedService.getCachedPlanetList(
+                req.getCategoryId(), req.getPage(), req.getPageSize(), req.getSortType(), version);
         
-        log.info("[星球API] 查询到 {} 条星球记录，总计 {} 条", 
-                planetPage.getTotal(), planetPage.getTotal());
+        // 如果需要稍后重试
+        if (planetListCache.isLater()) {
+            log.warn("[星球API] 星球列表缓存获取失败，请稍后再试");
+            return R.ok(VersionedResponse.tryLater());
+        }
 
-        PageResponse<PlanetResp> pageResponse = PageResponse.build(planetPage);
+        List<PlanetResp> planetList = planetListCache.getPlanetList();
+        Long total = planetListCache.getTotal();
+        Long currentVersion = planetListCache.getVersion();
+        
+        log.info("[星球API] 查询到 {} 条星球记录，总计 {} 条，版本号: {}", 
+                planetList != null ? planetList.size() : 0, total, currentVersion);
 
-        return R.ok(pageResponse);
+        // 如果数据不存在
+        if (!planetListCache.isExist()) {
+            return R.ok(VersionedResponse.notExist(currentVersion));
+        }
+
+        // 构建分页响应
+        PageResponse<PlanetResp> pageResponse = new PageResponse<>();
+        pageResponse.setList(planetList);
+        pageResponse.setTotal(total);
+        
+        // 返回成功响应
+        return R.ok(VersionedResponse.success(pageResponse, currentVersion));
     }
 
 }
