@@ -150,9 +150,13 @@ cosid:
   namespace: ${spring.application.name}
   machine:
     enabled: true
+    # 固定机器ID，避免Redis分配超出范围的ID
+    machine-id: ${MACHINE_ID:1}
     # 机器号分配器
     distributor:
-      type: REDIS
+      type: MANUAL
+      manual:
+        machine-id: ${MACHINE_ID:1}
     guarder:
       # 开启机器号守护
       enabled: true

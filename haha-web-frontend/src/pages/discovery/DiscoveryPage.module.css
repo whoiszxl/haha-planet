@@ -103,7 +103,8 @@
 }
 
 .categoryItem {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 10px 15px;
   margin-bottom: 5px;
   border-radius: 4px;
@@ -111,6 +112,7 @@
   text-decoration: none;
   transition: all 0.3s ease;
   cursor: pointer;
+  gap: 8px;
 }
 
 .categoryItem:hover {
@@ -121,6 +123,22 @@
 .categoryItem.active {
   background-color: #0060dd;
   color: white;
+}
+
+/* 分类图标样式 */
+.categoryIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* 分类名称样式 */
+.categoryName {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .mainContent {

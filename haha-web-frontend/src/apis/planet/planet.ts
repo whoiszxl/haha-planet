@@ -61,6 +61,18 @@ export interface PlanetCategory {
   status: number;
 }
 
+// 星球成员用户信息类型
+export interface PlanetMemberUser {
+  userId: number;
+  userCode: string;
+  username: string;
+  nickname: string;
+  avatar: string;
+  memberType: number;
+  memberTypeName: string;
+  planetNickname: string;
+}
+
 // 星球响应类型
 export interface Planet {
   id: number;
@@ -91,7 +103,8 @@ export interface Planet {
   isFeatured: number;
   isOfficial: number;
   status: number;
-  createTime: string | null;
+  createdAt: string | null;
+  adminUsers?: PlanetMemberUser[]; // 管理员和星球主信息
 }
 
 // 分页请求类型
@@ -231,6 +244,45 @@ export const getHotPlanets = async (limit: number = 10) => {
     pageSize: limit,
     sortType: 2 // 2表示按热度排序
   });
+};
+
+// 获取星球详情（支持版本号）
+export const getPlanetDetail = async (planetId: number) => {
+  try {
+    // 获取本地存储的版本号（可以为星球详情单独管理版本号）
+    const localVersion = localStorage.getItem(`planet_detail_version_${planetId}`);
+    const version = localVersion ? parseInt(localVersion, 10) : 0;
+    
+    // 构建请求URL，版本号作为路径参数
+    const url = `/planet/api/planet/detail/${planetId}/${version}`;
+    
+    // 发送请求
+    const response = await http.get<VersionedResponse<Planet>>(url);
+    
+    // 如果请求成功且有新版本号，保存到本地
+    if (response.data && response.data.version) {
+      localStorage.setItem(`planet_detail_version_${planetId}`, response.data.version.toString());
+    }
+    
+    // 如果缓存不存在或需要稍后重试
+    if (!response.data.exist || response.data.later) {
+      console.warn('星球详情缓存未就绪:', response.data.later ? '稍后重试' : '数据不存在');
+      return {
+        data: null,
+        code: response.data.later ? 'CACHE_NOT_READY' : 'NO_DATA',
+        message: response.data.later ? '缓存正在构建中，请稍后重试' : '星球不存在或已被删除'
+      };
+    }
+    
+    return {
+      data: response.data.data,
+      code: 'SUCCESS',
+      message: '获取成功'
+    };
+  } catch (error) {
+    console.error('获取星球详情失败:', error);
+    throw error;
+  }
 };
 
 // ================================ 工具函数 ================================

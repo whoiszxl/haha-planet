@@ -1,6 +1,7 @@
 package com.whoiszxl.controller;
 
 import com.whoiszxl.model.cache.PlanetCategoryListCache;
+import com.whoiszxl.model.cache.PlanetDetailCache;
 import com.whoiszxl.model.cache.PlanetListCache;
 import com.whoiszxl.model.req.PlanetListReq;
 import com.whoiszxl.model.resp.PlanetCategoryResp;
@@ -96,6 +97,40 @@ public class PlanetApiController {
         
         // 返回成功响应
         return R.ok(VersionedResponse.success(pageResponse, currentVersion));
+    }
+
+    @Operation(summary = "根据星球ID查询星球详情", description = "获取指定星球的详细信息，使用多级缓存和布隆过滤器防止缓存穿透")
+    @GetMapping("/detail/{planetId}/{version}")
+    public R<VersionedResponse<PlanetResp>> getPlanetDetail(@PathVariable Long planetId, @PathVariable Long version) {
+        log.info("[星球API] 查询星球详情，星球ID: {}, 版本号: {}", planetId, version);
+
+        // 参数校验
+        if (planetId == null || planetId <= 0) {
+            log.warn("[星球API] 星球ID参数无效: {}", planetId);
+            return R.fail("星球ID参数无效");
+        }
+
+        PlanetDetailCache planetDetailCache = planetCachedService.getCachedPlanetDetail(planetId, version);
+        
+        // 如果需要稍后重试
+        if (planetDetailCache.isLater()) {
+            log.warn("[星球API] 星球详情缓存获取失败，请稍后再试，星球ID: {}", planetId);
+            return R.ok(VersionedResponse.tryLater());
+        }
+
+        PlanetResp planetDetail = planetDetailCache.getPlanetDetail();
+        Long currentVersion = planetDetailCache.getVersion();
+        
+        log.info("[星球API] 查询星球详情完成，星球ID: {}, 版本号: {}, 是否存在: {}", 
+                planetId, currentVersion, planetDetailCache.isExist());
+
+        // 如果数据不存在
+        if (!planetDetailCache.isExist()) {
+            return R.ok(VersionedResponse.notExist(currentVersion));
+        }
+
+        // 返回成功响应
+        return R.ok(VersionedResponse.success(planetDetail, currentVersion));
     }
 
 }

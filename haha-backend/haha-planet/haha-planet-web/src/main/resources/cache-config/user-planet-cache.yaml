@@ -1,0 +1,56 @@
+# 用户星球查询缓存配置
+# 针对500万+数据规模的缓存优化策略
+
+spring:
+  cache:
+    redis:
+      # 用户创建的星球列表缓存
+      user:created:planets:
+        ttl: 1800000  # 30分钟
+        key-prefix: "user:created:planets:"
+        cache-null-values: false
+        
+      # 用户加入的星球列表缓存  
+      user:joined:planets:
+        ttl: 1800000  # 30分钟
+        key-prefix: "user:joined:planets:"
+        cache-null-values: false
+        
+      # 用户星球统计信息缓存
+      user:planet:stats:
+        ttl: 3600000  # 1小时
+        key-prefix: "user:planet:stats:"
+        cache-null-values: false
+
+# Redis配置优化
+redis:
+  # 连接池配置
+  jedis:
+    pool:
+      max-active: 200     # 最大连接数
+      max-idle: 50        # 最大空闲连接
+      min-idle: 10        # 最小空闲连接
+      max-wait: 3000      # 最大等待时间(ms)
+  
+  # 序列化配置
+  serialization:
+    key-serializer: StringRedisSerializer
+    value-serializer: GenericJackson2JsonRedisSerializer
+    
+  # 集群配置（生产环境推荐）
+  cluster:
+    nodes:
+      - 127.0.0.1:7001
+      - 127.0.0.1:7002  
+      - 127.0.0.1:7003
+    max-redirects: 3
+    
+# 缓存预热配置
+cache:
+  warmup:
+    # 热点用户列表（可配置活跃用户ID）
+    hot-users: [1001, 1002, 1003, 1004, 1005]
+    # 预热任务执行时间（每天凌晨2点）
+    cron: "0 0 2 * * ?"
+    # 预热数据页数
+    warmup-pages: 3

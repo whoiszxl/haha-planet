@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './Header.module.css';
-import { Input, Badge, Avatar, Dropdown, Button, Space } from 'antd';
+import { Input, Badge, Avatar, Dropdown, Space } from 'antd';
 import {
   SearchOutlined,
   MessageOutlined,

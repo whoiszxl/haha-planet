@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SearchIcon } from '../../components/icons/SocialIcons';
 import styles from './DiscoveryPage.module.css';
 import { Footer, Header } from "../../components";
@@ -9,10 +10,12 @@ import {
   type Planet, 
   type PlanetListReq 
 } from "../../apis/planet/planet";
+import { getAvatarUrl, getImageUrl } from '../../utils/image';
 
 type SortType = 1 | 2 | 3;
 
 export const DiscoveryPage: React.FC = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<PlanetCategory[]>([]);
   const [planets, setPlanets] = useState<Planet[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number>(0);
@@ -88,6 +91,11 @@ export const DiscoveryPage: React.FC = () => {
   const handleSearch = () => {
     // TODO: 实现搜索功能
     console.log('搜索关键词:', searchKeyword);
+  };
+
+  // 跳转到星球详情页面
+  const handlePlanetClick = (planetId: number) => {
+    navigate(`/detail/${planetId}`);
   };
 
   // 处理分页变化
@@ -216,7 +224,15 @@ export const DiscoveryPage: React.FC = () => {
                   }`}
                   onClick={() => handleCategoryChange(category.id)}
                 >
-                  {category.categoryName}
+                  {/* 分类图标 */}
+                  {category.iconUrl && (
+                    <img 
+                      src={getImageUrl(category.iconUrl)} 
+                      alt={category.categoryName}
+                      className={styles.categoryIcon}
+                    />
+                  )}
+                  <span className={styles.categoryName}>{category.categoryName}</span>
                 </div>
               ))}
             </div>
@@ -257,14 +273,19 @@ export const DiscoveryPage: React.FC = () => {
                 </div>
               ) : (
                 planets.map((planet) => (
-                  <div key={planet.id} className={styles.planetItem}>
+                  <div 
+                    key={planet.id} 
+                    className={styles.planetItem}
+                    onClick={() => handlePlanetClick(planet.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     {/* 星球头像 */}
                     <div 
                       className={styles.planetAvatar}
                       style={{ backgroundColor: getAvatarColor(planet.name) }}
                     >
                       {planet.avatar ? (
-                        <img src={planet.avatar} alt={planet.name} style={{ width: '100%', height: '100%', borderRadius: '8px' }} />
+                        <img src={getAvatarUrl(planet.avatar)} alt={planet.name} style={{ width: '100%', height: '100%', borderRadius: '4px' }} />
                       ) : (
                         planet.name.charAt(0)
                       )}
@@ -284,8 +305,8 @@ export const DiscoveryPage: React.FC = () => {
                         <span>内容: {planet.postCount} 篇</span>
                         <span>成员: {formatNumber(planet.memberCount)} 人</span>
                         <span>
-                          {planet.createTime ? (
-                            `创建时间: ${new Date(planet.createTime).toLocaleDateString()}`
+                          {planet.createdAt ? (
+                            `创建时间: ${new Date(planet.createdAt).toLocaleDateString()}`
                           ) : (
                             `最后活跃: ${new Date(planet.lastActiveTime).toLocaleDateString()}`
                           )}

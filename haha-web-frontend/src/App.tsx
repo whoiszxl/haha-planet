@@ -12,6 +12,8 @@ import { SmsLoginPage } from "./pages/login/SmsLoginPage";
 import { EmailLoginPage } from "./pages/login/EmailLoginPage";
 import { NotFoundPage } from "./pages/common/NotFoundPage";
 import { DiscoveryPage } from "./pages/discovery/DiscoveryPage";
+import { PlanetDetailPage } from "./pages/detail/PlanetDetailPage";
+import { PlanetContentPage } from "./pages/content";
 
 // 滚动到顶部组件
 const ScrollToTop = () => {
@@ -40,6 +42,8 @@ function App() {
           <Route path="/email-login" element={<EmailLoginPage />} />
 
           <Route path="/discovery" element={<DiscoveryPage />} />
+          <Route path="/detail/:planetId" element={<PlanetDetailPage />} />
+          <Route path="/content" element={<PlanetContentPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

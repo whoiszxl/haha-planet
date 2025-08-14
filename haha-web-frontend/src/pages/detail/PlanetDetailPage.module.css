@@ -1,0 +1,504 @@
+/* 页面容器 */
+.planetDetailPage {
+  min-height: 100vh;
+  background-color: #f0f3f8;
+}
+
+/* 内容区域 */
+.pageContent {
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 0;
+  min-height: 75vh;
+}
+
+/* 页面容器 */
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 顶部导航 */
+.topNav {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #ffffff;
+  font-size: 14px;
+  color: #666666;
+}
+
+.navItem {
+  margin-right: 8px;
+}
+
+.navItem:first-child {
+  color: #999999;
+}
+
+.navItem:last-child {
+  color: #333333;
+  font-weight: 500;
+}
+
+/* 星球信息卡片 */
+.planetInfoCard {
+  background: #ffffff;
+  padding: 16px;
+}
+
+/* 星球头部信息 */
+.planetHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.planetAvatar {
+  width: 85px;
+  height: 85px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #e8e8e8;
+}
+
+.planetInfo {
+  flex: 1;
+}
+
+.planetTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.planetName {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #333333;
+  line-height: 1.3;
+}
+
+.verifyIcon {
+  font-size: 16px;
+}
+
+.planetMeta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.planetTags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 4px 12px;
+  background: #f5f5f5;
+  color: #666666;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #e8e8e8;
+}
+
+.planetStats {
+  color: #64748b;
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.planetStats::before {
+  content: "📊";
+  font-size: 16px;
+}
+
+.planetMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #999999;
+}
+
+.updateTime {
+  color: #999999;
+}
+
+.memberCount {
+  color: #999999;
+}
+
+.planetStats {
+  margin-top: 8px;
+}
+
+.statsHighlight {
+  display: inline-block;
+  background: #e6f2ff;
+  color: #0060dd;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 活动卡片 */
+.activityCard {
+  background: #ffffff;
+  padding: 16px;
+}
+
+.activityItem {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.activityItem:last-of-type {
+  border-bottom: none;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.activityContent {
+  flex: 1;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+}
+
+.userTag {
+  background: #ff9113;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.userTag:last-of-type {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.activityTime {
+  font-size: 12px;
+  color: #52c41a;
+  margin-left: auto;
+}
+
+.activityText {
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.4;
+}
+
+.expandButton {
+  text-align: center;
+  padding: 8px;
+  color: #1890ff;
+  font-size: 14px;
+  cursor: pointer;
+  border-top: 1px solid #f5f5f5;
+}
+
+/* 价格卡片 */
+.priceCard {
+  background: #ffffff;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.priceInfo {
+  flex: 1;
+}
+
+.currentPrice {
+  font-size: 24px;
+  font-weight: 600;
+  color: #ff4d4f;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.priceDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.originalPrice {
+  font-size: 12px;
+  color: #999999;
+}
+
+.priceNote {
+  font-size: 12px;
+  color: #999999;
+}
+
+.joinArea {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.joinButton {
+  background: #ff6b35;
+  color: white;
+  border: none;
+  padding: 10px 35px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.joinButton:hover {
+  background: #ff8c69;
+}
+
+.validPeriod {
+  font-size: 12px;
+  color: #999999;
+}
+
+/* 介绍卡片 */
+.introCard {
+  background: #ffffff;
+  padding: 16px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verifyBadge {
+  background: #1890ff;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.introContent {
+  background: #fafafa;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.introList {
+  margin: 0;
+  padding-left: 20px;
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.introList li {
+  margin-bottom: 8px;
+}
+
+.welcomeText {
+  margin: 12px 0 0 0;
+  color: #666666;
+  font-size: 14px;
+}
+
+/* 分类信息 */
+.categoryInfo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.categoryLabel {
+  color: #666666;
+  margin-right: 8px;
+}
+
+.categoryName {
+  color: #0060dd;
+  font-weight: 500;
+}
+
+/* 描述信息 */
+.description {
+  color: #333333;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+/* 标签区域 */
+.tagsSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.tagsLabel {
+  color: #666666;
+  white-space: nowrap;
+}
+
+.tagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background: #e6f2ff;
+  color: #0060dd;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 亮点卡片 */
+.highlightsCard {
+  background: #ffffff;
+  padding: 16px;
+}
+
+.highlightsList {
+  margin-top: 12px;
+}
+
+.highlightsImage {
+  width: 100%;
+  height: 200px;
+  background: #333333;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666666;
+  font-size: 14px;
+}
+
+
+
+/* 加载状态 */
+.loading {
+  text-align: center;
+  padding: 60px 0;
+  background: #ffffff;
+  border-radius: 8px;
+  margin: 20px 0;
+  border: 1px solid #e8e8e8;
+}
+
+.loadingSpinner {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 2px solid #f5f5f5;
+  border-top: 2px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading div {
+  font-size: 14px;
+  font-weight: 400;
+  color: #666666;
+  color: #475569;
+  margin-top: 16px;
+}
+
+/* 错误状态 */
+.error {
+  text-align: center;
+  padding: 60px 0;
+  background: #ffffff;
+  border-radius: 8px;
+  margin: 20px 0;
+  border: 1px solid #e8e8e8;
+}
+
+.error .icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+  color: #ff4d4f;
+}
+
+.error div {
+  font-size: 14px;
+  font-weight: 400;
+  color: #ff4d4f;
+  margin-bottom: 16px;
+}
+
+.error button {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.error button:hover {
+  background: #ff7875;
+}
+
+.bg-img {
+  background-repeat: repeat; /* 让背景图片重复填充 */
+  background-position: top left;  /* 设置背景图的位置 */
+}

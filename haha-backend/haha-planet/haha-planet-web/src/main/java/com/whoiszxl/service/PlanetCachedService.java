@@ -1,6 +1,7 @@
 package com.whoiszxl.service;
 
 import com.whoiszxl.model.cache.PlanetCategoryListCache;
+import com.whoiszxl.model.cache.PlanetDetailCache;
 import com.whoiszxl.model.cache.PlanetListCache;
 
 /**
@@ -29,4 +30,13 @@ public interface PlanetCachedService {
      * @return 星球列表缓存
      */
     PlanetListCache getCachedPlanetList(Long categoryId, Integer page, Integer pageSize, Integer sortType, Long version);
+
+    /**
+     * 获取缓存的星球详情
+     *
+     * @param planetId 星球ID
+     * @param version 版本号
+     * @return 星球详情缓存
+     */
+    PlanetDetailCache getCachedPlanetDetail(Long planetId, Long version);
 }

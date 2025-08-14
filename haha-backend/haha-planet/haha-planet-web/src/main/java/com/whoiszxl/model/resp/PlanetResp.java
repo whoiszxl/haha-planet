@@ -7,6 +7,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 星球响应类
@@ -105,5 +106,8 @@ public class PlanetResp implements Serializable {
     private Integer status;
 
     @Schema(description = "创建时间")
-    private LocalDateTime createTime;
+    private LocalDateTime createdAt;
+
+    @Schema(description = "星球管理员和星球主信息")
+    private List<PlanetMemberUserResp> adminUsers;
 }
