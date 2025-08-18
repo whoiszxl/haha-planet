@@ -70,16 +70,17 @@ public class S3StorageService implements StorageService {
                 bucketName, request.getKey(), result.getETag());
             
             // 构建返回对象
-            return new StorageObject()
-                .setKey(request.getKey())
-                .setBucketName(bucketName)
-                .setFileName(request.getFileName())
-                .setContentType(request.getContentType())
-                .setSize(request.getContentLength())
-                .setMetadata(request.getMetadata())
-                .setEtag(result.getETag())
-                .setCreateTime(LocalDateTime.now())
-                .setUrl(getObjectUrl(bucketName, request.getKey()));
+            StorageObject storageObject = new StorageObject();
+            storageObject.setKey(request.getKey());
+            storageObject.setBucketName(bucketName);
+            storageObject.setFileName(request.getFileName());
+            storageObject.setContentType(request.getContentType());
+            storageObject.setSize(request.getContentLength());
+            storageObject.setMetadata(request.getMetadata());
+            storageObject.setEtag(result.getETag());
+            storageObject.setCreateTime(LocalDateTime.now());
+            storageObject.setUrl(getObjectUrl(bucketName, request.getKey()));
+            return storageObject;
                 
         } catch (Exception e) {
             log.error("文件上传失败: bucket={}, key={}", request.getBucketName(), request.getKey(), e);
@@ -105,15 +106,16 @@ public class S3StorageService implements StorageService {
             bucketName = getBucketName(bucketName);
             ObjectMetadata metadata = amazonS3.getObjectMetadata(bucketName, key);
             
-            return new StorageObject()
-                .setKey(key)
-                .setBucketName(bucketName)
-                .setContentType(metadata.getContentType())
-                .setSize(metadata.getContentLength())
-                .setEtag(metadata.getETag())
-                .setCreateTime(metadata.getLastModified() != null ? 
-                    LocalDateTime.ofInstant(metadata.getLastModified().toInstant(), ZoneId.systemDefault()) : null)
-                .setUrl(getObjectUrl(bucketName, key));
+            StorageObject storageObject = new StorageObject();
+            storageObject.setKey(key);
+            storageObject.setBucketName(bucketName);
+            storageObject.setContentType(metadata.getContentType());
+            storageObject.setSize(metadata.getContentLength());
+            storageObject.setEtag(metadata.getETag());
+            storageObject.setCreateTime(metadata.getLastModified() != null ? 
+                LocalDateTime.ofInstant(metadata.getLastModified().toInstant(), ZoneId.systemDefault()) : null);
+            storageObject.setUrl(getObjectUrl(bucketName, key));
+            return storageObject;
                 
         } catch (Exception e) {
             log.error("获取对象信息失败: bucket={}, key={}", bucketName, key, e);
@@ -190,14 +192,17 @@ public class S3StorageService implements StorageService {
 
             String finalBucketName = bucketName;
             return result.getObjectSummaries().stream()
-                .map(summary -> new StorageObject()
-                    .setKey(summary.getKey())
-                    .setBucketName(finalBucketName)
-                    .setSize(summary.getSize())
-                    .setEtag(summary.getETag())
-                    .setCreateTime(summary.getLastModified() != null ?
-                        LocalDateTime.ofInstant(summary.getLastModified().toInstant(), ZoneId.systemDefault()) : null)
-                    .setUrl(getObjectUrl(finalBucketName, summary.getKey())))
+                .map(summary -> {
+                    StorageObject storageObject = new StorageObject();
+                    storageObject.setKey(summary.getKey());
+                    storageObject.setBucketName(finalBucketName);
+                    storageObject.setSize(summary.getSize());
+                    storageObject.setEtag(summary.getETag());
+                    storageObject.setCreateTime(summary.getLastModified() != null ?
+                        LocalDateTime.ofInstant(summary.getLastModified().toInstant(), ZoneId.systemDefault()) : null);
+                    storageObject.setUrl(getObjectUrl(finalBucketName, summary.getKey()));
+                    return storageObject;
+                })
                 .collect(Collectors.toList());
                 
         } catch (Exception e) {

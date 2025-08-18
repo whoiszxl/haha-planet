@@ -1,7 +1,6 @@
 package com.whoiszxl.storage.core.domain;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -13,7 +12,6 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Data
-@Accessors(chain = true)
 public class UploadRequest {
     
     /**
