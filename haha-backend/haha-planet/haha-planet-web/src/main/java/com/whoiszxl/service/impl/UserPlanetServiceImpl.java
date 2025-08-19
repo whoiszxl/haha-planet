@@ -2,27 +2,30 @@ package com.whoiszxl.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.whoiszxl.cache.redisson.util.RedissonUtil;
+import com.whoiszxl.model.resp.UserPlanetGroupResp;
 import com.whoiszxl.model.resp.UserPlanetResp;
+import com.whoiszxl.planet.enums.PlanetMemberTypeEnum;
 import com.whoiszxl.planet.mapper.PlanetMapper;
 import com.whoiszxl.planet.mapper.PlanetMemberMapper;
 import com.whoiszxl.planet.model.entity.PlanetDO;
 import com.whoiszxl.planet.model.entity.PlanetMemberDO;
 import com.whoiszxl.service.UserPlanetService;
 import com.whoiszxl.starter.core.utils.HahaBeanUtil;
-import com.whoiszxl.starter.crud.model.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
  * 用户星球服务实现
- * 针对500万+星球规模的高效查询优化
  * @author whoiszxl
  */
 @Slf4j
@@ -32,143 +35,221 @@ public class UserPlanetServiceImpl implements UserPlanetService {
     
     private final PlanetMapper planetMapper;
     private final PlanetMemberMapper planetMemberMapper;
+    private final RedissonUtil redissonUtil;
     
     @Override
-    @Cacheable(value = "user:created:planets", key = "#userId + ':' + #page + ':' + #pageSize", 
-               unless = "#result == null || #result.list.isEmpty()")
-    public PageResponse<UserPlanetResp> getUserCreatedPlanets(Long userId, Integer page, Integer pageSize) {
-        log.info("查询用户创建的星球列表，userId: {}, page: {}, pageSize: {}", userId, page, pageSize);
+    public UserPlanetGroupResp getUserAllPlanets(Long userId, Integer limit) {
+        log.info("查询用户所有星球，userId: {}, limit: {}", userId, limit);
         
-        // 构建分页查询条件
-        Page<PlanetDO> pageParam = new Page<>(page, pageSize);
+        // 构建缓存键
+        String cacheKey = buildCacheKey(userId, limit);
         
-        // 使用优化索引：idx_planet_owner_status_time
-        LambdaQueryWrapper<PlanetDO> queryWrapper = Wrappers.<PlanetDO>lambdaQuery()
-                .eq(PlanetDO::getOwnerId, userId)
-                .eq(PlanetDO::getStatus, 1)
-                .orderByDesc(PlanetDO::getCreatedAt);
+        // 先尝试从Redis缓存获取
+        UserPlanetGroupResp cachedResult = redissonUtil.get(cacheKey);
+        if (cachedResult != null) {
+            log.info("从Redis缓存获取用户星球数据，userId: {}, limit: {}", userId, limit);
+            return cachedResult;
+        }
         
-        // 执行分页查询
-        Page<PlanetDO> planetPage = planetMapper.selectPage(pageParam, queryWrapper);
+        try {
+            // 缓存未命中，异步并行查询三种角色的星球
+            CompletableFuture<List<UserPlanetResp>> createdFuture = 
+                getPlanetsByMemberTypeAsync(userId, PlanetMemberTypeEnum.OWNER, limit);
+            CompletableFuture<List<UserPlanetResp>> managedFuture = 
+                getPlanetsByMemberTypeAsync(userId, PlanetMemberTypeEnum.ADMIN, limit);
+            CompletableFuture<List<UserPlanetResp>> joinedFuture = 
+                getPlanetsByMemberTypeAsync(userId, PlanetMemberTypeEnum.NORMAL_MEMBER, limit);
+            
+            // 等待所有异步查询完成
+            CompletableFuture.allOf(createdFuture, managedFuture, joinedFuture).get();
+            
+            List<UserPlanetResp> createdPlanets = createdFuture.get();
+            List<UserPlanetResp> managedPlanets = managedFuture.get();
+            List<UserPlanetResp> joinedPlanets = joinedFuture.get();
+            
+            UserPlanetGroupResp result = buildResponse(createdPlanets, managedPlanets, joinedPlanets);
+            
+            // 将结果缓存到Redis，TTL 30分钟
+            redissonUtil.set(cacheKey, result, Duration.ofMinutes(30));
+            log.info("用户星球数据已缓存到Redis，userId: {}, limit: {}, TTL: 30分钟", userId, limit);
+            
+            return result;
+            
+        } catch (Exception e) {
+            log.error("异步查询用户星球失败，降级到同步查询，userId: {}", userId, e);
+            return getUserAllPlanetsSync(userId, limit);
+        }
+    }
+    
+    /**
+     * 同步查询降级方案
+     */
+    private UserPlanetGroupResp getUserAllPlanetsSync(Long userId, Integer limit) {
+        log.warn("使用同步查询降级方案，userId: {}", userId);
         
-        // 转换为响应DTO
-        List<UserPlanetResp> planetList = planetPage.getRecords().stream()
-                .map(planet -> {
-                    UserPlanetResp resp = HahaBeanUtil.toBean(planet, UserPlanetResp.class);
-                    // 创建者默认是星球主
-                    resp.setMemberType(3);
-                    resp.setMemberTypeName("星球主");
-                    resp.setJoinTime(planet.getCreatedAt());
-                    return resp;
-                })
-                .collect(Collectors.toList());
+        List<UserPlanetResp> createdPlanets = getPlanetsByMemberType(userId, PlanetMemberTypeEnum.OWNER, limit);
+        List<UserPlanetResp> managedPlanets = getPlanetsByMemberType(userId, PlanetMemberTypeEnum.ADMIN, limit);
+        List<UserPlanetResp> joinedPlanets = getPlanetsByMemberType(userId, PlanetMemberTypeEnum.NORMAL_MEMBER, limit);
         
-        PageResponse<UserPlanetResp> response = new PageResponse<>();
-        response.setList(planetList);
-        response.setTotal(planetPage.getTotal());
+        UserPlanetGroupResp result = buildResponse(createdPlanets, managedPlanets, joinedPlanets);
+        
+        // 降级查询也缓存结果，但TTL较短（10分钟）
+        try {
+            String cacheKey = buildCacheKey(userId, limit);
+            redissonUtil.set(cacheKey, result, Duration.ofMinutes(10));
+            log.info("降级查询结果已缓存，userId: {}, TTL: 10分钟", userId);
+        } catch (Exception e) {
+            log.warn("降级查询缓存失败，userId: {}", userId, e);
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 构建响应对象
+     */
+    private UserPlanetGroupResp buildResponse(List<UserPlanetResp> createdPlanets, 
+                                            List<UserPlanetResp> managedPlanets, 
+                                            List<UserPlanetResp> joinedPlanets) {
+        UserPlanetGroupResp response = new UserPlanetGroupResp();
+        response.setCreatedPlanets(createdPlanets);
+        response.setManagedPlanets(managedPlanets);
+        response.setJoinedPlanets(joinedPlanets);
+        response.setStats(new UserPlanetGroupResp.PlanetStats(
+            createdPlanets.size(),
+            managedPlanets.size(),
+            joinedPlanets.size()
+        ));
         return response;
     }
     
-    @Override
-    @Cacheable(value = "user:joined:planets", key = "#userId + ':' + #page + ':' + #pageSize + ':' + #memberType", 
-               unless = "#result == null || #result.list.isEmpty()")
-    public PageResponse<UserPlanetResp> getUserJoinedPlanets(Long userId, Integer page, Integer pageSize, Integer memberType) {
-        log.info("查询用户加入的星球列表，userId: {}, page: {}, pageSize: {}, memberType: {}", 
-                userId, page, pageSize, memberType);
-        
-        // 构建分页查询条件
-        Page<PlanetMemberDO> pageParam = new Page<>(page, pageSize);
-        
-        // 使用优化索引：idx_member_user_status_type_time
+    /**
+     * 异步查询用户星球列表
+     */
+    @Async("taskExecutor")
+    public CompletableFuture<List<UserPlanetResp>> getPlanetsByMemberTypeAsync(Long userId, PlanetMemberTypeEnum memberType, Integer limit) {
+        return CompletableFuture.completedFuture(getPlanetsByMemberType(userId, memberType, limit));
+    }
+    
+    /**
+     * 根据成员类型获取用户星球列表
+     */
+    private List<UserPlanetResp> getPlanetsByMemberType(Long userId, PlanetMemberTypeEnum memberType, Integer limit) {
+        // 查询成员记录
         LambdaQueryWrapper<PlanetMemberDO> memberQuery = Wrappers.<PlanetMemberDO>lambdaQuery()
                 .eq(PlanetMemberDO::getUserId, userId)
+                .eq(PlanetMemberDO::getMemberType, memberType.getCode())
                 .eq(PlanetMemberDO::getStatus, 1)
-                .orderByDesc(PlanetMemberDO::getJoinTime);
+                .orderByDesc(PlanetMemberDO::getJoinTime)
+                .last("LIMIT " + limit);
         
-        // 如果指定了成员类型，添加过滤条件
-        if (memberType != null) {
-            memberQuery.eq(PlanetMemberDO::getMemberType, memberType);
+        List<PlanetMemberDO> members = planetMemberMapper.selectList(memberQuery);
+        if (members.isEmpty()) {
+            return List.of();
         }
         
-        // 执行分页查询
-        Page<PlanetMemberDO> memberPage = planetMemberMapper.selectPage(pageParam, memberQuery);
-        
-        if (memberPage.getRecords().isEmpty()) {
-            PageResponse<UserPlanetResp> response = new PageResponse<>();
-            response.setList(List.of());
-            response.setTotal(0);
-            return response;
-        }
-        
-        // 提取星球ID列表
-        List<Long> planetIds = memberPage.getRecords().stream()
+        // 批量查询星球信息
+        List<Long> planetIds = members.stream()
                 .map(PlanetMemberDO::getPlanetId)
                 .collect(Collectors.toList());
         
-        // 批量查询星球信息
-        LambdaQueryWrapper<PlanetDO> planetQuery = Wrappers.<PlanetDO>lambdaQuery()
-                .in(PlanetDO::getId, planetIds)
-                .eq(PlanetDO::getStatus, 1);
+        Map<Long, PlanetDO> planetMap = planetMapper.selectList(
+                Wrappers.<PlanetDO>lambdaQuery()
+                        .in(PlanetDO::getId, planetIds)
+                        .eq(PlanetDO::getStatus, 1)
+        ).stream().collect(Collectors.toMap(PlanetDO::getId, planet -> planet));
         
-        List<PlanetDO> planets = planetMapper.selectList(planetQuery);
-        
-        // 构建星球ID到星球对象的映射
-        var planetMap = planets.stream()
-                .collect(Collectors.toMap(PlanetDO::getId, planet -> planet));
-        
-        // 合并成员信息和星球信息
-        List<UserPlanetResp> planetList = memberPage.getRecords().stream()
-                .map(member -> {
-                    PlanetDO planet = planetMap.get(member.getPlanetId());
-                    if (planet == null) {
-                        return null; // 星球不存在或已删除
-                    }
-                    
-                    UserPlanetResp resp = HahaBeanUtil.toBean(planet, UserPlanetResp.class);
-                    // 设置用户在星球中的角色信息
-                    resp.setMemberType(member.getMemberType());
-                    resp.setJoinTime(member.getJoinTime());
-                    resp.setPlanetNickname(member.getNickname());
-                    return resp;
-                })
+        // 构建响应对象
+        return members.stream()
+                .map(member -> buildUserPlanetResp(member, planetMap.get(member.getPlanetId()), memberType))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        
-        PageResponse<UserPlanetResp> response = new PageResponse<>();
-        response.setList(planetList);
-        response.setTotal(memberPage.getTotal());
-        return response;
     }
     
-    @Override
-    @Cacheable(value = "user:planet:stats", key = "#userId")
-    public UserPlanetStatsResp getUserPlanetStats(Long userId) {
-        log.info("查询用户星球统计信息，userId: {}", userId);
+    /**
+     * 构建用户星球响应对象
+     */
+    private UserPlanetResp buildUserPlanetResp(PlanetMemberDO member, PlanetDO planet, PlanetMemberTypeEnum memberType) {
+        UserPlanetResp resp = HahaBeanUtil.toBean(planet, UserPlanetResp.class);
+        if (resp == null) {
+            return null;
+        }
+        resp.setMemberType(memberType.getCode());
+        resp.setMemberTypeName(memberType.getName());
+        resp.setJoinTime(member.getJoinTime());
+        resp.setPlanetNickname(member.getNickname());
         
-        UserPlanetStatsResp stats = new UserPlanetStatsResp();
+        return resp;
+    }
+    
+    /**
+     * 构建缓存键
+     */
+    private String buildCacheKey(Long userId, Integer limit) {
+        return String.format("haha:planet:user:planets:%d:%d", userId, limit);
+    }
+    
+    /**
+     * 清除用户星球缓存
+     */
+    public void evictUserPlanetsCache(Long userId) {
+        if (userId == null) {
+            return;
+        }
         
-        // 查询创建的星球数量
-        LambdaQueryWrapper<PlanetDO> createdQuery = Wrappers.<PlanetDO>lambdaQuery()
-                .eq(PlanetDO::getOwnerId, userId)
-                .eq(PlanetDO::getStatus, 1);
-        Long createdCount = planetMapper.selectCount(createdQuery);
-        stats.setCreatedCount(createdCount);
+        try {
+            // 删除所有相关的缓存键（不同limit值）
+            String[] patterns = {
+                buildCacheKey(userId, 10),
+                buildCacheKey(userId, 20),
+                buildCacheKey(userId, 50),
+                buildCacheKey(userId, 100)
+            };
+            
+            for (String key : patterns) {
+                redissonUtil.delete(key);
+            }
+            
+            log.info("清除用户星球缓存成功，userId: {}", userId);
+        } catch (Exception e) {
+            log.error("清除用户星球缓存失败，userId: {}", userId, e);
+        }
+    }
+    
+    /**
+     * 用户加入星球时清除缓存
+     */
+    public void onUserJoinPlanet(Long userId, Long planetId) {
+        log.info("用户加入星球，清除缓存，userId: {}, planetId: {}", userId, planetId);
+        evictUserPlanetsCache(userId);
+    }
+    
+    /**
+     * 用户退出星球时清除缓存
+     */
+    public void onUserLeavePlanet(Long userId, Long planetId) {
+        log.info("用户退出星球，清除缓存，userId: {}, planetId: {}", userId, planetId);
+        evictUserPlanetsCache(userId);
+    }
+    
+    /**
+     * 预热用户星球缓存
+     */
+    public void warmUpUserPlanetsCache(Long userId) {
+        if (userId == null) {
+            return;
+        }
         
-        // 查询加入的星球数量（包括创建的）
-        LambdaQueryWrapper<PlanetMemberDO> joinedQuery = Wrappers.<PlanetMemberDO>lambdaQuery()
-                .eq(PlanetMemberDO::getUserId, userId)
-                .eq(PlanetMemberDO::getStatus, 1);
-        Long joinedCount = planetMemberMapper.selectCount(joinedQuery);
-        stats.setJoinedCount(joinedCount);
-        
-        // 查询管理的星球数量（管理员+星球主）
-        LambdaQueryWrapper<PlanetMemberDO> managedQuery = Wrappers.<PlanetMemberDO>lambdaQuery()
-                .eq(PlanetMemberDO::getUserId, userId)
-                .in(PlanetMemberDO::getMemberType, 2, 3)
-                .eq(PlanetMemberDO::getStatus, 1);
-        Long managedCount = planetMemberMapper.selectCount(managedQuery);
-        stats.setManagedCount(managedCount);
-        
-        return stats;
+        try {
+            log.info("预热用户星球缓存，userId: {}", userId);
+            
+            // 预热常用的limit值
+            getUserAllPlanets(userId, 10);
+            getUserAllPlanets(userId, 20);
+            
+            log.info("预热用户星球缓存完成，userId: {}", userId);
+        } catch (Exception e) {
+            log.error("预热用户星球缓存失败，userId: {}", userId, e);
+        }
     }
 }

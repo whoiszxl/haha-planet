@@ -1,0 +1,532 @@
+/* 骨架屏动画 - 柔和的脉冲效果 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* 通用骨架屏样式 */
+.skeletonBase {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+/* 侧边栏骨架屏 */
+.sidebarSkeleton {
+  padding: 20px;
+  width: 100%;
+  min-height: 400px;
+}
+
+.sidebarHeader {
+  margin-bottom: 20px;
+}
+
+.skeletonTitle {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 6px;
+  height: 24px;
+  width: 120px;
+  margin-bottom: 16px;
+}
+
+.planetSections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sectionSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionHeaderSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skeletonText {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 18px;
+  width: 80px;
+}
+
+.skeletonCount {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 18px;
+  width: 30px;
+}
+
+.planetListSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.planetItemSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fafafa;
+  min-height: 64px;
+}
+
+.planetAvatarSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.planetInfoSkeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.planetNameSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 16px;
+  width: 120px;
+}
+
+.planetMetaSkeleton {
+  display: flex;
+  gap: 12px;
+}
+
+.skeletonMeta {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 14px;
+  width: 60px;
+}
+
+/* 主内容区骨架屏 */
+.mainSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 200px;
+}
+
+.publishSkeleton {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  min-height: 120px;
+}
+
+.publishBoxSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.avatarSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.inputSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 20px;
+  height: 40px;
+  flex: 1;
+}
+
+.toolbarSkeleton {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.toolIconSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+}
+
+.categorySkeleton {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  min-height: 60px;
+}
+
+.tabsSkeleton {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.tabSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 20px;
+  width: 60px;
+}
+
+/* 帖子列表骨架屏 */
+.postListSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.postItemSkeleton {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: 12px;
+}
+
+.postAvatarSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.postContentSkeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.postHeaderSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userNameSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 16px;
+  width: 80px;
+}
+
+.postTimeSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 14px;
+  width: 60px;
+}
+
+.postBodySkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.postTitleSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 20px;
+  width: 200px;
+}
+
+.postTextSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.textLineSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 16px;
+  width: 100%;
+}
+
+.textLineShortSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 16px;
+  width: 70%;
+}
+
+.postFooterSkeleton {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.actionSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.actionIconSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 2px;
+  width: 16px;
+  height: 16px;
+}
+
+.actionTextSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 14px;
+  width: 24px;
+}
+
+/* 右侧面板骨架屏 */
+.rightPanelSkeleton {
+  padding: 20px;
+}
+
+.planetInfoSkeleton {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.planetHeaderSkeleton {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.planetAvatarLargeSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 12px;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.planetBasicInfoSkeleton {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.planetTitleSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 24px;
+  width: 150px;
+}
+
+.planetStatsSkeleton {
+  display: flex;
+  gap: 20px;
+}
+
+.statItemSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.statNumberSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 20px;
+  width: 40px;
+}
+
+.statLabelSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 14px;
+  width: 30px;
+}
+
+.planetDetailsSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detailSectionSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitleSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 18px;
+  width: 80px;
+}
+
+.descriptionSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.infoListSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoRowSkeleton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.infoLabelSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 16px;
+  width: 60px;
+}
+
+.infoValueSkeleton {
+  background: #f5f5f5;
+  animation: pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+  height: 16px;
+  width: 80px;
+}
+
+/* 全页面骨架屏布局 */
+.fullPageSkeleton {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.fullPageContent {
+  width: 1480px;
+  margin: 0 auto;
+  min-height: calc(100vh - 140px);
+  display: flex;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.sidebarContainer {
+  width: 280px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.mainContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.rightContainer {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 1480px) {
+  .fullPageContent {
+    width: 100%;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .rightContainer {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .fullPageContent {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .sidebarContainer,
+  .rightContainer {
+    width: 100%;
+  }
+  
+  .rightContainer {
+    display: block;
+  }
+  
+  .planetItemSkeleton {
+    padding: 8px;
+  }
+  
+  .planetAvatarSkeleton {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .postItemSkeleton {
+    padding: 16px;
+  }
+  
+  .postAvatarSkeleton {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .planetAvatarLargeSkeleton {
+    width: 60px;
+    height: 60px;
+  }
+}

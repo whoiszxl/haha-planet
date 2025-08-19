@@ -26,88 +26,84 @@ export interface UserPlanet {
   planetNickname?: string;
 }
 
-// 分页响应类型
+// 分页响应类型（保留兼容性）
 export interface PageResponse<T> {
   list: T[];
   total: number;
 }
 
-// 用户星球统计信息
-export interface UserPlanetStats {
-  createdCount: number;    // 创建的星球数量
-  joinedCount: number;     // 加入的星球数量
-  managedCount: number;    // 管理的星球数量
+// 用户星球分组响应
+export interface UserPlanetGroupResp {
+  createdPlanets: UserPlanet[];    // 我创建的星球
+  managedPlanets: UserPlanet[];    // 我管理的星球
+  joinedPlanets: UserPlanet[];     // 我加入的星球
+  stats: {
+    createdCount: number;
+    managedCount: number;
+    joinedCount: number;
+    totalCount: number;
+  };
 }
 
 /**
- * 获取用户创建的星球列表
+ * 获取用户所有星球，按类型分组
  */
-export const getUserCreatedPlanets = async (page: number = 1, pageSize: number = 20) => {
+export const getUserAllPlanets = async (limit: number = 50) => {
   try {
-    const response = await http.get<PageResponse<UserPlanet>>(`/planet/api/user/planet/created?page=${page}&pageSize=${pageSize}`);
+    const response = await http.get<UserPlanetGroupResp>(`/planet/api/user/planet/all?limit=${limit}`);
     return {
       data: response.data,
       code: 'SUCCESS',
       message: '获取成功'
     };
   } catch (error) {
-    console.error('获取用户创建的星球失败:', error);
+    console.error('获取用户所有星球失败:', error);
     throw error;
   }
 };
 
-/**
- * 获取用户加入的星球列表
- */
-export const getUserJoinedPlanets = async (page: number = 1, pageSize: number = 20, memberType?: number) => {
-  try {
-    let url = `/planet/api/user/planet/joined?page=${page}&pageSize=${pageSize}`;
-    if (memberType !== undefined) {
-      url += `&memberType=${memberType}`;
-    }
-    
-    const response = await http.get<PageResponse<UserPlanet>>(url);
+// 为了兼容性，保留单独的获取方法
+export const getUserCreatedPlanets = async (limit: number = 50) => {
+  const response = await getUserAllPlanets(limit);
+  if (response.code === 'SUCCESS' && response.data) {
     return {
-      data: response.data,
+      data: {
+        list: response.data.createdPlanets,
+        total: response.data.createdPlanets.length
+      },
       code: 'SUCCESS',
       message: '获取成功'
     };
-  } catch (error) {
-    console.error('获取用户加入的星球失败:', error);
-    throw error;
   }
+  throw new Error('获取失败');
 };
 
-/**
- * 获取用户管理的星球列表
- */
-export const getUserManagedPlanets = async (page: number = 1, pageSize: number = 20) => {
-  try {
-    const response = await http.get<PageResponse<UserPlanet>>(`/planet/api/user/planet/managed?page=${page}&pageSize=${pageSize}`);
+export const getUserJoinedPlanets = async (limit: number = 50) => {
+  const response = await getUserAllPlanets(limit);
+  if (response.code === 'SUCCESS' && response.data) {
     return {
-      data: response.data,
+      data: {
+        list: response.data.joinedPlanets,
+        total: response.data.joinedPlanets.length
+      },
       code: 'SUCCESS',
       message: '获取成功'
     };
-  } catch (error) {
-    console.error('获取用户管理的星球失败:', error);
-    throw error;
   }
+  throw new Error('获取失败');
 };
 
-/**
- * 获取用户星球统计信息
- */
-export const getUserPlanetStats = async () => {
-  try {
-    const response = await http.get<UserPlanetStats>('/planet/api/user/planet/stats');
+export const getUserManagedPlanets = async (limit: number = 50) => {
+  const response = await getUserAllPlanets(limit);
+  if (response.code === 'SUCCESS' && response.data) {
     return {
-      data: response.data,
+      data: {
+        list: response.data.managedPlanets,
+        total: response.data.managedPlanets.length
+      },
       code: 'SUCCESS',
       message: '获取成功'
     };
-  } catch (error) {
-    console.error('获取用户星球统计信息失败:', error);
-    throw error;
   }
+  throw new Error('获取失败');
 };

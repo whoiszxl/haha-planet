@@ -1,5 +1,6 @@
 package com.whoiszxl.service;
 
+import com.whoiszxl.model.resp.UserPlanetGroupResp;
 import com.whoiszxl.model.resp.UserPlanetResp;
 import com.whoiszxl.starter.crud.model.PageResponse;
 import lombok.Data;
@@ -12,30 +13,13 @@ import lombok.Data;
 public interface UserPlanetService {
     
     /**
-     * 获取用户创建的星球列表
+     * 获取用户所有星球，按类型分组
      * @param userId 用户ID
-     * @param page 页码
-     * @param pageSize 每页数量
-     * @return 分页结果
+     * @param limit 每个分组的最大数量
+     * @return 分组结果
      */
-    PageResponse<UserPlanetResp> getUserCreatedPlanets(Long userId, Integer page, Integer pageSize);
+    UserPlanetGroupResp getUserAllPlanets(Long userId, Integer limit);
     
-    /**
-     * 获取用户加入的星球列表
-     * @param userId 用户ID
-     * @param page 页码
-     * @param pageSize 每页数量
-     * @param memberType 成员类型：1-普通成员，2-管理员，3-星球主，null-全部
-     * @return 分页结果
-     */
-    PageResponse<UserPlanetResp> getUserJoinedPlanets(Long userId, Integer page, Integer pageSize, Integer memberType);
-    
-    /**
-     * 获取用户星球统计信息
-     * @param userId 用户ID
-     * @return 统计信息
-     */
-    UserPlanetStatsResp getUserPlanetStats(Long userId);
     
     /**
      * 用户星球统计信息

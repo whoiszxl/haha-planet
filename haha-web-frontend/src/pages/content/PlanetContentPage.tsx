@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import styles from "./PlanetContentPage.module.css";
-import { Footer, Header } from "../../components";
+import { Header } from "../../components";
 import { 
-  getUserCreatedPlanets, 
-  getUserJoinedPlanets, 
-  getUserManagedPlanets,
-  UserPlanet 
+  getUserAllPlanets,
+  UserPlanet,
+  UserPlanetGroupResp 
 } from "../../apis/user/userPlanet";
 import { getPlanetDetail, Planet } from "../../apis/planet/planet";
 import { getPostsByPlanetId, Post as ApiPost, formatPostTime, formatCount } from "../../apis/post/post";
@@ -15,6 +14,7 @@ import {
   EmojiIcon, ImageIcon, LinkIcon, BoldIcon, HeadingIcon, WriteIcon,
   LikeIcon, CommentIcon, ViewIcon, ShareIcon, MoreIcon, ArrowRightIcon 
 } from "../../components/icons/SocialIcons";
+import PlanetContentSkeleton from "../../components/skeleton/PlanetContentSkeleton";
 
 // 扩展帖子类型定义，添加前端需要的额外字段
 interface Post extends ApiPost {
@@ -42,10 +42,12 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   // 帖子列表相关状态
   const [posts, setPosts] = useState<Post[]>([]);
   const [postLoading, setPostLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false); // 区分加载更多和初始加载
   const [postError, setPostError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
   const [sortType, setSortType] = useState(1); // 1-最新发布 2-最多点赞 3-最多评论 4-最多浏览
+  const [cacheVersion, setCacheVersion] = useState<string | undefined>(undefined); // 缓存版本号，后端需要 Long 类型
   
   // 折叠状态管理
   const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({
@@ -80,59 +82,50 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
       setLoading(true);
       setError(null);
       
-      // 并行加载三种类型的星球
-      const [createdResponse, joinedResponse, managedResponse] = await Promise.all([
-        getUserCreatedPlanets(1, 50),
-        getUserJoinedPlanets(1, 50),
-        getUserManagedPlanets(1, 50)
-      ]);
+      // 使用新的统一接口
+      const response = await getUserAllPlanets(50);
       
-      // 处理创建的星球
-      if (createdResponse.code === 'SUCCESS' && createdResponse.data) {
-        setCreatedPlanets(createdResponse.data.list || []);
-      }
-      
-      // 处理加入的星球
-      if (joinedResponse.code === 'SUCCESS' && joinedResponse.data) {
-        setJoinedPlanets(joinedResponse.data.list || []);
-      }
-      
-      // 处理管理的星球
-      if (managedResponse.code === 'SUCCESS' && managedResponse.data) {
-        setManagedPlanets(managedResponse.data.list || []);
-      }
-      
-      // 合并所有星球列表
-      const allPlanets = [
-        ...(createdResponse.data?.list || []),
-        ...(joinedResponse.data?.list || []),
-        ...(managedResponse.data?.list || [])
-      ];
-      
-      // 如果有planetId参数，优先选择指定的星球
-      if (planetId) {
-        const targetPlanet = allPlanets.find(planet => planet.id.toString() === planetId);
-        if (targetPlanet) {
-          setSelectedPlanet(targetPlanet);
-          // 加载星球详情和帖子
-          await loadPlanetDetail(targetPlanet.id);
-          await loadPosts(targetPlanet.id, 1, 1);
+      if (response.code === 'SUCCESS' && response.data) {
+        // 设置各类型星球列表
+        setCreatedPlanets(response.data.createdPlanets || []);
+        setJoinedPlanets(response.data.joinedPlanets || []);
+        setManagedPlanets(response.data.managedPlanets || []);
+        
+        // 合并所有星球列表
+        const allPlanets = [
+          ...(response.data.createdPlanets || []),
+          ...(response.data.joinedPlanets || []),
+          ...(response.data.managedPlanets || [])
+        ];
+        
+        // 如果有planetId参数，优先选择指定的星球
+        if (planetId) {
+          const targetPlanet = allPlanets.find(planet => planet.id.toString() === planetId);
+          if (targetPlanet) {
+            setSelectedPlanet(targetPlanet);
+            // 加载星球详情和帖子
+            await loadPlanetDetail(targetPlanet.id);
+            await loadPosts(targetPlanet.id, 1, 1);
+          } else {
+            // 如果在用户星球列表中找不到，仍然尝试加载详情
+            const id = parseInt(planetId);
+            await loadPlanetDetail(id);
+            await loadPosts(id, 1, 1);
+          }
         } else {
-          // 如果在用户星球列表中找不到，仍然尝试加载详情
-          const id = parseInt(planetId);
-          await loadPlanetDetail(id);
-          await loadPosts(id, 1, 1);
+          // 没有指定planetId时，默认选择第一个星球
+          const firstPlanet = response.data.createdPlanets?.[0] || 
+                             response.data.joinedPlanets?.[0] || 
+                             response.data.managedPlanets?.[0];
+          if (firstPlanet) {
+            setSelectedPlanet(firstPlanet);
+            await loadPlanetDetail(firstPlanet.id);
+            await loadPosts(firstPlanet.id, 1, 1);
+          }
         }
       } else {
-        // 没有指定planetId时，默认选择第一个星球
-        const firstPlanet = createdResponse.data?.list?.[0] || 
-                           joinedResponse.data?.list?.[0] || 
-                           managedResponse.data?.list?.[0];
-        if (firstPlanet) {
-          setSelectedPlanet(firstPlanet);
-          await loadPlanetDetail(firstPlanet.id);
-          await loadPosts(firstPlanet.id, 1, 1);
-        }
+        console.warn('获取星球列表失败:', response.message);
+        setError('获取星球列表失败');
       }
       
     } catch (err) {
@@ -144,26 +137,63 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   };
 
   // 加载帖子列表
-  const loadPosts = async (planetId: number, page: number = 1, sort: number = 1) => {
+  const loadPosts = async (planetId: number, page: number = 1, sort: number = 1, version?: string) => {
     try {
-      setPostLoading(true);
+      // 区分初始加载和加载更多
+      if (page === 1) {
+        setPostLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
       setPostError(null);
       
       const response = await getPostsByPlanetId({
         planetId,
         page,
-        pageSize: 20,
-        sortType: sort
+        pageSize: 10,
+        sortType: sort,
+        version: version || cacheVersion || '0'
       });
       
       if (response.code === 'SUCCESS' && response.data) {
-        if (page === 1) {
-          setPosts(response.data.list || []);
-        } else {
-          setPosts(prev => [...prev, ...(response.data.list || [])]);
+        // 保存最新的缓存版本号
+        if (response.data.version) {
+          setCacheVersion(response.data.version);
         }
-        setTotalPosts(response.data.total || 0);
-        setCurrentPage(page);
+        
+        // 处理稍后重试状态
+        if (response.data.later) {
+          console.warn('服务繁忙，需要稍后重试');
+          setPostError('服务繁忙，请稍后重试');
+          return;
+        }
+        
+        // 处理数据不存在状态
+        if (!response.data.exist) {
+          console.info('帖子列表数据不存在');
+          setPosts([]);
+          setTotalPosts(0);
+          setCurrentPage(page);
+          return;
+        }
+        
+        // 处理成功返回的数据
+        const postData = response.data.data;
+        if (postData) {
+          if (page === 1) {
+            setPosts(postData.list || []);
+          } else {
+            setPosts(prev => [...prev, ...(postData.list || [])]);
+          }
+          setTotalPosts(postData.total || 0);
+          setCurrentPage(page);
+        } else {
+          console.warn('返回的帖子数据为空');
+          if (page === 1) {
+            setPosts([]);
+            setTotalPosts(0);
+          }
+        }
       } else {
         console.warn('获取帖子列表失败:', response.message);
         setPostError('加载帖子失败');
@@ -173,6 +203,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
       setPostError('加载帖子失败，请稍后重试');
     } finally {
       setPostLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -183,6 +214,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     setPosts([]);
     setCurrentPage(1);
     setSortType(1);
+    setCacheVersion(undefined); // 重置缓存版本号
     // 加载选中星球的详情和帖子
     await loadPlanetDetail(planet.id);
     await loadPosts(planet.id, 1, 1);
@@ -207,33 +239,76 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   const handleSortChange = async (newSortType: number) => {
     if (!selectedPlanet) return;
     setSortType(newSortType);
+    setCacheVersion(undefined); // 重置缓存版本号，确保获取最新数据
     await loadPosts(selectedPlanet.id, 1, newSortType);
   };
 
   // 加载更多帖子
   const loadMorePosts = async () => {
-    if (!selectedPlanet || postLoading) return;
+    if (!selectedPlanet || postLoading || loadingMore || posts.length >= totalPosts) return;
     const nextPage = currentPage + 1;
     await loadPosts(selectedPlanet.id, nextPage, sortType);
   };
 
+  // 创建观察器引用
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadingRef = useRef<HTMLDivElement | null>(null);
+
+  // 初始化观察器的回调函数
+  const initObserver = useCallback(() => {
+    // 如果已经有观察器，先断开连接
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    // 创建新的观察器
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        // 如果加载指示器进入视口，且不是正在加载状态，且还有更多帖子可加载
+        if (entries[0].isIntersecting && !postLoading && !loadingMore && posts.length < totalPosts) {
+          loadMorePosts();
+        }
+      },
+      { threshold: 0.5 } // 当50%的元素可见时触发
+    );
+
+    // 如果加载指示器元素存在，开始观察它
+    if (loadingRef.current) {
+      observerRef.current.observe(loadingRef.current);
+    }
+  }, [postLoading, loadingMore, posts.length, totalPosts]);
+
+  // 当相关依赖项变化时，重新初始化观察器
+  useEffect(() => {
+    initObserver();
+    
+    // 组件卸载时清理观察器
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [initObserver]);
+
   // 获取用户头像
   const getUserAvatar = (avatar?: string) => {
-    if (!avatar) return getDefaultAvatarUrl();
+    if (!avatar || avatar.trim() === '') return getDefaultAvatarUrl();
     return getAvatarUrl(avatar);
+  };
+
+  // 刷新帖子列表（强制刷新缓存）
+  const refreshPosts = async () => {
+    if (!selectedPlanet) return;
+    // 生成新的版本号强制刷新缓存，转换为字符串类型以匹配后端 Long 类型
+    const newVersion = Date.now().toString();
+    setCacheVersion(newVersion);
+    setPosts([]);
+    setCurrentPage(1);
+    await loadPosts(selectedPlanet.id, 1, sortType, newVersion);
   };
 
   // 渲染帖子列表
   const renderPostList = () => {
-    if (postLoading && posts.length === 0) {
-      return (
-        <div className={styles.loading}>
-          <div className={styles.loadingSpinner}></div>
-          加载帖子中...
-        </div>
-      );
-    }
-
     if (postError) {
       return (
         <div className={styles.error}>
@@ -248,21 +323,13 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
       );
     }
 
-    if (posts.length === 0) {
-      return (
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>📝</div>
-          <div className={styles.emptyText}>暂无帖子</div>
-          <div className={styles.emptySubtext}>快来发布第一个帖子吧！</div>
-        </div>
-      );
-    }
-
-    // 为每个帖子添加用户信息，确保类型兼容
+    // 使用后端返回的用户信息，如果没有则使用默认值
     const postsWithUserInfo = posts.map(post => ({
       ...post,
-      userName: `用户${post.userId}`, // 临时使用用户ID作为用户名
-      userAvatar: '' // 使用默认头像
+      // 使用后端返回的userName，如果没有则使用userId作为备选
+      userName: post.userName || `用户${post.userId}`,
+      // 使用后端返回的userAvatar，如果没有则使用空字符串
+      userAvatar: post.userAvatar || ''
     }));
 
     return (
@@ -274,8 +341,12 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
               <div className={styles.postAvatar}>
                 <img 
                   src={getUserAvatar(post.userAvatar)} 
-                  alt={post.userName || `用户${post.userId}`} 
+                  alt={post.userName} 
                   className={styles.avatarImg}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = getDefaultAvatarUrl();
+                  }}
                 />
               </div>
               
@@ -283,7 +354,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
               <div className={styles.postContent}>
                 {/* 用户信息和时间 */}
                 <div className={styles.postHeader}>
-                  <div className={styles.userName}>{post.userName || `用户${post.userId}`}</div>
+                  <div className={styles.userName}>{post.userName}</div>
                   <div className={styles.postTime}>{formatPostTime(post.createdAt)}</div>
                   <div className={styles.postOptions}>
                     <MoreIcon className={styles.moreIcon} />
@@ -338,16 +409,15 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
             </div>
           ))}
           
-          {/* 加载更多 */}
+          {/* 自动加载指示器 */}
           {posts.length < totalPosts && (
-            <div className={styles.loadMoreContainer}>
-              <button 
-                className={styles.loadMoreButton}
-                onClick={loadMorePosts}
-                disabled={postLoading}
-              >
-                {postLoading ? '加载中...' : '加载更多'}
-              </button>
+            <div 
+              className={styles.loadMoreContainer} 
+              ref={loadingRef}
+            >
+              <div className={styles.autoLoadingIndicator}>
+                {loadingMore ? '加载中...' : '上拉加载更多'}
+              </div>
             </div>
           )}
         </div>
@@ -423,6 +493,16 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     );
   };
 
+  // 如果初始加载中，显示全页面骨架屏
+  if (loading && !selectedPlanet) {
+    return (
+      <div className={styles.planetContentPage}>
+        <Header />
+        <PlanetContentSkeleton type="fullPage" />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.planetContentPage}>
       <Header />
@@ -435,12 +515,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
           </div>
           
           <div className={styles.planetList}>
-            {loading ? (
-              <div className={styles.loading}>
-                <div className={styles.loadingSpinner}></div>
-                加载中...
-              </div>
-            ) : error ? (
+            {error ? (
               <div className={styles.error}>{error}</div>
             ) : (
               <>
@@ -507,11 +582,32 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
             <div className={styles.categorySection}>
               <div className={styles.categoryContainer}>
                 <div className={styles.tabsContainer}>
-                  <div className={`${styles.tab} ${styles.activeTab}`}>
+                  <div 
+                    className={`${styles.tab} ${sortType === 1 ? styles.activeTab : ''}`}
+                    onClick={() => handleSortChange(1)}
+                  >
                     最新
                   </div>
+                  <div 
+                    className={`${styles.tab} ${sortType === 2 ? styles.activeTab : ''}`}
+                    onClick={() => handleSortChange(2)}
+                  >
+                    最多点赞
+                  </div>
+                  <div 
+                    className={`${styles.tab} ${sortType === 3 ? styles.activeTab : ''}`}
+                    onClick={() => handleSortChange(3)}
+                  >
+                    最多评论
+                  </div>
+                  <div 
+                    className={`${styles.tab} ${sortType === 4 ? styles.activeTab : ''}`}
+                    onClick={() => handleSortChange(4)}
+                  >
+                    最多浏览
+                  </div>
                   <div className={styles.tab}>
-                    <span className={styles.starIcon}>⭐</span> 精华
+                    精华
                   </div>
                   <div className={styles.tab}>
                     只看星主
@@ -520,17 +616,18 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                     问答
                   </div>
                   <div className={styles.tab}>
-                    打卡
-                  </div>
-                  <div className={styles.tab}>
-                    作业
-                  </div>
-                  <div className={styles.tab}>
                     文件
                   </div>
-                  <div className={styles.tab}>
-                    图片
-                  </div>
+                </div>
+                <div className={styles.refreshContainer}>
+                  <button 
+                    className={styles.refreshButton}
+                    onClick={refreshPosts}
+                    disabled={postLoading}
+                    title="刷新帖子列表"
+                  >
+                    🔄 刷新
+                  </button>
                 </div>
               </div>
             </div>
@@ -539,10 +636,14 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
           {/* 内容区域 */}
           <div className={styles.contentBody}>
             {selectedPlanet ? (
-              <div className={styles.postContainer}>
-                {/* 帖子列表 */}
-                {renderPostList()}
-              </div>
+              postLoading ? (
+                <PlanetContentSkeleton type="postList" />
+              ) : (
+                <div className={styles.postContainer}>
+                  {/* 帖子列表 */}
+                  {renderPostList()}
+                </div>
+              )
             ) : (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>🌍</div>
@@ -554,42 +655,47 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
         </div>
 
         {/* 右侧星球信息面板 */}
-        {(selectedPlanet || planetDetail) && (
+        {selectedPlanet && (
           <div className={styles.rightPanel}>
             <div className={styles.planetInfoPanel}>
               {detailLoading ? (
-                <div className={styles.loading}>
-                  <div className={styles.loadingSpinner}></div>
-                  加载星球详情中...
-                </div>
+                <PlanetContentSkeleton type="rightPanel" />
               ) : (
                 <>
-                  <div className={styles.planetHeader}>
-                    <div className={styles.planetAvatarLarge}>
-                      <img 
-                        src={getAvatarUrl((planetDetail || selectedPlanet)?.avatar || '')} 
-                        alt={(planetDetail || selectedPlanet)?.name}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/default-planet.png';
-                        }}
-                      />
-                    </div>
-                    <div className={styles.planetBasicInfo}>
-                      <h3 className={styles.planetTitle}>{(planetDetail || selectedPlanet)?.name}</h3>
-                      <div className={styles.planetStats}>
-                        <span className={styles.statItem}>
-                          <span className={styles.statNumber}>
-                            {formatNumber((planetDetail || selectedPlanet)?.memberCount || 0)}
+                  <div 
+                    className={styles.planetHeader}
+                    style={{
+                      backgroundImage: `url(${getAvatarUrl((planetDetail || selectedPlanet)?.coverImage || (planetDetail || selectedPlanet)?.avatar || '')})`
+                    }}
+                  >
+                    <div className={styles.planetHeaderOverlay}></div>
+                    <div className={styles.planetHeaderContent}>
+                      <div className={styles.planetAvatarLarge}>
+                        <img 
+                          src={getAvatarUrl((planetDetail || selectedPlanet)?.avatar || '')} 
+                          alt={(planetDetail || selectedPlanet)?.name}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/default-planet.png';
+                          }}
+                        />
+                      </div>
+                      <div className={styles.planetBasicInfo}>
+                        <h3 className={styles.planetTitle}>{(planetDetail || selectedPlanet)?.name}</h3>
+                        <div className={styles.planetStats}>
+                          <span className={styles.statItem}>
+                            <span className={styles.statNumber}>
+                              {formatNumber((planetDetail || selectedPlanet)?.memberCount || 0)}
+                            </span>
+                            <span className={styles.statLabel}>成员</span>
                           </span>
-                          <span className={styles.statLabel}>成员</span>
-                        </span>
-                        <span className={styles.statItem}>
-                          <span className={styles.statNumber}>
-                            {(planetDetail || selectedPlanet)?.postCount || 0}
+                          <span className={styles.statItem}>
+                            <span className={styles.statNumber}>
+                              {(planetDetail || selectedPlanet)?.postCount || 0}
+                            </span>
+                            <span className={styles.statLabel}>内容</span>
                           </span>
-                          <span className={styles.statLabel}>内容</span>
-                        </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -683,14 +789,51 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                       </div>
                     )}
                   </div>
+
+                  <div className={styles.footerSection}>
+                    <div className={styles.footerContent}>
+                      <div className={styles.footerLogo}>
+                        <span className={styles.footerLogoText}>HAHA PLANET</span>
+                      </div>
+                      
+                      <div className={styles.footerCopyright}>
+                        © 2024 哈哈星球 版权所有。让学习变得更有趣，让知识在星球间传播。
+                      </div>
+                      
+                      <div className={styles.footerLinks}>
+                        <div className={styles.footerLinkGroup}>
+                          {['关于我们', '课程中心', '学习社区', '帮助中心'].map(text => (
+                            <button key={text} className={styles.footerLink}>{text}</button>
+                          ))}
+                        </div>
+                        <div className={styles.footerLinkGroup}>
+                          {['技术博客', '加入我们', '联系我们'].map(text => (
+                            <button key={text} className={styles.footerLink}>{text}</button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className={styles.footerPolicies}>
+                        {['隐私政策', '服务条款', '用户协议', '退款政策', 'Cookie政策'].map((text, index, arr) => (
+                          <React.Fragment key={text}>
+                            <button className={styles.footerPolicyLink}>{text}</button>
+                            {index < arr.length - 1 && <span className={styles.footerSeparator}>|</span>}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                      
+                      <div className={styles.footerExtra}>
+                        <p>让每个人都能在哈哈星球上找到属于自己的学习乐趣</p>
+                        <p>ICP备案号：京ICP备2024000000号 | 网络文化经营许可证</p>
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
             </div>
           </div>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 };

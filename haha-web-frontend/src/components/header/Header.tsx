@@ -49,6 +49,7 @@ export const Header: React.FC = () => {
     { key: '3', label: '退出登录', danger: true, onClick: () => {
       logout();
       clearToken();
+      navigate('/login');
     } },
   ];
 

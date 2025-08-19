@@ -31,22 +31,43 @@ export interface PostPageResponse {
   total: number;
 }
 
+// 带版本号的响应接口
+export interface VersionedResponse<T> {
+  data: T;
+  version: string;
+  exist: boolean;
+  later: boolean;
+}
+
+// 带版本号的帖子分页响应接口
+export interface VersionedPostPageResponse extends VersionedResponse<PostPageResponse> {}
+
 // 帖子列表请求参数
 export interface PostListParams {
   planetId: number;
   page?: number;
   pageSize?: number;
   sortType?: number; // 1-最新发布 2-最多点赞 3-最多评论 4-最多浏览
+  version?: string; // 缓存版本号，用于缓存版本控制，作为路径参数传递
 }
 
 /**
  * 根据星球ID查询帖子列表
  */
 export const getPostsByPlanetId = async (params: PostListParams) => {
-  const { planetId, page = 1, pageSize = 20, sortType = 1 } = params;
+  const { planetId, page = 1, pageSize = 20, sortType = 1, version = '0' } = params;
   
   try {
-    const response = await http.get<PostPageResponse>(`/planet/api/post/planet/${planetId}?page=${page}&pageSize=${pageSize}&sortType=${sortType}`);
+    // 构建查询参数
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      pageSize: pageSize.toString(),
+      sortType: sortType.toString()
+    });
+    
+    // 使用新的 API 路径格式，版本号作为路径参数
+    const response = await http.get<VersionedPostPageResponse>(`/planet/api/post/planet/${planetId}/${version}?${queryParams.toString()}`);
+    
     return {
       data: response.data,
       code: 'SUCCESS',

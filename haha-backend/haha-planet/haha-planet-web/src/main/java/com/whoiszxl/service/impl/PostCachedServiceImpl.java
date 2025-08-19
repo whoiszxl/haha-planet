@@ -1,0 +1,331 @@
+package com.whoiszxl.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.whoiszxl.cache.caffeine.util.CaffeineUtil;
+import com.whoiszxl.cache.redisson.util.RedissonUtil;
+import com.whoiszxl.constants.PostCacheConstants;
+import com.whoiszxl.model.cache.PostListCache;
+import com.whoiszxl.model.resp.PostResp;
+import com.whoiszxl.planet.mapper.PlanetPostMapper;
+import com.whoiszxl.planet.model.entity.PlanetPostDO;
+import com.whoiszxl.dto.UserFeignDTO;
+import com.whoiszxl.feign.UserFeignClient;
+import com.whoiszxl.service.PostCachedService;
+import com.whoiszxl.starter.core.utils.HahaBeanUtil;
+import com.whoiszxl.starter.web.model.R;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
+/**
+ * 帖子缓存服务实现类
+ *
+ * @author whoiszxl
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class PostCachedServiceImpl implements PostCachedService {
+
+    private final CaffeineUtil caffeineUtil;
+    private final RedissonUtil redissonUtil;
+    private final RedissonClient redissonClient;
+    private final PlanetPostMapper planetPostMapper;
+    private final UserFeignClient userFeignClient;
+
+    // 本地缓存更新锁
+    private final ReentrantLock localPostListCacheUpdateLock = new ReentrantLock();
+    
+    // 布隆过滤器（星球ID）
+    private RBloomFilter<Long> planetIdBloomFilter;
+
+    @Override
+    public PostListCache getCachedPostList(Long planetId, Integer page, Integer pageSize, Integer sortType, Long version) {
+        // 构建缓存键
+        String cacheKey = buildPostListCacheKey(planetId, page, pageSize, sortType);
+        
+        // 1. 从本地缓存获取帖子列表数据
+        PostListCache postListCache = caffeineUtil.get(
+                PostCacheConstants.LOCAL_CACHE_POST_LIST, 
+                cacheKey
+        );
+
+        // 2. 如果本地缓存不为空
+        if (postListCache != null) {
+            // 2.1 版本号为空则走无版本号流程，直接将本地缓存返回，存在缓存不一致的问题
+            if (version == null) {
+                log.info("[帖子缓存] 获取帖子列表命中本地缓存，星球ID: {}", planetId);
+                return postListCache;
+            }
+
+            // 2.2 版本号存在则判断传入版本号是否小于等于缓存内的版本号，如果小于等于则说明本地缓存为最新
+            if (version <= postListCache.getVersion()) {
+                log.info("[帖子缓存] 获取帖子列表命中本地缓存，星球ID: {}，版本号: {}", planetId, version);
+                return postListCache;
+            }
+        }
+
+        // 3. 本地缓存不存在，则去分布式缓存获取
+        return getPostListByDistributedCache(planetId, page, pageSize, sortType);
+    }
+
+    /**
+     * 从分布式缓存获取帖子列表
+     */
+    private PostListCache getPostListByDistributedCache(Long planetId, Integer page, Integer pageSize, Integer sortType) {
+        log.info("[帖子缓存] 从分布式缓存中获取帖子列表，星球ID: {}", planetId);
+        
+        String cacheKey = buildPostListCacheKey(planetId, page, pageSize, sortType);
+        String postListKey = PostCacheConstants.CACHE_POST_LIST_PREFIX + cacheKey;
+
+        // 1. 从分布式缓存Redis中获取帖子列表数据
+        PostListCache postListCache = redissonUtil.get(postListKey);
+
+        // 2. 分布式缓存中不存在列表，需要从数据库中读取，并更新缓存
+        if (postListCache == null) {
+            // 2.1 使用布隆过滤器检查星球ID是否可能存在（防止缓存穿透）
+            planetIdBloomFilter = redissonClient.getBloomFilter(PostCacheConstants.BLOOM_PLANET_ID);
+            if (planetIdBloomFilter.isExists() && !planetIdBloomFilter.contains(planetId)) {
+                // 布隆过滤器判断不存在，直接返回不存在（防止缓存穿透）
+                log.info("[帖子缓存] 布隆过滤器判断星球ID不存在: {}", planetId);
+                postListCache = new PostListCache().notExist().setPlanetId(planetId);
+                
+                // 将不存在的结果缓存一段时间，防止频繁查询
+                redissonUtil.set(postListKey, postListCache, Duration.ofMinutes(1));
+            } else {
+                // 布隆过滤器判断可能存在，从数据库加载数据
+                log.info("[帖子缓存] 星球ID可能存在，从数据库加载: planetId={}", planetId);
+                postListCache = loadPostListFromDb(planetId, page, pageSize, sortType);
+            }
+        }
+
+        // 3. 如果分布式缓存中存在列表，或者从数据库读出了列表，那么就需要更新本地缓存
+        if (!postListCache.isLater()) {
+            // 3.1 此处使用ReentrantLock加锁进行更新，防止并发更新下产生安全问题
+            boolean isLockSuccess = localPostListCacheUpdateLock.tryLock();
+            if (isLockSuccess) {
+                try {
+                    caffeineUtil.put(PostCacheConstants.LOCAL_CACHE_POST_LIST, cacheKey, postListCache);
+                    log.info("[帖子缓存] 更新了本地帖子列表缓存，星球ID: {}", planetId);
+                } finally {
+                    localPostListCacheUpdateLock.unlock();
+                }
+            }
+        }
+
+        return postListCache;
+    }
+
+    /**
+     * 从数据库加载帖子列表
+     */
+    private PostListCache loadPostListFromDb(Long planetId, Integer page, Integer pageSize, Integer sortType) {
+        log.info("[帖子缓存] 从数据库获取帖子列表，星球ID: {}", planetId);
+
+        String cacheKey = buildPostListCacheKey(planetId, page, pageSize, sortType);
+        String lockKey = PostCacheConstants.LOCK_GET_POST_LIST_FROM_DB_PREFIX + cacheKey;
+
+        // 1. 从数据库中获取列表数据需要加分布式锁，防止多个微服务同时去数据库中获取数据更新缓存造成数据错误的问题
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            boolean lockFlag = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            if (!lockFlag) {
+                return new PostListCache().tryLater();
+            }
+
+            // 2. 参数校验
+            if (planetId == null || planetId <= 0) {
+                log.warn("[帖子缓存] 星球ID参数无效: {}", planetId);
+                return new PostListCache().notExist().setPlanetId(planetId);
+            }
+
+            if (page <= 0) {
+                page = 1;
+            }
+
+            if (pageSize <= 0 || pageSize > 100) {
+                pageSize = 20;
+            }
+
+            // 3. 构建查询条件
+            LambdaQueryWrapper<PlanetPostDO> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(PlanetPostDO::getPlanetId, planetId)
+                       .eq(PlanetPostDO::getStatus, 1)
+                       .eq(PlanetPostDO::getAuditStatus, 2);
+
+            // 4. 根据排序方式设置排序规则
+            switch (sortType) {
+                case 2:
+                    queryWrapper.orderByDesc(PlanetPostDO::getLikeCount)
+                               .orderByDesc(PlanetPostDO::getCreatedAt);
+                    break;
+                case 3:
+                    queryWrapper.orderByDesc(PlanetPostDO::getCommentCount)
+                               .orderByDesc(PlanetPostDO::getCreatedAt);
+                    break;
+                case 4:
+                    queryWrapper.orderByDesc(PlanetPostDO::getViewCount)
+                               .orderByDesc(PlanetPostDO::getCreatedAt);
+                    break;
+                default:
+                    queryWrapper.orderByDesc(PlanetPostDO::getIsTop)
+                               .orderByDesc(PlanetPostDO::getCreatedAt);
+                    break;
+            }
+
+            // 5. 分页查询
+            Page<PlanetPostDO> pageParam = new Page<>(page, pageSize);
+            IPage<PlanetPostDO> pageResult = planetPostMapper.selectPage(pageParam, queryWrapper);
+
+            PostListCache postListCache;
+            if (pageResult.getRecords().isEmpty()) {
+                // 6. 如果数据库中不存在数据列表，则返回无记录对象
+                postListCache = new PostListCache().notExist()
+                        .setPlanetId(planetId)
+                        .setPage(page)
+                        .setPageSize(pageSize)
+                        .setSortType(sortType);
+            } else {
+                // 7. 如果数据库中存在记录，则返回有记录对象，并设置版本号，版本号为当前时间的时间戳
+                List<PostResp> postRespList = HahaBeanUtil.copyToList(pageResult.getRecords(), PostResp.class);
+                
+                // 8. 通过Feign调用用户服务，获取用户昵称和头像信息
+                enrichPostListWithUserInfo(postRespList);
+                
+                postListCache = new PostListCache()
+                        .setTotal(pageResult.getTotal())
+                        .setPostList(postRespList)
+                        .setPlanetId(planetId)
+                        .setPage(page)
+                        .setPageSize(pageSize)
+                        .setSortType(sortType)
+                        .setVersion(System.currentTimeMillis())
+                        .exist();
+            }
+
+            // 9. 将数据库中获取的数据列表回写到Redis，并设置失效时间为3分钟，具体失效时间根据业务而定
+            String postListKey = PostCacheConstants.CACHE_POST_LIST_PREFIX + cacheKey;
+            Duration expireTime = postListCache.isExist() ? Duration.ofMinutes(3) : Duration.ofMinutes(1);
+            redissonUtil.set(postListKey, postListCache, expireTime);
+            
+            log.info("[帖子缓存] 从数据库获取帖子列表，更新分布式缓存成功，星球ID: {}, 记录数: {}", 
+                    planetId, postListCache.isExist() ? postListCache.getPostList().size() : 0);
+            return postListCache;
+        } catch (Exception e) {
+            log.error("[帖子缓存] 从数据库获取帖子列表，更新分布式缓存失败，星球ID: {}", planetId, e);
+            // 10. 如果抛出异常，则返回一个稍后再试的缓存对象
+            return new PostListCache().tryLater();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * 通过Feign调用用户服务，为帖子列表补充用户信息
+     *
+     * @param postRespList 帖子响应列表
+     */
+    private void enrichPostListWithUserInfo(List<PostResp> postRespList) {
+        if (CollectionUtils.isEmpty(postRespList)) {
+            return;
+        }
+
+        try {
+            // 1. 收集所有唯一的用户ID
+            Set<Long> userIds = postRespList.stream()
+                    .map(PostResp::getUserId)
+                    .filter(userId -> userId != null && userId > 0)
+                    .collect(Collectors.toSet());
+
+            if (userIds.isEmpty()) {
+                log.warn("[帖子缓存] 帖子列表中没有有效的用户ID");
+                return;
+            }
+
+            // 2. 批量调用用户服务获取用户信息
+            Map<Long, UserFeignDTO> userInfoMap = batchGetUserInfo(userIds);
+
+            // 3. 为每个帖子设置用户昵称和头像
+            postRespList.forEach(postResp -> {
+                Long userId = postResp.getUserId();
+                if (userId != null && userInfoMap.containsKey(userId)) {
+                    UserFeignDTO userInfo = userInfoMap.get(userId);
+                    postResp.setUserName(userInfo.getNickname());
+                    postResp.setUserAvatar(userInfo.getAvatar());
+                }
+            });
+
+            log.info("[帖子缓存] 成功为 {} 个帖子补充用户信息，涉及 {} 个用户", 
+                    postRespList.size(), userInfoMap.size());
+
+        } catch (Exception e) {
+            log.error("[帖子缓存] 补充用户信息失败", e);
+            // 即使用户信息获取失败，也不影响帖子列表的返回
+        }
+    }
+
+    /**
+     * 批量获取用户信息
+     *
+     * @param userIds 用户ID集合
+     * @return 用户ID到用户信息的映射
+     */
+    private Map<Long, UserFeignDTO> batchGetUserInfo(Set<Long> userIds) {
+        Map<Long, UserFeignDTO> userInfoMap = userIds.parallelStream()
+                .collect(Collectors.toConcurrentMap(
+                        userId -> userId,
+                        this::getUserInfoById,
+                        (existing, replacement) -> existing
+                ));
+
+        // 过滤掉获取失败的用户信息
+        return userInfoMap.entrySet().stream()
+                .filter(entry -> entry.getValue() != null)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue
+                ));
+    }
+
+    /**
+     * 通过用户ID获取用户信息
+     *
+     * @param userId 用户ID
+     * @return 用户信息，获取失败返回null
+     */
+    private UserFeignDTO getUserInfoById(Long userId) {
+        try {
+            R<UserFeignDTO> result = userFeignClient.getUserById(userId);
+            if (result != null && result.isSuccess() && result.getData() != null) {
+                return result.getData();
+            } else {
+                log.warn("[帖子缓存] 获取用户信息失败，用户ID: {}, 响应: {}", userId, result);
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("[帖子缓存] 调用用户服务失败，用户ID: {}", userId, e);
+            return null;
+        }
+    }
+
+    /**
+     * 构建帖子列表缓存键
+     */
+    private String buildPostListCacheKey(Long planetId, Integer page, Integer pageSize, Integer sortType) {
+        return String.format("%d_%d_%d_%d", planetId, page, pageSize, sortType);
+    }
+}

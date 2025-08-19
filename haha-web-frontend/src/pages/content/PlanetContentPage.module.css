@@ -1,428 +1,188 @@
-/* 星球内容页面样式 */
+:root {
+  --primary-color: #1890ff;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-tertiary: #999;
+  --bg-white: #fff;
+  --bg-gray: #f8f9fa;
+  --bg-light: #f5f5f5;
+  --border-color: #f0f0f0;
+  --border-radius: 4px;
+  --transition: all 0.2s ease;
+  --font-small: 10px;
+  --font-normal: 12px;
+  --font-medium: 14px;
+  --font-large: 16px;
+}
+
 .planetContentPage {
-  min-height: 100vh;
-  background-color: #f5f5f5;
-}
-
-/* 发布区域独立区块 */
-.publishSection {
-  margin-bottom: 2px;
-}
-
-/* 发布区域整体容器 */
-.publishContainer {
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: 100vh;
+  background: var(--bg-light);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  border: 1px solid #e8e8e8;
 }
 
-/* 发布框样式 */
-.publishBox {
-  padding: 16px 20px;
-  border-bottom: 1px solid #f0f0f0;
+/* 通用卡片样式 */
+.publishContainer, .sidebar, .rightPanel, .categoryContainer, .postItem {
+  background: var(--bg-white);
+  border-radius: var(--border-radius);
 }
 
-.avatarContainer {
-  margin-right: 12px;
-  flex-shrink: 0;
-}
+/* 通用头像样式 */
+.userAvatar, .avatarImg { border-radius: 50%; object-fit: cover; }
+.planetAvatar, .planetAvatarLarge { border-radius: var(--border-radius); overflow: hidden; }
+.planetAvatar img, .planetAvatarLarge img, .adminAvatar img { width: 100%; height: 100%; object-fit: cover; }
 
-.userAvatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: none;
-  background: #f0f0f0;
-}
-
+/* 发布区域 */
+.publishSection { margin-bottom: 2px; }
+.publishContainer { overflow: hidden; }
+.publishBox { padding: 16px 20px; }
+.avatarContainer { margin-right: 12px; flex-shrink: 0; }
+.userAvatar { width: 30px; height: 30px; background: #f0f0f0; }
 .inputContainer {
   display: flex;
   align-items: center;
-  background: #f8f9fa;
-  border-radius: 4px;
-  padding: 12px 16px;
+  background: var(--bg-gray);
+  border-radius: var(--border-radius);
+  padding: 20px 15px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #e8e8e8;
+  transition: var(--transition);
   min-height: 20px;
 }
+.inputContainer:hover { background: var(--bg-light); }
+.inputPlaceholder { color: var(--text-tertiary); font-size: var(--font-medium); line-height: 1.4; user-select: none; }
 
-.inputContainer:hover {
-  background: #f5f5f5;
-  border-color: #d0d0d0;
-}
-
-.inputPlaceholder {
-  color: #999;
-  font-size: 14px;
-  line-height: 1.4;
-  user-select: none;
-}
-
-/* 工具栏样式 */
-.toolbar {
+/* 通用按钮样式 */
+.toolIcon, .refreshButton, .sortButton, .loadMoreButton, .retryButton, .postAction {
+  cursor: pointer;
+  transition: var(--transition);
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
-  padding: 8px 20px 12px 20px;
-  background: #fff;
-  gap: 2px;
+}
+.toolIcon:hover, .refreshButton:hover:not(:disabled), .sortButton:hover, 
+.loadMoreButton:hover:not(:disabled), .retryButton:hover, .postAction:hover {
+  background: #f0f8ff;
+  color: var(--primary-color);
 }
 
+/* 工具栏 */
+.toolbar { display: flex; align-items: center; padding: 8px 20px 12px; background: var(--bg-white); gap: 2px; }
 .toolIcon {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
+  width: 28px; height: 28px;
   justify-content: center;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  color: #999;
-  font-size: 16px;
-  position: relative;
+  color: var(--text-tertiary);
+  font-size: var(--font-large);
 }
-
-.toolIcon:hover {
-  background: #f0f0f0;
-  color: #666;
-}
-
-/* 特殊工具图标样式 */
-.emojiIcon {
-  font-size: 18px;
-}
-
-.imageIcon, .linkIcon {
-  font-size: 16px;
-}
-
-.boldIcon {
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.headingIcon {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-/* 写文章按钮 - 右对齐 */
-.toolIcon:has(.writeIcon) {
-  margin-left: auto;
-  padding: 6px 12px;
-  background: #f0f0f0;
-  color: #666;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  width: auto;
-  height: auto;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.toolIcon:has(.writeIcon):hover {
-  background: #e8e8e8;
-  color: #333;
-}
-
-.writeIcon {
-  font-size: 16px;
-}
-
-/* 写文章按钮特殊样式 */
-.toolIcon:last-child {
-  width: auto;
-  padding: 0 8px;
-  gap: 4px;
-  background: #f8f9fa;
-  border: 1px solid #e8e8e8;
-}
-
-.toolIcon:last-child:hover {
-  background: #e9ecef;
-  border-color: #d0d0d0;
-}
-
-.toolIcon:last-child span {
-  font-size: 13px;
-  color: #666;
-  white-space: nowrap;
-}
-
-/* 如果浏览器不支持:has选择器，使用这个备用样式 */
+.toolIcon:hover { background: #f0f0f0; color: var(--text-secondary); }
 .toolIcon:last-child {
   margin-left: auto;
-  padding: 6px 12px;
+  padding: 3px 8px;
   background: #f0f0f0;
-  color: #666;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  width: auto;
-  height: auto;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.toolIcon:last-child:hover {
-  background: #e8e8e8;
-  color: #333;
-}
-
-.pageContent {
-  width: 1480px;
-  margin: 0 auto;
-  min-height: calc(100vh - 140px);
-  display: flex;
-  gap: 16px;
-  padding: 20px 0;
-}
-
-/* 左侧边栏 */
-.sidebar {
-  width: 280px;
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  height: fit-content;
-}
-
-.sidebarHeader {
-  padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.sidebarTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-/* 星球分组样式 */
-.planetSection {
-  margin-bottom: 12px;
-}
-
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  background: #f8f9fa;
-  border-radius: 4px;
-  margin-bottom: 2px;
-  font-weight: 500;
-  color: #333;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  user-select: none;
-}
-
-.sectionHeader:hover {
-  background: #e9ecef;
-}
-
-.sectionTitle {
-  flex: 1;
-}
-
-.sectionCount {
+  color: var(--text-secondary);
   font-size: 11px;
-  color: #666;
-  background: #e8e8e8;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-right: 8px;
+  width: auto; height: auto;
+  gap: 4px;
 }
+.toolIcon:last-child:hover { background: #e8e8e8; color: var(--text-primary); }
 
-.collapseIcon {
-  font-size: 10px;
-  color: #999;
-  transition: transform 0.2s ease;
-  transform-origin: center;
-}
-
-.collapseIcon.collapsed {
-  transform: rotate(-90deg);
-}
-
-.sectionList {
-  padding-left: 2px;
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    max-height: 500px;
-  }
-}
-
-.planetList {
-  padding: 0 4px;
-}
-
-.planetItem {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-.planetItem:hover {
-  background-color: #f8f9fa;
-}
-
-.planetItem.selected {
-  background-color: #e6f7ff;
-  border-left: 3px solid #1890ff;
-}
-
-.planetAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  margin-right: 10px;
-  overflow: hidden;
-}
-
-.planetAvatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.planetInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.planetName {
-  font-size: 13px;
+/* 通用文本样式 */
+.planetName, .userName, .planetTitle, .sectionTitle, .adminName, .infoValue {
   font-weight: 500;
-  color: #333;
-  margin: 0 0 2px 0;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.planetMeta {
-  font-size: 11px;
-  color: #999;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.planetMeta, .postTime, .statLabel, .infoLabel {
+  font-size: var(--font-small);
+  color: var(--text-tertiary);
 }
 
-.memberCount, .postCount {
-  color: #666;
-}
-
-.memberBadge {
-  background: #f0f0f0;
-  color: #666;
-  padding: 2px 6px;
+/* 通用徽章样式 */
+.memberBadge, .topBadge, .essenceBadge, .adminRole {
+  font-size: var(--font-small);
+  padding: 1px 4px;
   border-radius: 2px;
-  font-size: 11px;
-}
-
-.memberBadge.owner {
-  background: #ff4d4f;
-  color: #fff;
-}
-
-.memberBadge.admin {
-  background: #fa8c16;
-  color: #fff;
-}
-
-/* 中间主内容区 */
-.mainContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-/* 分类标签区域 */
-.categorySection {
-  margin-top: 4px;
-}
-
-.categoryContainer {
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e8e8e8;
-  overflow: hidden;
-}
-
-.tabsContainer {
-  display: flex;
-  padding: 0 16px;
-  border-bottom: 1px solid #f0f0f0;
-  overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
-}
-
-.tabsContainer::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Edge */
-}
-
-.tab {
-  padding: 12px 16px;
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-}
-
-.tab:hover {
-  color: #1890ff;
-}
-
-.activeTab {
-  color: #1890ff;
-  border-bottom: 2px solid #1890ff;
   font-weight: 500;
 }
+.memberBadge { background: #f0f0f0; color: var(--text-secondary); }
+.memberBadge.owner, .topBadge { background: #ff4d4f; color: white; }
+.memberBadge.admin { background: #fa8c16; color: white; }
+.essenceBadge { background: #52c41a; color: white; }
+.adminRole { background: #e6f7ff; color: var(--primary-color); }
 
-.starIcon {
-  margin-right: 4px;
+/* 页面布局 */
+.pageContent { width: 1480px; margin: 0 auto; flex: 1; display: flex; gap: 12px; padding: 20px 0; overflow: hidden; }
+
+/* 左侧边栏 */
+.sidebar { width: 280px; max-height: calc(100vh - 120px); height: fit-content; overflow-y: auto; }
+.sidebarHeader { padding: 12px 14px; }
+.sidebarTitle { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 0; }
+.planetSection { margin-bottom: 8px; }
+.sectionHeader {
+  display: flex; align-items: center; padding: 6px 10px; background: var(--bg-gray);
+  margin-bottom: 2px; font-weight: 500; color: var(--text-primary); font-size: var(--font-normal);
+  cursor: pointer; transition: background-color 0.2s ease; user-select: none;
 }
-
-/* 内容区域 */
-.contentBody {
-  margin-top: 4px;
+.sectionHeader:hover { background: #e9ecef; }
+.sectionTitle { flex: 1; }
+.sectionCount {
+  font-size: var(--font-small); color: var(--text-secondary); background: #e8e8e8;
+  padding: 1px 5px; border-radius: 3px; margin-right: 6px;
 }
+.collapseIcon { font-size: var(--font-small); color: var(--text-tertiary); transition: transform 0.2s ease; }
+.collapseIcon.collapsed { transform: rotate(-90deg); }
+.sectionList { padding-left: 2px; animation: slideDown 0.2s ease-out; }
+@keyframes slideDown { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 500px; } }
 
-.postContainer {
-  padding: 0;
+.planetList { padding: 0 2px; overflow-y: auto; }
+.planetItem { display: flex; align-items: center; padding: 6px 12px; cursor: pointer; transition: background-color 0.2s; }
+.planetItem:hover { background: var(--bg-gray); }
+.planetItem.selected { background: #e6f7ff; }
+.planetAvatar { width: 28px; height: 28px; margin-right: 8px; }
+.planetInfo { flex: 1; min-width: 0; }
+.planetName { font-size: var(--font-normal); margin: 0 0 1px 0; }
+.planetMeta { display: flex; align-items: center; gap: 5px; }
+.memberCount, .postCount { font-size: 11px; color: var(--text-secondary); }
+
+/* 中间主内容区 */
+.mainContent { flex: 1; display: flex; flex-direction: column; gap: 0; height: 100%; min-height: 600px; overflow-y: auto; }
+
+/* 分类和工具栏 */
+.categorySection { margin-top: 4px; }
+.categoryContainer { overflow: hidden; display: flex; justify-content: space-between; align-items: center; }
+.tabsContainer { display: flex; padding: 0 16px; overflow-x: auto; flex: 1; }
+.tab {
+  padding: 12px 16px; font-size: var(--font-medium); color: var(--text-secondary);
+  cursor: pointer; transition: var(--transition); white-space: nowrap; display: flex; align-items: center;
 }
+.tab:hover, .tab.activeTab { color: var(--primary-color); }
+.tab.activeTab { font-weight: 500; }
 
-/* 帖子列表样式 */
+.refreshContainer { padding: 8px 16px; }
+.refreshButton { background: var(--bg-gray); padding: 6px 12px; font-size: var(--font-normal); color: var(--text-secondary); gap: 4px; }
+.refreshButton:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.contentBody { margin-top: 4px; }
+.postContainer { padding: 0; height: 100%; display: flex; flex-direction: column; }
+.postToolbar { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #fafafa; }
+.sortButtons { display: flex; gap: 8px; }
+.sortButton { padding: 6px 12px; background: white; color: var(--text-secondary); font-size: 13px; }
+.sortButton.active { background: var(--primary-color); color: white; }
+.postCount { color: var(--text-secondary); }
+
 .postListContainer {
   flex: 1;
+  overflow-y: auto;
+  /* 隐藏滚动条 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.postListContainer::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .postList {
@@ -430,24 +190,28 @@
   flex-direction: column;
   gap: 6px;
   margin-top: 6px;
+  overflow-y: auto;
+  /* 隐藏滚动条 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.postList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .postItem {
   display: flex;
   padding: 20px;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f0f0f0;
+  border-radius: 4px;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
 
 .postItem:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-  border-color: #e0e0e0;
+  background-color: #fafafa;
 }
 
 .postAvatar {
@@ -539,7 +303,6 @@
   padding: 12px;
   background: #f9f9f9;
   border-radius: 4px;
-  border: 1px solid #eee;
 }
 
 .linkText {
@@ -623,8 +386,7 @@
 
 .loadMoreButton {
   padding: 8px 24px;
-  border: 1px solid #d9d9d9;
-  background: white;
+    background: white;
   color: #666;
   border-radius: 4px;
   cursor: pointer;
@@ -647,27 +409,62 @@
   width: 280px;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: calc(100vh - 120px);
   height: fit-content;
+  overflow-y: auto;
+  flex-shrink: 0;
+  /* 隐藏滚动条 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.rightPanel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .planetInfoPanel {
-  padding: 20px;
+  padding: 0;
 }
 
 .planetHeader {
-  display: flex;
-  align-items: flex-start;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: var(--border-radius);
+  overflow: hidden;
   margin-bottom: 20px;
+  height: 280px;
+  background-color: #f0f0f0;
+}
+
+.planetHeaderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
+}
+
+.planetHeaderContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+  height: 100%;
 }
 
 .planetAvatarLarge {
   width: 60px;
   height: 60px;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
   margin-right: 12px;
   flex-shrink: 0;
+  border: 3px solid rgba(255,255,255,0.9);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .planetAvatarLarge img {
@@ -682,10 +479,11 @@
 }
 
 .planetTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
   margin: 0 0 8px 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -693,7 +491,7 @@
 
 .planetStats {
   display: flex;
-  gap: 16px;
+  gap: 12px;
 }
 
 .statItem {
@@ -704,24 +502,26 @@
 
 .statNumber {
   font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: white;
   line-height: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .statLabel {
   font-size: 12px;
-  color: #999;
+  color: rgba(255,255,255,0.9);
   margin-top: 2px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .planetDetails {
-  border-top: 1px solid #f0f0f0;
-  padding-top: 16px;
+  margin-bottom: 20px;
+  padding: 0 14px;
 }
 
 .detailSection {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .detailSection:last-child {
@@ -729,23 +529,23 @@
 }
 
 .sectionTitle {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #333;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
 }
 
 .planetDescription {
-  font-size: 13px;
+  font-size: 12px;
   color: #666;
-  line-height: 1.5;
+  line-height: 1.4;
   margin: 0;
 }
 
 .infoList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .infoRow {
@@ -755,12 +555,12 @@
 }
 
 .infoLabel {
-  font-size: 13px;
+  font-size: 12px;
   color: #999;
 }
 
 .infoValue {
-  font-size: 13px;
+  font-size: 12px;
   color: #333;
   font-weight: 500;
 }
@@ -769,23 +569,23 @@
 .adminList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .adminItem {
   display: flex;
   align-items: center;
-  padding: 8px;
+  padding: 6px;
   background: #f8f9fa;
   border-radius: 4px;
 }
 
 .adminAvatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 8px;
+  margin-right: 6px;
   flex-shrink: 0;
 }
 
@@ -801,25 +601,26 @@
 }
 
 .adminName {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #333;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .adminRole {
-  font-size: 11px;
-  padding: 1px 4px;
+  font-size: 10px;
+  padding: 1px 3px;
   border-radius: 2px;
   display: inline-block;
+  background: #e6f7ff;
+  color: #1890ff;
 }
 
 .contentHeader {
   padding: 20px 24px;
-  border-bottom: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -839,7 +640,6 @@
 
 .actionButton {
   padding: 8px 16px;
-  border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
   color: #333;
@@ -849,24 +649,21 @@
 }
 
 .actionButton:hover {
-  border-color: #1890ff;
   color: #1890ff;
+  background-color: #f0f8ff;
 }
 
 .actionButton.primary {
   background: #1890ff;
-  border-color: #1890ff;
   color: #fff;
 }
 
 .actionButton.primary:hover {
   background: #40a9ff;
-  border-color: #40a9ff;
 }
 
 .contentBody {
   flex: 1;
-  min-height: 500px;
 }
 
 /* 星球信息卡片 */
@@ -924,53 +721,55 @@
   justify-content: center;
   height: 400px;
   color: #999;
+  padding: 20px 15px;
 }
 
 .emptyIcon {
-  font-size: 64px;
-  margin-bottom: 16px;
+  font-size: 30px;
+  margin-bottom: 8px;
   opacity: 0.3;
 }
 
 .emptyText {
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
 }
 
 .emptySubtext {
-  font-size: 14px;
-  color: #ccc;
+  font-size: 12px;
+  color: #999;
 }
 
 /* 加载和错误状态 */
-.loading {
+.loading.error {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 200px;
-  color: #999;
+  color: #f5222d;
   flex-direction: column;
-  gap: 12px;
+  font-size: 12px;
+  padding: 15px;
 }
 
 .error {
-  padding: 20px;
+  padding: 12px;
   text-align: center;
   color: #ff4d4f;
   background: #fff2f0;
-  border: 1px solid #ffccc7;
   border-radius: 4px;
-  margin: 16px;
+  margin: 10px;
+  font-size: 12px;
 }
 
 .loadingSpinner {
   width: 20px;
   height: 20px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #1890ff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-right: 12px;
+  background: conic-gradient(#1890ff 0%, #f3f3f3 100%);
 }
 
 @keyframes spin {
@@ -991,8 +790,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+    background: #fafafa;
 }
 
 .sortButtons {
@@ -1002,7 +800,6 @@
 
 .sortButton {
   padding: 6px 12px;
-  border: 1px solid #d9d9d9;
   background: white;
   color: #666;
   border-radius: 4px;
@@ -1012,18 +809,16 @@
 }
 
 .sortButton:hover {
-  border-color: #1890ff;
+  background-color: #f0f8ff;
   color: #1890ff;
 }
 
 .sortButton.active {
   background: #1890ff;
-  border-color: #1890ff;
   color: white;
 }
 
 .postCount {
-  font-size: 13px;
   color: #666;
 }
 
@@ -1113,8 +908,7 @@
 
 .loadMoreButton {
   padding: 8px 24px;
-  border: 1px solid #d9d9d9;
-  background: white;
+    background: white;
   color: #666;
   border-radius: 4px;
   cursor: pointer;
@@ -1132,17 +926,40 @@
   cursor: not-allowed;
 }
 
+/* 自动加载指示器 */
+.autoLoadingIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.autoLoadingIndicator::before {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
 /* 重试按钮 */
 .retryButton {
   margin-left: 12px;
   padding: 4px 12px;
-  border: 1px solid #1890ff;
   background: white;
   color: #1890ff;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s;
+  border: none;
 }
 
 .retryButton:hover {
@@ -1150,205 +967,171 @@
   color: white;
 }
 
+/* Footer内容区域 */
+.footerSection {
+  margin-top: 20px;
+  padding: 10px 14px 14px 14px;
+}
+
+.footerContent {
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+}
+
+.footerLogo {
+  margin-bottom: 10px;
+}
+
+.footerLogoText {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0060dd;
+}
+
+.footerCopyright {
+  margin-bottom: 8px;
+  color: #595959;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.footerLinks {
+  margin-bottom: 8px;
+}
+
+.footerLinkGroup {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.footerLink {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 1px 5px;
+  border-radius: 2px;
+  transition: color 0.2s ease;
+}
+
+.footerLink:hover {
+  color: #1890ff;
+  background: #f0f8ff;
+}
+
+.footerPolicies {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1px;
+  margin-bottom: 8px;
+}
+
+.footerPolicyLink {
+  background: none;
+  border: none;
+  color: #8c8c8c;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 1px 4px;
+  transition: color 0.2s ease;
+}
+
+.footerPolicyLink:hover {
+  color: #1890ff;
+}
+
+.footerSeparator {
+  color: #d9d9d9;
+  margin: 0 2px;
+  font-size: 10px;
+}
+
+.footerExtra {
+  font-size: 9px;
+  color: #8c8c8c;
+  line-height: 1.2;
+}
+
+.footerExtra p {
+  margin: 1px 0;
+}
+
+/* 通用滚动条隐藏 */
+.sidebar,
+.rightPanel,
+.mainContent,
+.postListContainer,
+.postList,
+.planetList,
+.tabsContainer {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar::-webkit-scrollbar,
+.rightPanel::-webkit-scrollbar,
+.mainContent::-webkit-scrollbar,
+.postListContainer::-webkit-scrollbar,
+.postList::-webkit-scrollbar,
+.planetList::-webkit-scrollbar,
+.tabsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* 通用图标样式 */
+.emojiIcon { font-size: 15px; }
+.imageIcon, .linkIcon, .boldIcon, .headingIcon { font-size: 14px; }
+.writeIcon { font-size: 10px; }
+
+/* 通用徽章样式 */
+.memberBadge {
+  background: #f0f0f0;
+  color: #666;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+}
+
+.memberBadge.owner {
+  background: #ff4d4f;
+  color: #fff;
+}
+
+.memberBadge.admin {
+  background: #fa8c16;
+  color: #fff;
+}
+
+.topBadge {
+  background: #ff4d4f;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.essenceBadge {
+  background: #52c41a;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
 /* 响应式设计 */
 @media (max-width: 1280px) {
   .pageContent {
     width: 100%;
     padding: 20px;
-    /* 帖子容器样式 */
-    .postContainer {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* 帖子工具栏样式 */
-    .postToolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 24px;
-      border-bottom: 1px solid #f0f0f0;
-      background: #fafafa;
-    }
-
-    .sortButtons {
-      display: flex;
-      gap: 8px;
-    }
-
-    .sortButton {
-      padding: 6px 12px;
-      border: 1px solid #d9d9d9;
-      background: white;
-      color: #666;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-
-    .sortButton:hover {
-      border-color: #1890ff;
-      color: #1890ff;
-    }
-
-    .sortButton.active {
-      background: #1890ff;
-      border-color: #1890ff;
-      color: white;
-    }
-
-    .postCount {
-      font-size: 13px;
-      color: #666;
-    }
-
-    /* 帖子列表样式 */
-    .postList {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .postItem {
-      padding: 20px 0;
-      border-bottom: 1px solid #f0f0f0;
-      transition: background-color 0.2s;
-    }
-
-    .postItem:hover {
-      background-color: #fafafa;
-      margin: 0 -24px;
-      padding: 20px 24px;
-      border-radius: 4px;
-    }
-
-    .postItem:last-child {
-      border-bottom: none;
-    }
-
-    .postHeader {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .postMeta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .topBadge {
-      background: #ff4d4f;
-      color: white;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 2px;
-      font-weight: 500;
-    }
-
-    .essenceBadge {
-      background: #52c41a;
-      color: white;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 2px;
-      font-weight: 500;
-    }
-
-    .postTime {
-      font-size: 12px;
-      color: #999;
-    }
-
-    .postContent {
-      margin-bottom: 16px;
-    }
-
-    .postTitle {
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-      margin: 0 0 8px 0;
-      line-height: 1.4;
-      cursor: pointer;
-    }
-
-    .postTitle:hover {
-      color: #1890ff;
-    }
-
-    .postExcerpt {
-      font-size: 14px;
-      color: #666;
-      line-height: 1.6;
-      margin: 0;
-    }
-
-    .postStats {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .statItem {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-      color: #999;
-    }
-
-    .statIcon {
-      font-size: 14px;
-    }
-
-    /* 加载更多按钮 */
-    .loadMoreContainer {
-      text-align: center;
-      padding: 20px;
-    }
-
-    .loadMoreButton {
-      padding: 8px 24px;
-      border: 1px solid #d9d9d9;
-      background: white;
-      color: #666;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-
-    .loadMoreButton:hover:not(:disabled) {
-      border-color: #1890ff;
-      color: #1890ff;
-    }
-
-    .loadMoreButton:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    /* 重试按钮 */
-    .retryButton {
-      margin-left: 12px;
-      padding: 4px 12px;
-      border: 1px solid #1890ff;
-      background: white;
-      color: #1890ff;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.2s;
-    }
-
-    .retryButton:hover {
-      background: #1890ff;
-      color: white;
-    }
   }
 }
 
@@ -1382,9 +1165,6 @@
     padding: 12px 16px;
   }
   
-  .postList {
-  }
-  
   .postItem:hover {
     margin: 0 -16px;
     padding: 20px 16px;
@@ -1399,17 +1179,4 @@
     font-size: 12px;
     padding: 5px 10px;
   }
-}
-
-.page-content {
-  width: 1240px;
-  margin-left: auto;
-  margin-right: auto;
-  min-height: 75vh;
-  background-color: transparent;
-}
-
-.bg-img {
-  background-repeat: repeat; /* 让背景图片重复填充 */
-  background-position: top left;  /* 设置背景图的位置 */
 }

@@ -37,10 +37,6 @@
   transition: transform 0.3s ease;
 }
 
-.logoContainer:hover {
-  transform: scale(10);
-}
-
 .logoText {
   font-size: 20px;
   font-weight: 600;
