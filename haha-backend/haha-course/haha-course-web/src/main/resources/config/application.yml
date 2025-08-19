@@ -1,0 +1,216 @@
+--- ### 项目配置
+project:
+  # 名称
+  name: haha course
+  # 应用名称
+  app-name: haha-course-web
+  # 版本
+  version: 1.0.0
+  # 描述
+  description: 课程微服务
+  # 基本包
+  base-package: com.whoiszxl
+  ## 作者信息配置
+  contact:
+    name: whoiszxl
+    email: whoiszxl@gmail.com
+    url: https://whoiszxl.com
+  ## 许可协议信息配置
+  license:
+    name: Apache-2.0
+    url: https://github.com/whoiszxl
+
+--- ### 日志配置
+log:
+  # 包含信息
+  includes:
+    - DESCRIPTION
+    - MODULE
+    - REQUEST_HEADERS
+    - REQUEST_BODY
+    - IP_ADDRESS
+    - BROWSER
+    - OS
+    - RESPONSE_HEADERS
+    - RESPONSE_BODY
+## 项目日志配置
+logging:
+  config: classpath:logback-spring.xml
+
+--- ### 链路跟踪配置
+web:
+  trace:
+    enabled: true
+    header-name: traceId
+    ## TLog 配置
+    tlog:
+      enable-invoke-time-print: false
+      pattern: '[$spanId][$traceId]'
+      mdc-enable: false
+
+--- ### 线程池配置
+thread-pool:
+  enabled: true
+  # 队列容量
+  queue-capacity: 128
+  # 活跃时间（单位：秒）
+  keep-alive-seconds: 300
+
+--- ### 接口文档配置
+springdoc:
+  # 设置对象型参数的展示形式（设为 true 表示将对象型参数平展开，即对象内的属性直接作为参数展示而不是嵌套在对象内，默认 false）
+  # 如果不添加该全局配置，可以在需要如此处理的对象参数类上使用 @ParameterObject
+  default-flat-param-object: true
+
+  ## 组件配置
+  components:
+    # 鉴权配置
+    security-schemes:
+      Authorization:
+        type: HTTP
+        in: HEADER
+        name: ${sa-token.token-name}
+        scheme: ${sa-token.token-prefix}
+## 接口文档增强配置
+knife4j:
+  enable: true
+  setting:
+    # 是否显示默认的 footer（默认 true，显示）
+    enable-footer: false
+    # 是否自定义 footer（默认 false，非自定义）
+    enable-footer-custom: true
+    # 自定义 footer 内容，支持 Markdown 语法
+    footer-custom-content: 'Copyright © 2022-present [${project.contact.name}](${project.contact.url})&nbsp;⋅&nbsp;[${project.name}](${project.url}) v${project.version}'
+
+--- ### Sa-Token 配置
+sa-token:
+  # token 名称（同时也是 cookie 名称）
+  token-name: Authorization
+  # token 有效期（单位：秒，默认 30 天，-1 代表永不过期）
+  timeout: 86400
+  # token 最低活跃频率（单位：秒，默认 -1，代表不限制，永不冻结。如果 token 超过此时间没有访问系统就会被冻结）
+  active-timeout: 180000
+  # 是否打开自动续签（如果此值为 true，框架会在每次直接或间接调用 getLoginId() 时进行一次过期检查与续签操作）
+  auto-renew: true
+  # 是否允许同一账号多地同时登录（为 true 时允许一起登录，为 false 时新登录挤掉旧登录）
+  is-concurrent: true
+  # 在多人登录同一账号时，是否共用一个 token（为 true 时所有登录共用一个 token，为 false 时每次登录新建一个 token）
+  is-share: false
+  # 是否输出操作日志
+  is-log: false
+  # JWT 秘钥
+  jwt-secret-key: 123456
+  ## 扩展配置
+  extension:
+    enabled: true
+    enableJwt: true
+    # 持久层配置
+    dao.type: REDIS
+
+--- ### MyBatis Plus 配置
+mybatis-plus:
+  # Mapper XML 文件目录配置
+  mapper-locations: classpath*:/mapper/**/*Mapper.xml
+  # 类型别名扫描包配置
+  type-aliases-package: ${project.base-package}.**.model
+  configuration:
+    # MyBatis 自动映射策略
+    # NONE：不启用 PARTIAL：只对非嵌套 resultMap 自动映射 FULL：对所有 resultMap 自动映射
+    auto-mapping-behavior: PARTIAL
+  global-config:
+    banner: true
+    db-config:
+      # 主键类型（默认 assign_id，表示自行赋值）
+      # auto 代表使用数据库自增策略（需要在表中设置好自增约束）
+      id-type: ASSIGN_ID
+      # 逻辑删除字段
+      logic-delete-field: isDeleted
+      # 逻辑删除全局值（默认 1，表示已删除）
+      logic-delete-value: 1
+      # 逻辑未删除全局值（默认 0，表示未删除）
+      logic-not-delete-value: 0
+  ## 扩展配置
+  extension:
+    enabled: true
+    # Mapper 接口扫描包配置
+    mapper-package: ${project.base-package}.**.mapper
+    # ID 生成器配置
+    id-generator:
+      type: COSID
+    # 数据权限配置
+    data-permission:
+      enabled: false
+    # 分页插件配置
+    pagination:
+      enabled: true
+      db-type: MYSQL
+
+--- ### CosId 配置
+cosid:
+  namespace: ${spring.application.name}
+  machine:
+    enabled: true
+    # 固定机器ID，避免Redis分配超出范围的ID
+    machine-id: ${MACHINE_ID:1}
+    # 机器号分配器
+    distributor:
+      type: MANUAL
+      manual:
+        machine-id: ${MACHINE_ID:1}
+    guarder:
+      # 开启机器号守护
+      enabled: true
+  snowflake:
+    enabled: true
+    zone-id: Asia/Shanghai
+    epoch: 1577203200000
+    share:
+      # 开启时钟回拨同步
+      clock-sync: true
+      friendly: true
+    provider:
+      safe-js:
+        machine-bit: 5
+        sequence-bit: 9
+
+--- ### 服务器配置
+server:
+  servlet:
+    # 应用访问路径
+    context-path: /
+  ## Undertow 服务器配置
+  undertow:
+    # HTTP POST 请求内容的大小上限（默认 -1，不限制）
+    max-http-post-size: -1
+    # 以下的配置会影响 buffer，这些 buffer 会用于服务器连接的 IO 操作，有点类似 Netty 的池化内存管理
+    # 每块 buffer的空间大小（越小的空间被利用越充分，不要设置太大，以免影响其他应用，合适即可）
+    buffer-size: 512
+    # 是否分配的直接内存（NIO 直接分配的堆外内存）
+    direct-buffers: true
+    threads:
+      # 设置 IO 线程数，它主要执行非阻塞的任务，它们会负责多个连接（默认每个 CPU 核心一个线程）
+      io: 8
+      # 阻塞任务线程池，当执行类似 Servlet 请求阻塞操作，Undertow 会从这个线程池中取得线程（它的值设置取决于系统的负载）
+      worker: 256
+
+--- ### Spring 配置
+spring:
+  application:
+    name: ${project.app-name}
+  ## 环境配置
+  profiles:
+    # 启用的环境
+    active: dev
+    include:
+      - generator
+  main:
+    # 允许定义重名的 bean 对象覆盖原有的 bean
+    allow-bean-definition-overriding: true
+    # 允许循环依赖
+    allow-circular-references: true
+
+--- ### 健康检查配置
+management.health:
+  mail:
+    # 关闭邮箱健康检查（邮箱配置错误或邮箱服务器不可用时，健康检查会报错）
+    enabled: false

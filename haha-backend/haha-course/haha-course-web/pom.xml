@@ -5,12 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.whoiszxl</groupId>
-        <artifactId>haha-planet</artifactId>
+        <artifactId>haha-course</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>haha-planet-web</artifactId>
-
+    <artifactId>haha-course-web</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -19,7 +18,7 @@
 
         <!-- ### 打包配置相关 ### -->
         <!-- 启动类 -->
-        <main-class>com.whoiszxl.PlanetApplication</main-class>
+        <main-class>com.whoiszxl.CourseApplication</main-class>
         <!-- 程序 jar 输出目录 -->
         <bin-path>bin</bin-path>
         <!-- 配置文件输出目录 -->

@@ -5,26 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.whoiszxl</groupId>
-        <artifactId>haha-backend</artifactId>
+        <artifactId>haha-course</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>haha-course</artifactId>
-    <packaging>pom</packaging>
-    <description>
-        - 课程创建、编辑、发布管理
-        - 课程分类和标签体系
-        - 课程章节和视频管理
-        - 课程进度跟踪
-        - 课程评价和评分
-        - 课程推荐算法
-        - 学习路径规划
-    </description>
-    <modules>
-        <module>haha-course-api</module>
-        <module>haha-course-web</module>
-        <module>haha-course-common</module>
-    </modules>
+    <artifactId>haha-course-api</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
