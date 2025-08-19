@@ -56,6 +56,9 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     managed: false
   });
 
+  // 图片加载失败状态追踪
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
   // 加载星球详情
   const loadPlanetDetail = async (id: number) => {
     try {
@@ -296,6 +299,23 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     return getAvatarUrl(avatar);
   };
 
+  // 处理图片加载失败，防止重复加载
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, imageKey: string, fallbackUrl?: string) => {
+    const target = e.target as HTMLImageElement;
+    const currentSrc = target.src;
+    
+    // 如果已经是默认图片或者已经标记为失败，则不再处理
+    if (failedImages.has(imageKey) || currentSrc.includes('default-')) {
+      return;
+    }
+    
+    // 标记为失败
+    setFailedImages(prev => new Set(prev).add(imageKey));
+    
+    // 设置默认图片
+    target.src = fallbackUrl || getDefaultAvatarUrl();
+  };
+
   // 渲染帖子列表
   const renderPostList = () => {
     if (postError) {
@@ -332,10 +352,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                   src={getUserAvatar(post.userAvatar)} 
                   alt={post.userName} 
                   className={styles.avatarImg}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = getDefaultAvatarUrl();
-                  }}
+                  onError={(e) => handleImageError(e, `post-avatar-${post.id}`)}
                 />
               </div>
               
@@ -358,7 +375,19 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                   {/* 如果有媒体内容 */}
                   {post.mediaUrls && post.contentType === 2 && (
                     <div className={styles.postMedia}>
-                      <img src={post.mediaUrls} alt="帖子图片" className={styles.postImage} />
+                      <img 
+                        src={post.mediaUrls} 
+                        alt="帖子图片" 
+                        className={styles.postImage}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          const imageKey = `post-media-${post.id}`;
+                          if (!failedImages.has(imageKey)) {
+                            setFailedImages(prev => new Set(prev).add(imageKey));
+                            target.style.display = 'none'; // 隐藏加载失败的图片
+                          }
+                        }}
+                      />
                     </div>
                   )}
                   
@@ -457,10 +486,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                   <img 
                     src={getAvatarUrl(planet.avatar || '')} 
                     alt={planet.name}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/default-planet.png';
-                    }}
+                    onError={(e) => handleImageError(e, `planet-${planet.id}`, '/default-planet.png')}
                   />
                 </div>
                 <div className={styles.planetInfo}>
@@ -534,7 +560,12 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                 <div className={styles.publishBox}>
                   <div className={styles.inputContainer}>
                     <div className={styles.avatarContainer}>
-                      <img src={getAvatarUrl(selectedPlanet?.avatar)} alt="用户头像" className={styles.userAvatar} />
+                      <img 
+                        src={getAvatarUrl(selectedPlanet?.avatar)} 
+                        alt="用户头像" 
+                        className={styles.userAvatar}
+                        onError={(e) => handleImageError(e, `user-publish-${selectedPlanet?.id}`)}
+                      />
                     </div>
                     <div className={styles.inputPlaceholder}>点击发表主题...</div>
                   </div>
@@ -653,10 +684,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                         <img 
                           src={getAvatarUrl((planetDetail || selectedPlanet)?.avatar || '')} 
                           alt={(planetDetail || selectedPlanet)?.name}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/default-planet.png';
-                          }}
+                          onError={(e) => handleImageError(e, `planet-large-${selectedPlanet?.id}`, '/default-planet.png')}
                         />
                       </div>
                       <div className={styles.planetBasicInfo}>
@@ -750,10 +778,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                                 <img 
                                   src={getAvatarUrl(admin.avatar || '')} 
                                   alt={admin.nickname}
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.src = '/default-avatar.png';
-                                  }}
+                                  onError={(e) => handleImageError(e, `admin-${admin.userId}`, '/default-avatar.png')}
                                 />
                               </div>
                               <div className={styles.adminInfo}>
