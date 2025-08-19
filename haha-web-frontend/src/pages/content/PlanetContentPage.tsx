@@ -296,17 +296,6 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     return getAvatarUrl(avatar);
   };
 
-  // 刷新帖子列表（强制刷新缓存）
-  const refreshPosts = async () => {
-    if (!selectedPlanet) return;
-    // 生成新的版本号强制刷新缓存，转换为字符串类型以匹配后端 Long 类型
-    const newVersion = Date.now().toString();
-    setCacheVersion(newVersion);
-    setPosts([]);
-    setCurrentPage(1);
-    await loadPosts(selectedPlanet.id, 1, sortType, newVersion);
-  };
-
   // 渲染帖子列表
   const renderPostList = () => {
     if (postError) {
@@ -618,16 +607,6 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                   <div className={styles.tab}>
                     文件
                   </div>
-                </div>
-                <div className={styles.refreshContainer}>
-                  <button 
-                    className={styles.refreshButton}
-                    onClick={refreshPosts}
-                    disabled={postLoading}
-                    title="刷新帖子列表"
-                  >
-                    🔄 刷新
-                  </button>
                 </div>
               </div>
             </div>

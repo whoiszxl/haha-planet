@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import styles from "./PlanetDetailPage.module.css";
+import styles from "./PlanetPreviewPage.module.css";
 import { Footer, Header } from "../../components";
 import { getPlanetDetail, Planet } from "../../apis/planet/planet";
 import { getAvatarUrl, getDefaultAvatarUrl } from "../../utils/image";
