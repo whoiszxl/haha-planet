@@ -1,6 +1,6 @@
 import http from '@/utils/http'
 
-const BASE_URL = '/whoiszxl/planetPost'
+const BASE_URL = '/planet/planetPost'
 
 export interface PlanetPostResp {
   id: string

@@ -1,6 +1,6 @@
 import http from '@/utils/http'
 
-const BASE_URL = '/whoiszxl/planetSetting'
+const BASE_URL = '/planet/planetSetting'
 
 export interface PlanetSettingResp {
   id: string

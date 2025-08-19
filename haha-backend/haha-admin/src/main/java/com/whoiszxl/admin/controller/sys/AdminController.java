@@ -118,13 +118,13 @@ public class AdminController extends BaseController<IAdminService, AdminDetailRe
             String fileName = "avatar/" + currentUserId + "/" + UUID.randomUUID() + "." + fileExtension;
             
             // 构建上传请求，头像信息上传到公共bucket
-            UploadRequest uploadRequest = new UploadRequest()
-                    .setBucketName("haha-public")
-                    .setKey(fileName)
-                    .setFileName(originalFilename)
-                    .setContentType(contentType)
-                    .setContent(file.getInputStream())
-                    .setContentLength(file.getSize());
+            UploadRequest uploadRequest = UploadRequest.builder()
+                    .bucketName("haha-public")
+                    .key(fileName)
+                    .fileName(originalFilename)
+                    .contentType(contentType)
+                    .content(file.getInputStream())
+                    .contentLength(file.getSize());
             
             // 上传到S3
             StorageObject storageObject = storageService.upload(uploadRequest);
