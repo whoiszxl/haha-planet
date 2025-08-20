@@ -1,5 +1,6 @@
 package com.whoiszxl.controller;
 
+import com.whoiszxl.model.cache.PostDetailCache;
 import com.whoiszxl.model.cache.PostListCache;
 import com.whoiszxl.model.resp.PostResp;
 import com.whoiszxl.model.resp.VersionedResponse;
@@ -85,6 +86,47 @@ public class PostApiController {
         } catch (Exception e) {
             log.error("[帖子API] 查询星球帖子列表失败，星球ID: {}", planetId, e);
             return R.fail("查询帖子列表失败，请稍后重试");
+        }
+    }
+
+    @Operation(summary = "根据帖子ID获取帖子详情", description = "获取指定帖子的详细信息，使用多级缓存")
+    @GetMapping("/detail/{postId}")
+    public R<PostDetailCache> getPostDetail(
+            @Parameter(description = "帖子ID", required = true) @PathVariable Long postId,
+            @Parameter(description = "版本号，用于缓存版本控制") @RequestParam(value = "version", required = false) Long version) {
+        
+        log.info("[帖子API] 获取帖子详情请求，帖子ID: {}, 版本号: {}", postId, version);
+        
+        // 参数校验
+        if (postId == null || postId <= 0) {
+            log.warn("[帖子API] 帖子ID参数无效: {}", postId);
+            return R.fail("帖子ID不能为空");
+        }
+        
+        try {
+            // 调用缓存服务获取帖子详情
+            PostDetailCache postDetailCache = postCachedService.getCachedPostDetail(postId, version);
+            
+            // 检查缓存状态
+            if (postDetailCache.isLater()) {
+                log.warn("[帖子API] 获取帖子详情失败，请稍后重试，帖子ID: {}", postId);
+                return R.fail("服务繁忙，请稍后重试");
+            }
+            
+            if (!postDetailCache.isExist()) {
+                log.info("[帖子API] 帖子不存在，帖子ID: {}", postId);
+                return R.fail("帖子不存在或已被删除");
+            }
+            
+            log.info("[帖子API] 成功获取帖子详情，帖子ID: {}, 标题: {}", 
+                    postId, 
+                    postDetailCache.getPostDetail() != null ? postDetailCache.getPostDetail().getTitle() : "未知");
+            
+            return R.ok(postDetailCache);
+            
+        } catch (Exception e) {
+            log.error("[帖子API] 获取帖子详情异常，帖子ID: {}", postId, e);
+            return R.fail("获取帖子详情失败");
         }
     }
 }

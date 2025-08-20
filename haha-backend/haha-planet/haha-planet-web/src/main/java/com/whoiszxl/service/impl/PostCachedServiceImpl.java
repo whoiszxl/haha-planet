@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.whoiszxl.cache.caffeine.util.CaffeineUtil;
 import com.whoiszxl.cache.redisson.util.RedissonUtil;
 import com.whoiszxl.constants.PostCacheConstants;
+import com.whoiszxl.model.cache.PostDetailCache;
 import com.whoiszxl.model.cache.PostListCache;
 import com.whoiszxl.model.resp.PostResp;
 import com.whoiszxl.planet.mapper.PlanetPostMapper;
@@ -49,9 +50,12 @@ public class PostCachedServiceImpl implements PostCachedService {
 
     // 本地缓存更新锁
     private final ReentrantLock localPostListCacheUpdateLock = new ReentrantLock();
+    private final ReentrantLock localPostDetailCacheUpdateLock = new ReentrantLock();
     
     // 布隆过滤器（星球ID）
     private RBloomFilter<Long> planetIdBloomFilter;
+    // 布隆过滤器（帖子ID）
+    private RBloomFilter<Long> postIdBloomFilter;
 
     @Override
     public PostListCache getCachedPostList(Long planetId, Integer page, Integer pageSize, Integer sortType, Long version) {
@@ -322,10 +326,186 @@ public class PostCachedServiceImpl implements PostCachedService {
         }
     }
 
+    @Override
+    public PostDetailCache getCachedPostDetail(Long postId, Long version) {
+        // 构建缓存键
+        String cacheKey = buildPostDetailCacheKey(postId);
+        
+        // 1. 从本地缓存获取帖子详情数据
+        PostDetailCache postDetailCache = caffeineUtil.get(
+                PostCacheConstants.LOCAL_CACHE_POST_DETAIL, 
+                cacheKey
+        );
+
+        // 2. 如果本地缓存不为空
+        if (postDetailCache != null) {
+            // 2.1 版本号为空则走无版本号流程，直接将本地缓存返回，存在缓存不一致的问题
+            if (version == null) {
+                log.info("[帖子缓存] 获取帖子详情命中本地缓存，帖子ID: {}", postId);
+                return postDetailCache;
+            }
+
+            // 2.2 版本号存在则判断传入版本号是否小于等于缓存内的版本号，如果小于等于则说明本地缓存为最新
+            if (version <= postDetailCache.getVersion()) {
+                log.info("[帖子缓存] 获取帖子详情命中本地缓存，帖子ID: {}，版本号: {}", postId, version);
+                return postDetailCache;
+            }
+        }
+
+        // 3. 本地缓存不存在，则去分布式缓存获取
+        return getPostDetailByDistributedCache(postId);
+    }
+
+    /**
+     * 从分布式缓存获取帖子详情
+     */
+    private PostDetailCache getPostDetailByDistributedCache(Long postId) {
+        log.info("[帖子缓存] 从分布式缓存中获取帖子详情，帖子ID: {}", postId);
+        
+        String cacheKey = buildPostDetailCacheKey(postId);
+        String postDetailKey = PostCacheConstants.CACHE_POST_DETAIL_PREFIX + cacheKey;
+
+        // 1. 从分布式缓存Redis中获取帖子详情数据
+        PostDetailCache postDetailCache = redissonUtil.get(postDetailKey);
+
+        // 2. 分布式缓存中不存在详情，需要从数据库中读取，并更新缓存
+        if (postDetailCache == null) {
+            // 2.1 使用布隆过滤器检查帖子ID是否可能存在（防止缓存穿透）
+            postIdBloomFilter = redissonClient.getBloomFilter(PostCacheConstants.BLOOM_POST_ID);
+            if (postIdBloomFilter.isExists() && !postIdBloomFilter.contains(postId)) {
+                // 布隆过滤器判断不存在，直接返回不存在（防止缓存穿透）
+                log.info("[帖子缓存] 布隆过滤器判断帖子ID不存在: {}", postId);
+                postDetailCache = new PostDetailCache().notExist().setPostId(postId);
+                
+                // 将不存在的结果缓存一段时间，防止频繁查询
+                redissonUtil.set(postDetailKey, postDetailCache, Duration.ofMinutes(1));
+            } else {
+                // 布隆过滤器判断可能存在，从数据库加载数据
+                log.info("[帖子缓存] 帖子ID可能存在，从数据库加载: postId={}", postId);
+                postDetailCache = loadPostDetailFromDb(postId);
+            }
+        }
+
+        // 3. 如果分布式缓存中存在详情，或者从数据库读出了详情，那么就需要更新本地缓存
+        if (!postDetailCache.isLater()) {
+            // 3.1 此处使用ReentrantLock加锁进行更新，防止并发更新下产生安全问题
+            boolean isLockSuccess = localPostDetailCacheUpdateLock.tryLock();
+            if (isLockSuccess) {
+                try {
+                    caffeineUtil.put(PostCacheConstants.LOCAL_CACHE_POST_DETAIL, cacheKey, postDetailCache);
+                    log.info("[帖子缓存] 更新了本地帖子详情缓存，帖子ID: {}", postId);
+                } finally {
+                    localPostDetailCacheUpdateLock.unlock();
+                }
+            }
+        }
+
+        return postDetailCache;
+    }
+
+    /**
+     * 从数据库加载帖子详情
+     */
+    private PostDetailCache loadPostDetailFromDb(Long postId) {
+        log.info("[帖子缓存] 从数据库获取帖子详情，帖子ID: {}", postId);
+
+        String cacheKey = buildPostDetailCacheKey(postId);
+        String lockKey = PostCacheConstants.LOCK_GET_POST_DETAIL_FROM_DB_PREFIX + cacheKey;
+
+        // 1. 从数据库中获取详情数据需要加分布式锁，防止多个微服务同时去数据库中获取数据更新缓存造成数据错误的问题
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            boolean lockFlag = lock.tryLock(5, 10, TimeUnit.SECONDS);
+            if (!lockFlag) {
+                return new PostDetailCache().tryLater();
+            }
+
+            // 2. 参数校验
+            if (postId == null || postId <= 0) {
+                log.warn("[帖子缓存] 帖子ID参数无效: {}", postId);
+                return new PostDetailCache().notExist().setPostId(postId);
+            }
+
+            // 3. 构建查询条件
+            LambdaQueryWrapper<PlanetPostDO> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(PlanetPostDO::getId, postId)
+                       .eq(PlanetPostDO::getStatus, 1)
+                       .eq(PlanetPostDO::getAuditStatus, 2);
+
+            // 4. 查询帖子详情
+            PlanetPostDO planetPostDO = planetPostMapper.selectOne(queryWrapper);
+
+            PostDetailCache postDetailCache;
+            if (planetPostDO == null) {
+                // 5. 如果数据库中不存在帖子，则返回无记录对象
+                postDetailCache = new PostDetailCache().notExist().setPostId(postId);
+            } else {
+                // 6. 如果数据库中存在记录，则返回有记录对象，并设置版本号，版本号为当前时间的时间戳
+                PostResp postResp = HahaBeanUtil.copyProperties(planetPostDO, PostResp.class);
+                
+                // 7. 通过Feign调用用户服务，获取用户昵称和头像信息
+                enrichPostDetailWithUserInfo(postResp);
+                
+                postDetailCache = new PostDetailCache()
+                        .setPostDetail(postResp)
+                        .setPostId(postId)
+                        .setVersion(System.currentTimeMillis())
+                        .exist();
+            }
+
+            // 8. 将数据库中获取的帖子详情回写到Redis，并设置失效时间为5分钟，具体失效时间根据业务而定
+            String postDetailKey = PostCacheConstants.CACHE_POST_DETAIL_PREFIX + cacheKey;
+            Duration expireTime = postDetailCache.isExist() ? Duration.ofMinutes(5) : Duration.ofMinutes(1);
+            redissonUtil.set(postDetailKey, postDetailCache, expireTime);
+            
+            log.info("[帖子缓存] 从数据库获取帖子详情，更新分布式缓存成功，帖子ID: {}, 存在: {}", 
+                    postId, postDetailCache.isExist());
+            return postDetailCache;
+        } catch (Exception e) {
+            log.error("[帖子缓存] 从数据库获取帖子详情，更新分布式缓存失败，帖子ID: {}", postId, e);
+            // 9. 如果抛出异常，则返回一个稍后再试的缓存对象
+            return new PostDetailCache().tryLater();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * 通过Feign调用用户服务，为帖子详情补充用户信息
+     *
+     * @param postResp 帖子响应对象
+     */
+    private void enrichPostDetailWithUserInfo(PostResp postResp) {
+        if (postResp == null || postResp.getUserId() == null || postResp.getUserId() <= 0) {
+            return;
+        }
+
+        try {
+            // 获取用户信息
+            UserFeignDTO userInfo = getUserInfoById(postResp.getUserId());
+            if (userInfo != null) {
+                postResp.setUserName(userInfo.getNickname());
+                postResp.setUserAvatar(userInfo.getAvatar());
+                log.info("[帖子缓存] 成功为帖子详情补充用户信息，帖子ID: {}, 用户ID: {}", 
+                        postResp.getId(), postResp.getUserId());
+            }
+        } catch (Exception e) {
+            log.error("[帖子缓存] 为帖子详情补充用户信息失败，帖子ID: {}", postResp.getId(), e);
+            // 即使用户信息获取失败，也不影响帖子详情的返回
+        }
+    }
+
     /**
      * 构建帖子列表缓存键
      */
     private String buildPostListCacheKey(Long planetId, Integer page, Integer pageSize, Integer sortType) {
         return String.format("%d_%d_%d_%d", planetId, page, pageSize, sortType);
+    }
+
+    /**
+     * 构建帖子详情缓存键
+     */
+    private String buildPostDetailCacheKey(Long postId) {
+        return String.valueOf(postId);
     }
 }

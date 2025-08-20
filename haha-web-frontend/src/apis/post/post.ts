@@ -5,10 +5,14 @@ export interface Post {
   id: number;
   planetId: number;
   userId: number;
+  userName?: string;
+  userAvatar?: string;
   title: string;
   content: string;
   contentType: number;
   mediaUrls?: string;
+  link?: string;
+  extractCode?: string;
   isAnonymous: number;
   isTop: number;
   isEssence: number;
@@ -116,6 +120,47 @@ export const formatPostTime = (dateString: string): string => {
     return `${days}天前`;
   } else {
     return date.toLocaleDateString('zh-CN');
+  }
+};
+
+// 帖子详情请求参数
+export interface PostDetailParams {
+  postId: number;
+  version?: string; // 缓存版本号，用于缓存版本控制
+}
+
+// 带版本号的帖子详情响应接口
+export interface VersionedPostDetailResponse {
+  postDetail: Post;
+  postId: number;
+  version: string;
+  exist: boolean;
+  later: boolean;
+}
+
+/**
+ * 根据帖子ID获取帖子详情
+ */
+export const getPostDetail = async (params: PostDetailParams) => {
+  const { postId, version = '0' } = params;
+  
+  try {
+    // 构建查询参数
+    const queryParams = new URLSearchParams({
+      version: version
+    });
+    
+    // 使用查询参数传递版本号
+    const response = await http.get<VersionedPostDetailResponse>(`/planet/api/post/detail/${postId}?${queryParams.toString()}`);
+    
+    return {
+      data: response.data,
+      code: 'SUCCESS',
+      message: '获取成功'
+    };
+  } catch (error) {
+    console.error('获取帖子详情失败:', error);
+    throw error;
   }
 };
 

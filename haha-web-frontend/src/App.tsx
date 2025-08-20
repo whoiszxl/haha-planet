@@ -14,6 +14,7 @@ import { NotFoundPage } from "./pages/common/NotFoundPage";
 import { DiscoveryPage } from "./pages/discovery/DiscoveryPage";
 import { PlanetDetailPage } from "./pages/planet-preview/PlanetPreviewPage";
 import { PlanetContentPage } from "./pages/content";
+import { PostDetailPage } from "./pages/post-detail";
 
 // 滚动到顶部组件
 const ScrollToTop = () => {
@@ -44,6 +45,7 @@ function App() {
           <Route path="/discovery" element={<DiscoveryPage />} />
           <Route path="/preview/:planetId" element={<PlanetDetailPage />} />
           <Route path="/content" element={<PlanetContentPage />} />
+          <Route path="/post/:postId" element={<PostDetailPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

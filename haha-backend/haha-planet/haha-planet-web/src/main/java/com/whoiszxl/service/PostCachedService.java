@@ -1,5 +1,6 @@
 package com.whoiszxl.service;
 
+import com.whoiszxl.model.cache.PostDetailCache;
 import com.whoiszxl.model.cache.PostListCache;
 
 /**
@@ -20,4 +21,13 @@ public interface PostCachedService {
      * @return 帖子列表缓存对象
      */
     PostListCache getCachedPostList(Long planetId, Integer page, Integer pageSize, Integer sortType, Long version);
+
+    /**
+     * 获取缓存的帖子详情
+     *
+     * @param postId 帖子ID
+     * @param version 版本号
+     * @return 帖子详情缓存对象
+     */
+    PostDetailCache getCachedPostDetail(Long postId, Long version);
 }
