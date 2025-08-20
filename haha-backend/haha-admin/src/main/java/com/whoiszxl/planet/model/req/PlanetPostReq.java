@@ -40,12 +40,12 @@ public class PlanetPostReq extends BaseReq {
     private Long userId;
 
     /**
-     * 帖子内容
+     * 帖子概要
      */
-    @Schema(description = "帖子内容")
-    @NotBlank(message = "帖子内容不能为空")
-    @Length(max = 2147483647, message = "帖子内容长度不能超过 {max} 个字符")
-    private String content;
+    @Schema(description = "帖子概要")
+    @NotBlank(message = "帖子概要不能为空")
+    @Length(max = 2147483647, message = "帖子概要长度不能超过 {max} 个字符")
+    private String summary;
 
     /**
      * 乐观锁

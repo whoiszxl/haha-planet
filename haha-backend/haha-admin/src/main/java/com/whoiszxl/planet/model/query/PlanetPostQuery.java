@@ -38,11 +38,11 @@ public class PlanetPostQuery implements Serializable {
     private Long userId;
 
     /**
-     * 帖子内容
+     * 帖子概要
      */
-    @Schema(description = "帖子内容")
+    @Schema(description = "帖子概要")
     @Query(type = QueryType.EQ)
-    private String content;
+    private String summary;
 
     /**
      * 乐观锁

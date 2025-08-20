@@ -3,7 +3,6 @@ package com.whoiszxl.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.whoiszxl.cache.caffeine.util.CaffeineUtil;
 import com.whoiszxl.cache.redisson.util.RedissonUtil;
 import com.whoiszxl.constants.PostCacheConstants;
 import com.whoiszxl.model.cache.PostDetailCache;
@@ -29,106 +28,64 @@ import org.springframework.util.CollectionUtils;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
- * 帖子缓存服务实现类
+ * 帖子Redis缓存服务实现类（不使用本地缓存）
  *
  * @author whoiszxl
  */
 @Slf4j
-@Service("postCachedServiceImpl")
+@Service("postRedisCachedServiceImpl")
 @RequiredArgsConstructor
-public class PostCachedServiceImpl implements PostCachedService {
+public class PostRedisCachedServiceImpl implements PostCachedService {
 
-    private final CaffeineUtil caffeineUtil;
     private final RedissonUtil redissonUtil;
     private final RedissonClient redissonClient;
     private final PlanetPostMapper planetPostMapper;
     private final PlanetPostArticleMapper planetPostArticleMapper;
     private final UserFeignClient userFeignClient;
 
-    // 本地缓存更新锁
-    private final ReentrantLock localPostListCacheUpdateLock = new ReentrantLock();
-    private final ReentrantLock localPostDetailCacheUpdateLock = new ReentrantLock();
-    
-    // 布隆过滤器（星球ID）
-    private RBloomFilter<Long> planetIdBloomFilter;
-    // 布隆过滤器（帖子ID）
-    private RBloomFilter<Long> postIdBloomFilter;
-
     @Override
     public PostListCache getCachedPostList(Long planetId, Integer page, Integer pageSize, Integer sortType, Long version) {
         // 构建缓存键
-        String cacheKey = buildPostListCacheKey(planetId, page, pageSize, sortType);
-        
-        // 1. 从本地缓存获取帖子列表数据
-        PostListCache postListCache = caffeineUtil.get(
-                PostCacheConstants.LOCAL_CACHE_POST_LIST, 
-                cacheKey
-        );
-
-        // 2. 如果本地缓存不为空
-        if (postListCache != null) {
-            // 2.1 版本号为空则走无版本号流程，直接将本地缓存返回，存在缓存不一致的问题
-            if (version == null) {
-                log.info("[帖子缓存] 获取帖子列表命中本地缓存，星球ID: {}", planetId);
-                return postListCache;
-            }
-
-            // 2.2 版本号存在则判断传入版本号是否小于等于缓存内的版本号，如果小于等于则说明本地缓存为最新
-            if (version <= postListCache.getVersion()) {
-                log.info("[帖子缓存] 获取帖子列表命中本地缓存，星球ID: {}，版本号: {}", planetId, version);
-                return postListCache;
-            }
-        }
-
-        // 3. 本地缓存不存在，则去分布式缓存获取
-        return getPostListByDistributedCache(planetId, page, pageSize, sortType);
-    }
-
-    /**
-     * 从分布式缓存获取帖子列表
-     */
-    private PostListCache getPostListByDistributedCache(Long planetId, Integer page, Integer pageSize, Integer sortType) {
-        log.info("[帖子缓存] 从分布式缓存中获取帖子列表，星球ID: {}", planetId);
-        
         String cacheKey = buildPostListCacheKey(planetId, page, pageSize, sortType);
         String postListKey = PostCacheConstants.CACHE_POST_LIST_PREFIX + cacheKey;
 
         // 1. 从分布式缓存Redis中获取帖子列表数据
         PostListCache postListCache = redissonUtil.get(postListKey);
 
-        // 2. 分布式缓存中不存在列表，需要从数据库中读取，并更新缓存
+        // 2. 如果Redis缓存中存在数据且版本号匹配
+        if (postListCache != null && postListCache.isExist()) {
+            // 2.1 版本号为空则直接返回Redis缓存
+            if (version == null) {
+                log.info("[帖子Redis缓存] 获取帖子列表命中Redis缓存，星球ID: {}", planetId);
+                return postListCache;
+            }
+
+            // 2.2 版本号存在则判断传入版本号是否小于等于缓存内的版本号，如果小于等于则说明Redis缓存为最新
+            if (version <= postListCache.getVersion()) {
+                log.info("[帖子Redis缓存] 获取帖子列表命中Redis缓存，星球ID: {}，版本号: {}", planetId, version);
+                return postListCache;
+            }
+        }
+
+        // 3. Redis缓存中不存在列表，需要从数据库中读取，并更新缓存
         if (postListCache == null) {
-            // 2.1 使用布隆过滤器检查星球ID是否可能存在（防止缓存穿透）
-            planetIdBloomFilter = redissonClient.getBloomFilter(PostCacheConstants.BLOOM_PLANET_ID);
+            // 3.1 使用布隆过滤器检查星球ID是否可能存在（防止缓存穿透）
+            // 布隆过滤器（星球ID）
+            RBloomFilter<Long> planetIdBloomFilter = redissonClient.getBloomFilter(PostCacheConstants.BLOOM_PLANET_ID);
             if (planetIdBloomFilter.isExists() && !planetIdBloomFilter.contains(planetId)) {
                 // 布隆过滤器判断不存在，直接返回不存在（防止缓存穿透）
-                log.info("[帖子缓存] 布隆过滤器判断星球ID不存在: {}", planetId);
+                log.info("[帖子Redis缓存] 布隆过滤器判断星球ID不存在: {}", planetId);
                 postListCache = new PostListCache().notExist().setPlanetId(planetId);
                 
                 // 将不存在的结果缓存一段时间，防止频繁查询
                 redissonUtil.set(postListKey, postListCache, Duration.ofMinutes(1));
             } else {
                 // 布隆过滤器判断可能存在，从数据库加载数据
-                log.info("[帖子缓存] 星球ID可能存在，从数据库加载: planetId={}", planetId);
+                log.info("[帖子Redis缓存] 星球ID可能存在，从数据库加载: planetId={}", planetId);
                 postListCache = loadPostListFromDb(planetId, page, pageSize, sortType);
-            }
-        }
-
-        // 3. 如果分布式缓存中存在列表，或者从数据库读出了列表，那么就需要更新本地缓存
-        if (!postListCache.isLater()) {
-            // 3.1 此处使用ReentrantLock加锁进行更新，防止并发更新下产生安全问题
-            boolean isLockSuccess = localPostListCacheUpdateLock.tryLock();
-            if (isLockSuccess) {
-                try {
-                    caffeineUtil.put(PostCacheConstants.LOCAL_CACHE_POST_LIST, cacheKey, postListCache);
-                    log.info("[帖子缓存] 更新了本地帖子列表缓存，星球ID: {}", planetId);
-                } finally {
-                    localPostListCacheUpdateLock.unlock();
-                }
             }
         }
 
@@ -139,7 +96,7 @@ public class PostCachedServiceImpl implements PostCachedService {
      * 从数据库加载帖子列表
      */
     private PostListCache loadPostListFromDb(Long planetId, Integer page, Integer pageSize, Integer sortType) {
-        log.info("[帖子缓存] 从数据库获取帖子列表，星球ID: {}", planetId);
+        log.info("[帖子Redis缓存] 从数据库获取帖子列表，星球ID: {}", planetId);
 
         String cacheKey = buildPostListCacheKey(planetId, page, pageSize, sortType);
         String lockKey = PostCacheConstants.LOCK_GET_POST_LIST_FROM_DB_PREFIX + cacheKey;
@@ -154,7 +111,7 @@ public class PostCachedServiceImpl implements PostCachedService {
 
             // 2. 参数校验
             if (planetId == null || planetId <= 0) {
-                log.warn("[帖子缓存] 星球ID参数无效: {}", planetId);
+                log.warn("[帖子Redis缓存] 星球ID参数无效: {}", planetId);
                 return new PostListCache().notExist().setPlanetId(planetId);
             }
 
@@ -227,11 +184,11 @@ public class PostCachedServiceImpl implements PostCachedService {
             Duration expireTime = postListCache.isExist() ? Duration.ofMinutes(3) : Duration.ofMinutes(1);
             redissonUtil.set(postListKey, postListCache, expireTime);
             
-            log.info("[帖子缓存] 从数据库获取帖子列表，更新分布式缓存成功，星球ID: {}, 记录数: {}", 
+            log.info("[帖子Redis缓存] 从数据库获取帖子列表，更新Redis缓存成功，星球ID: {}, 记录数: {}", 
                     planetId, postListCache.isExist() ? postListCache.getPostList().size() : 0);
             return postListCache;
         } catch (Exception e) {
-            log.error("[帖子缓存] 从数据库获取帖子列表，更新分布式缓存失败，星球ID: {}", planetId, e);
+            log.error("[帖子Redis缓存] 从数据库获取帖子列表，更新Redis缓存失败，星球ID: {}", planetId, e);
             // 10. 如果抛出异常，则返回一个稍后再试的缓存对象
             return new PostListCache().tryLater();
         } finally {
@@ -257,7 +214,7 @@ public class PostCachedServiceImpl implements PostCachedService {
                     .collect(Collectors.toSet());
 
             if (userIds.isEmpty()) {
-                log.warn("[帖子缓存] 帖子列表中没有有效的用户ID");
+                log.warn("[帖子Redis缓存] 帖子列表中没有有效的用户ID");
                 return;
             }
 
@@ -274,11 +231,11 @@ public class PostCachedServiceImpl implements PostCachedService {
                 }
             });
 
-            log.info("[帖子缓存] 成功为 {} 个帖子补充用户信息，涉及 {} 个用户", 
+            log.info("[帖子Redis缓存] 成功为 {} 个帖子补充用户信息，涉及 {} 个用户", 
                     postRespList.size(), userInfoMap.size());
 
         } catch (Exception e) {
-            log.error("[帖子缓存] 补充用户信息失败", e);
+            log.error("[帖子Redis缓存] 补充用户信息失败", e);
             // 即使用户信息获取失败，也不影响帖子列表的返回
         }
     }
@@ -296,15 +253,15 @@ public class PostCachedServiceImpl implements PostCachedService {
             R<Map<Long, UserFeignDTO>> result = userFeignClient.batchGetUsersByIds(userIdList);
             
             if (result != null && result.isSuccess() && result.getData() != null) {
-                log.info("[帖子缓存] 批量获取用户信息成功，请求 {} 个用户，返回 {} 个用户信息", 
+                log.info("[帖子Redis缓存] 批量获取用户信息成功，请求 {} 个用户，返回 {} 个用户信息", 
                         userIds.size(), result.getData().size());
                 return result.getData();
             } else {
-                log.warn("[帖子缓存] 批量获取用户信息失败，响应: {}", result);
+                log.warn("[帖子Redis缓存] 批量获取用户信息失败，响应: {}", result);
                 return new HashMap<>();
             }
         } catch (Exception e) {
-            log.error("[帖子缓存] 批量获取用户信息异常，用户ID数量: {}", userIds.size(), e);
+            log.error("[帖子Redis缓存] 批量获取用户信息异常，用户ID数量: {}", userIds.size(), e);
             // 如果批量接口调用失败，降级为单个接口调用
             return batchGetUserInfoFallback(userIds);
         }
@@ -317,7 +274,7 @@ public class PostCachedServiceImpl implements PostCachedService {
      * @return 用户ID到用户信息的映射
      */
     private Map<Long, UserFeignDTO> batchGetUserInfoFallback(Set<Long> userIds) {
-        log.warn("[帖子缓存] 使用降级方案，单个获取用户信息");
+        log.warn("[帖子Redis缓存] 使用降级方案，单个获取用户信息");
         Map<Long, UserFeignDTO> userInfoMap = userIds.parallelStream()
                 .collect(Collectors.toConcurrentMap(
                         userId -> userId,
@@ -346,51 +303,19 @@ public class PostCachedServiceImpl implements PostCachedService {
             if (result != null && result.isSuccess() && result.getData() != null) {
                 return result.getData();
             } else {
-                log.warn("[帖子缓存] 获取用户信息失败，用户ID: {}, 响应: {}", userId, result);
+                log.warn("[帖子Redis缓存] 获取用户信息失败，用户ID: {}, 响应: {}", userId, result);
                 return null;
             }
         } catch (Exception e) {
-            log.error("[帖子缓存] 调用用户服务失败，用户ID: {}", userId, e);
+            log.error("[帖子Redis缓存] 调用用户服务失败，用户ID: {}", userId, e);
             return null;
         }
     }
 
     @Override
     public PostDetailCache getCachedPostDetail(Long postId, Long version) {
-        // 构建缓存键
-        String cacheKey = buildPostDetailCacheKey(postId);
-        
-        // 1. 从本地缓存获取帖子详情数据
-        PostDetailCache postDetailCache = caffeineUtil.get(
-                PostCacheConstants.LOCAL_CACHE_POST_DETAIL, 
-                cacheKey
-        );
-
-        // 2. 如果本地缓存不为空
-        if (postDetailCache != null) {
-            // 2.1 版本号为空则走无版本号流程，直接将本地缓存返回，存在缓存不一致的问题
-            if (version == null) {
-                log.info("[帖子缓存] 获取帖子详情命中本地缓存，帖子ID: {}", postId);
-                return postDetailCache;
-            }
-
-            // 2.2 版本号存在则判断传入版本号是否小于等于缓存内的版本号，如果小于等于则说明本地缓存为最新
-            if (version <= postDetailCache.getVersion()) {
-                log.info("[帖子缓存] 获取帖子详情命中本地缓存，帖子ID: {}，版本号: {}", postId, version);
-                return postDetailCache;
-            }
-        }
-
-        // 3. 本地缓存不存在，则去分布式缓存获取
-        return getPostDetailByDistributedCache(postId);
-    }
-
-    /**
-     * 从分布式缓存获取帖子详情
-     */
-    private PostDetailCache getPostDetailByDistributedCache(Long postId) {
-        log.info("[帖子缓存] 从分布式缓存中获取帖子详情，帖子ID: {}", postId);
-        
+        // 这里保留原有的帖子详情缓存逻辑，因为需求只要求修改帖子列表接口
+        // 如果需要也修改帖子详情接口，可以按照类似的方式实现
         String cacheKey = buildPostDetailCacheKey(postId);
         String postDetailKey = PostCacheConstants.CACHE_POST_DETAIL_PREFIX + cacheKey;
 
@@ -400,32 +325,19 @@ public class PostCachedServiceImpl implements PostCachedService {
         // 2. 分布式缓存中不存在详情，需要从数据库中读取，并更新缓存
         if (postDetailCache == null) {
             // 2.1 使用布隆过滤器检查帖子ID是否可能存在（防止缓存穿透）
-            postIdBloomFilter = redissonClient.getBloomFilter(PostCacheConstants.BLOOM_POST_ID);
+            // 布隆过滤器（帖子ID）
+            RBloomFilter<Long> postIdBloomFilter = redissonClient.getBloomFilter(PostCacheConstants.BLOOM_POST_ID);
             if (postIdBloomFilter.isExists() && !postIdBloomFilter.contains(postId)) {
                 // 布隆过滤器判断不存在，直接返回不存在（防止缓存穿透）
-                log.info("[帖子缓存] 布隆过滤器判断帖子ID不存在: {}", postId);
+                log.info("[帖子Redis缓存] 布隆过滤器判断帖子ID不存在: {}", postId);
                 postDetailCache = new PostDetailCache().notExist().setPostId(postId);
                 
                 // 将不存在的结果缓存一段时间，防止频繁查询
                 redissonUtil.set(postDetailKey, postDetailCache, Duration.ofMinutes(1));
             } else {
                 // 布隆过滤器判断可能存在，从数据库加载数据
-                log.info("[帖子缓存] 帖子ID可能存在，从数据库加载: postId={}", postId);
+                log.info("[帖子Redis缓存] 帖子ID可能存在，从数据库加载: postId={}", postId);
                 postDetailCache = loadPostDetailFromDb(postId);
-            }
-        }
-
-        // 3. 如果分布式缓存中存在详情，或者从数据库读出了详情，那么就需要更新本地缓存
-        if (!postDetailCache.isLater()) {
-            // 3.1 此处使用ReentrantLock加锁进行更新，防止并发更新下产生安全问题
-            boolean isLockSuccess = localPostDetailCacheUpdateLock.tryLock();
-            if (isLockSuccess) {
-                try {
-                    caffeineUtil.put(PostCacheConstants.LOCAL_CACHE_POST_DETAIL, cacheKey, postDetailCache);
-                    log.info("[帖子缓存] 更新了本地帖子详情缓存，帖子ID: {}", postId);
-                } finally {
-                    localPostDetailCacheUpdateLock.unlock();
-                }
             }
         }
 
@@ -436,7 +348,7 @@ public class PostCachedServiceImpl implements PostCachedService {
      * 从数据库加载帖子详情
      */
     private PostDetailCache loadPostDetailFromDb(Long postId) {
-        log.info("[帖子缓存] 从数据库获取帖子详情，帖子ID: {}", postId);
+        log.info("[帖子Redis缓存] 从数据库获取帖子详情，帖子ID: {}", postId);
 
         String cacheKey = buildPostDetailCacheKey(postId);
         String lockKey = PostCacheConstants.LOCK_GET_POST_DETAIL_FROM_DB_PREFIX + cacheKey;
@@ -451,7 +363,7 @@ public class PostCachedServiceImpl implements PostCachedService {
 
             // 2. 参数校验
             if (postId == null || postId <= 0) {
-                log.warn("[帖子缓存] 帖子ID参数无效: {}", postId);
+                log.warn("[帖子Redis缓存] 帖子ID参数无效: {}", postId);
                 return new PostDetailCache().notExist().setPostId(postId);
             }
 
@@ -492,11 +404,11 @@ public class PostCachedServiceImpl implements PostCachedService {
             Duration expireTime = postDetailCache.isExist() ? Duration.ofMinutes(5) : Duration.ofMinutes(1);
             redissonUtil.set(postDetailKey, postDetailCache, expireTime);
             
-            log.info("[帖子缓存] 从数据库获取帖子详情，更新分布式缓存成功，帖子ID: {}, 存在: {}", 
+            log.info("[帖子Redis缓存] 从数据库获取帖子详情，更新Redis缓存成功，帖子ID: {}, 存在: {}", 
                     postId, postDetailCache.isExist());
             return postDetailCache;
         } catch (Exception e) {
-            log.error("[帖子缓存] 从数据库获取帖子详情，更新分布式缓存失败，帖子ID: {}", postId, e);
+            log.error("[帖子Redis缓存] 从数据库获取帖子详情，更新Redis缓存失败，帖子ID: {}", postId, e);
             // 9. 如果抛出异常，则返回一个稍后再试的缓存对象
             return new PostDetailCache().tryLater();
         } finally {
@@ -536,12 +448,12 @@ public class PostCachedServiceImpl implements PostCachedService {
                 // 设置文章扩展信息到帖子响应对象
                 postResp.setArticleExtension(articleExtension);
                 
-                log.info("[帖子缓存] 成功为帖子补充文章扩展信息，帖子ID: {}", postResp.getId());
+                log.info("[帖子Redis缓存] 成功为帖子补充文章扩展信息，帖子ID: {}", postResp.getId());
             } else {
-                log.warn("[帖子缓存] 文章类型帖子未找到扩展信息，帖子ID: {}", postResp.getId());
+                log.warn("[帖子Redis缓存] 文章类型帖子未找到扩展信息，帖子ID: {}", postResp.getId());
             }
         } catch (Exception e) {
-            log.error("[帖子缓存] 查询文章扩展信息失败，帖子ID: {}", postResp.getId(), e);
+            log.error("[帖子Redis缓存] 查询文章扩展信息失败，帖子ID: {}", postResp.getId(), e);
             // 即使文章扩展信息获取失败，也不影响帖子详情的返回
         }
     }
@@ -562,11 +474,11 @@ public class PostCachedServiceImpl implements PostCachedService {
             if (userInfo != null) {
                 postResp.setUserName(userInfo.getNickname());
                 postResp.setUserAvatar(userInfo.getAvatar());
-                log.info("[帖子缓存] 成功为帖子详情补充用户信息，帖子ID: {}, 用户ID: {}", 
+                log.info("[帖子Redis缓存] 成功为帖子详情补充用户信息，帖子ID: {}, 用户ID: {}", 
                         postResp.getId(), postResp.getUserId());
             }
         } catch (Exception e) {
-            log.error("[帖子缓存] 为帖子详情补充用户信息失败，帖子ID: {}", postResp.getId(), e);
+            log.error("[帖子Redis缓存] 为帖子详情补充用户信息失败，帖子ID: {}", postResp.getId(), e);
             // 即使用户信息获取失败，也不影响帖子详情的返回
         }
     }

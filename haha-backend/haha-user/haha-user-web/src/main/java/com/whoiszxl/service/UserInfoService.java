@@ -4,6 +4,7 @@ import com.whoiszxl.user.model.entity.UserInfoDO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -40,4 +41,11 @@ public interface UserInfoService {
      * @return 用户信息
      */
     UserInfoDO getById(Long userId);
+
+    /**
+     * 批量获取用户信息
+     * @param userIds 用户ID集合
+     * @return 用户信息
+     */
+    List<UserInfoDO> listByIds(List<Long> userIds);
 }

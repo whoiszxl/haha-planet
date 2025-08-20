@@ -32,10 +32,10 @@ public class PostResp {
     @Schema(description = "帖子标题")
     private String title;
 
-    @Schema(description = "帖子内容")
-    private String content;
+    @Schema(description = "帖子概要")
+    private String summary;
 
-    @Schema(description = "内容类型：1-文本 2-图片 3-视频 4-文件")
+    @Schema(description = "内容类型：1-主题 2-文章")
     private Integer contentType;
 
     @Schema(description = "媒体文件URL，JSON数组格式")
@@ -88,4 +88,36 @@ public class PostResp {
 
     @Schema(description = "更新时间")
     private LocalDateTime updatedAt;
+
+    @Schema(description = "文章扩展信息（仅文章类型帖子有值）")
+    private ArticleExtension articleExtension;
+
+    /**
+     * 文章扩展信息静态内部类
+     */
+    @Data
+    @Schema(description = "文章扩展信息")
+    public static class ArticleExtension {
+        
+        @Schema(description = "文章内容")
+        private String content;
+
+        @Schema(description = "封面图片URL")
+        private String coverImage;
+
+        @Schema(description = "文章标签，逗号分隔")
+        private String tags;
+
+        @Schema(description = "字数统计")
+        private Integer wordCount;
+
+        @Schema(description = "预估阅读时间（分钟）")
+        private Integer readingTime;
+
+        @Schema(description = "是否原创: 0-否 1-是")
+        private Integer isOriginal;
+
+        @Schema(description = "来源链接")
+        private String sourceUrl;
+    }
 }

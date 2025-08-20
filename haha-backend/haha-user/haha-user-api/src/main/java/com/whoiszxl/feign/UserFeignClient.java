@@ -5,7 +5,12 @@ import com.whoiszxl.dto.UserFeignDTO;
 import com.whoiszxl.starter.web.model.R;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用户 feign 客户端接口
@@ -21,4 +26,12 @@ public interface UserFeignClient {
      */
     @GetMapping("/getUserById")
     R<UserFeignDTO> getUserById(@RequestParam Long userId);
+
+    /**
+     * 批量获取用户信息
+     * @param userIds 用户ID列表
+     * @return 用户ID到用户信息的映射
+     */
+    @PostMapping("/batchGetUsersByIds")
+    R<Map<Long, UserFeignDTO>> batchGetUsersByIds(@RequestBody List<Long> userIds);
 }

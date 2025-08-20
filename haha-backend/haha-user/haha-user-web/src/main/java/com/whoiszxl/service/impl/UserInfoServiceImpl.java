@@ -6,6 +6,7 @@ import com.whoiszxl.user.model.entity.UserInfoDO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,5 +44,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public UserInfoDO getById(Long userId) {
         return userInfoMapper.selectById(userId);
+    }
+
+    @Override
+    public List<UserInfoDO> listByIds(List<Long> userIds) {
+        return userInfoMapper.selectBatchIds(userIds);
     }
 }

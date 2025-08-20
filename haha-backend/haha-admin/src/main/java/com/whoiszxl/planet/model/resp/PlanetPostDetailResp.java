@@ -47,11 +47,11 @@ public class PlanetPostDetailResp extends BaseResponse {
     private String title;
 
     /**
-     * 帖子内容
+     * 帖子概要
      */
-    @Schema(description = "帖子内容")
-    @ExcelProperty(value = "帖子内容")
-    private String content;
+    @Schema(description = "帖子概要")
+    @ExcelProperty(value = "帖子概要")
+    private String summary;
 
     /**
      * 内容类型: 1-文本 2-图片 3-视频 4-音频 5-文件 6-链接

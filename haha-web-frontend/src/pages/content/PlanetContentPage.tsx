@@ -22,6 +22,7 @@ interface Post extends ApiPost {
   userAvatar?: string;
   link?: string;
   extractCode?: string;
+  summary?: string;
 }
 
 interface PlanetContentPageProps {}
@@ -47,7 +48,6 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
   const [sortType, setSortType] = useState(1); // 1-最新发布 2-最多点赞 3-最多评论 4-最多浏览
-  const [cacheVersion, setCacheVersion] = useState<string | undefined>(undefined); // 缓存版本号，后端需要 Long 类型
   
   // 折叠状态管理
   const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({
@@ -58,6 +58,12 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
 
   // 图片加载失败状态追踪
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  
+  // 初始化状态追踪，避免重复加载
+  const [isInitialized, setIsInitialized] = useState(false);
+  
+  // 帖子展开状态管理
+  const [expandedPosts, setExpandedPosts] = useState<Set<number>>(new Set());
 
   // 加载星球详情
   const loadPlanetDetail = async (id: number) => {
@@ -109,11 +115,13 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
             // 加载星球详情和帖子
             await loadPlanetDetail(targetPlanet.id);
             await loadPosts(targetPlanet.id, 1, 1);
+            setIsInitialized(true); // 标记已初始化
           } else {
             // 如果在用户星球列表中找不到，仍然尝试加载详情
             const id = parseInt(planetId);
             await loadPlanetDetail(id);
             await loadPosts(id, 1, 1);
+            setIsInitialized(true); // 标记已初始化
           }
         } else {
           // 没有指定planetId时，默认选择第一个星球
@@ -124,6 +132,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
             setSelectedPlanet(firstPlanet);
             await loadPlanetDetail(firstPlanet.id);
             await loadPosts(firstPlanet.id, 1, 1);
+            setIsInitialized(true); // 标记已初始化
           }
         }
       } else {
@@ -140,7 +149,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   };
 
   // 加载帖子列表
-  const loadPosts = async (planetId: number, page: number = 1, sort: number = 1, version?: string) => {
+  const loadPosts = async (planetId: number, page: number = 1, sort: number = 1) => {
     try {
       // 区分初始加载和加载更多
       if (page === 1) {
@@ -154,16 +163,10 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
         planetId,
         page,
         pageSize: 10,
-        sortType: sort,
-        version: version || cacheVersion || '0'
+        sortType: sort
       });
       
       if (response.code === 'SUCCESS' && response.data) {
-        // 保存最新的缓存版本号
-        if (response.data.version) {
-          setCacheVersion(response.data.version);
-        }
-        
         // 处理稍后重试状态
         if (response.data.later) {
           console.warn('服务繁忙，需要稍后重试');
@@ -212,12 +215,21 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
 
   // 选择星球
   const handlePlanetSelect = async (planet: UserPlanet) => {
+    // 如果选择的是当前已选择的星球，则不需要重新加载
+    if (selectedPlanet && selectedPlanet.id === planet.id) {
+      return;
+    }
+    
+    // 如果还在初始化过程中，避免重复加载
+    if (!isInitialized && selectedPlanet && selectedPlanet.id === planet.id) {
+      return;
+    }
+    
     setSelectedPlanet(planet);
     // 重置帖子相关状态
     setPosts([]);
     setCurrentPage(1);
     setSortType(1);
-    setCacheVersion(undefined); // 重置缓存版本号
     // 加载选中星球的详情和帖子
     await loadPlanetDetail(planet.id);
     await loadPosts(planet.id, 1, 1);
@@ -242,7 +254,6 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   const handleSortChange = async (newSortType: number) => {
     if (!selectedPlanet) return;
     setSortType(newSortType);
-    setCacheVersion(undefined); // 重置缓存版本号，确保获取最新数据
     await loadPosts(selectedPlanet.id, 1, newSortType);
   };
 
@@ -279,7 +290,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     if (loadingRef.current) {
       observerRef.current.observe(loadingRef.current);
     }
-  }, [postLoading, loadingMore, posts.length, totalPosts]);
+  }, [postLoading, loadingMore]); // 移除posts.length和totalPosts依赖，避免不必要的重建
 
   // 当相关依赖项变化时，重新初始化观察器
   useEffect(() => {
@@ -316,6 +327,37 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     target.src = fallbackUrl || getDefaultAvatarUrl();
   };
 
+  // 切换帖子展开状态
+  const togglePostExpansion = (postId: number) => {
+    setExpandedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  // 检查内容是否需要折叠
+  const shouldCollapseContent = (content: string) => {
+    return content.split('\n').length > 10;
+  };
+
+  // 获取显示的内容
+  const getDisplayContent = (summary: string, postId: number) => {
+    const isExpanded = expandedPosts.has(postId);
+    const shouldCollapse = shouldCollapseContent(summary);
+    
+    if (!shouldCollapse || isExpanded) {
+      return summary;
+    }
+    
+    const lines = summary.split('\n');
+    return lines.slice(0, 10).join('\n');
+  };
+
   // 渲染帖子列表
   const renderPostList = () => {
     if (postError) {
@@ -324,7 +366,11 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
           {postError}
           <button 
             className={styles.retryButton} 
-            onClick={() => selectedPlanet && loadPosts(selectedPlanet.id, 1, sortType)}
+            onClick={() => {
+              if (selectedPlanet) {
+                loadPosts(selectedPlanet.id, 1, sortType);
+              }
+            }}
           >
             重试
           </button>
@@ -370,7 +416,29 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                 {/* 帖子主体内容 */}
                 <div className={styles.postBody}>
                   {post.title && <div className={styles.postTitle}>{post.title}</div>}
-                  <div className={styles.postText}>{post.content}</div>
+                  <div className={styles.postText}>
+                    {getDisplayContent(post.summary || post.articleExtension?.content || '', post.id)}
+                    {shouldCollapseContent(post.summary || post.articleExtension?.content || '') && (
+                      <div className={styles.expandButton}>
+                        <button 
+                          className={styles.expandBtn}
+                          onClick={() => togglePostExpansion(post.id)}
+                        >
+                          {expandedPosts.has(post.id) ? '收起' : '展开全部'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* 文章类型显示详情链接 */}
+                  {post.contentType === 2 && post.title && (
+                    <div className={styles.articleLink}>
+                      <a href={`/article/${post.id}`} className={styles.readMoreLink} target="_blank" rel="noopener noreferrer">
+                        <LinkIcon className={styles.linkIconSmall} />
+                        {post.title}
+                      </a>
+                    </div>
+                  )}
                   
                   {/* 如果有媒体内容 */}
                   {post.mediaUrls && post.contentType === 2 && (

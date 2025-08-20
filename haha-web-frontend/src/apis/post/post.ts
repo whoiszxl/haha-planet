@@ -1,4 +1,18 @@
+// 帖子相关API
 import http from '../../utils/http';
+
+// ================================ 类型定义 ================================
+
+// 文章扩展信息接口
+export interface ArticleExtension {
+  content: string;
+  coverImage?: string;
+  tags?: string;
+  wordCount?: number;
+  readingTime?: number;
+  isOriginal?: number;
+  sourceUrl?: string;
+}
 
 // 帖子响应接口
 export interface Post {
@@ -8,7 +22,7 @@ export interface Post {
   userName?: string;
   userAvatar?: string;
   title: string;
-  content: string;
+  summary?: string;
   contentType: number;
   mediaUrls?: string;
   link?: string;
@@ -27,6 +41,7 @@ export interface Post {
   status: number;
   createdAt: string;
   updatedAt: string;
+  articleExtension?: ArticleExtension;
 }
 
 // 分页响应接口
@@ -35,10 +50,9 @@ export interface PostPageResponse {
   total: number;
 }
 
-// 带版本号的响应接口
+// 响应接口
 export interface VersionedResponse<T> {
   data: T;
-  version: string;
   exist: boolean;
   later: boolean;
 }
@@ -52,14 +66,13 @@ export interface PostListParams {
   page?: number;
   pageSize?: number;
   sortType?: number; // 1-最新发布 2-最多点赞 3-最多评论 4-最多浏览
-  version?: string; // 缓存版本号，用于缓存版本控制，作为路径参数传递
 }
 
 /**
  * 根据星球ID查询帖子列表
  */
 export const getPostsByPlanetId = async (params: PostListParams) => {
-  const { planetId, page = 1, pageSize = 20, sortType = 1, version = '0' } = params;
+  const { planetId, page = 1, pageSize = 20, sortType = 1 } = params;
   
   try {
     // 构建查询参数
@@ -69,8 +82,25 @@ export const getPostsByPlanetId = async (params: PostListParams) => {
       sortType: sortType.toString()
     });
     
-    // 使用新的 API 路径格式，版本号作为路径参数
-    const response = await http.get<VersionedPostPageResponse>(`/planet/api/post/planet/${planetId}/${version}?${queryParams.toString()}`);
+    // 调用API获取帖子列表
+    const response = await http.get<VersionedPostPageResponse>(`/planet/api/post/planet/${planetId}?${queryParams.toString()}`);
+    
+    // 如果缓存不存在或需要稍后重试，返回相应状态
+    if (!response.data.exist || response.data.later) {
+      console.warn('帖子列表缓存未就绪:', response.data.later ? '稍后重试' : '数据不存在');
+      return {
+        data: {
+          data: {
+            list: [],
+            total: 0
+          },
+          exist: response.data.exist,
+          later: response.data.later
+        },
+        code: response.data.later ? 'CACHE_NOT_READY' : 'NO_DATA',
+        message: response.data.later ? '缓存正在构建中，请稍后重试' : '暂无帖子数据'
+      };
+    }
     
     return {
       data: response.data,
@@ -126,14 +156,12 @@ export const formatPostTime = (dateString: string): string => {
 // 帖子详情请求参数
 export interface PostDetailParams {
   postId: number;
-  version?: string; // 缓存版本号，用于缓存版本控制
 }
 
-// 带版本号的帖子详情响应接口
+// 帖子详情响应接口
 export interface VersionedPostDetailResponse {
   postDetail: Post;
   postId: number;
-  version: string;
   exist: boolean;
   later: boolean;
 }
@@ -142,16 +170,21 @@ export interface VersionedPostDetailResponse {
  * 根据帖子ID获取帖子详情
  */
 export const getPostDetail = async (params: PostDetailParams) => {
-  const { postId, version = '0' } = params;
+  const { postId } = params;
   
   try {
-    // 构建查询参数
-    const queryParams = new URLSearchParams({
-      version: version
-    });
+    // 调用API获取帖子详情
+    const response = await http.get<VersionedPostDetailResponse>(`/planet/api/post/detail/${postId}`);
     
-    // 使用查询参数传递版本号
-    const response = await http.get<VersionedPostDetailResponse>(`/planet/api/post/detail/${postId}?${queryParams.toString()}`);
+    // 如果缓存不存在或需要稍后重试
+    if (!response.data.exist || response.data.later) {
+      console.warn('帖子详情缓存未就绪:', response.data.later ? '稍后重试' : '数据不存在');
+      return {
+        data: null,
+        code: response.data.later ? 'CACHE_NOT_READY' : 'NO_DATA',
+        message: response.data.later ? '缓存正在构建中，请稍后重试' : '帖子不存在或已被删除'
+      };
+    }
     
     return {
       data: response.data,

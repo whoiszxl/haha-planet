@@ -127,9 +127,9 @@ CREATE TABLE IF NOT EXISTS `pla_planet_post`(
     `planet_id`                 bigint(20) NOT NULL COMMENT '星球ID',
     `user_id`                   bigint(20) NOT NULL COMMENT '发帖用户ID',
     `title`                     varchar(200) DEFAULT NULL COMMENT '帖子标题',
-    `content`                   longtext NOT NULL COMMENT '帖子内容',
-    `content_type`              tinyint(1) UNSIGNED DEFAULT 1 COMMENT '内容类型: 1-文本 2-图片 3-视频 4-音频 5-文件 6-链接',
-    `media_urls`                json DEFAULT NULL COMMENT '媒体文件URLs，JSON数组',
+    `summary`                   varchar(500) NOT NULL COMMENT '帖子概要',
+    `content_type`              tinyint(1) UNSIGNED DEFAULT 1 COMMENT '内容类型: 1-主题 2-文章',
+    `media_urls`                json DEFAULT NULL COMMENT '媒体文件URLs, JSON数组',
     `is_anonymous`              tinyint(1) UNSIGNED DEFAULT 0 COMMENT '是否匿名发帖: 0-否 1-是',
     `is_top`                    tinyint(1) UNSIGNED DEFAULT 0 COMMENT '是否置顶: 0-否 1-是',
     `is_essence`                tinyint(1) UNSIGNED DEFAULT 0 COMMENT '是否精华: 0-否 1-是',
@@ -375,3 +375,27 @@ CREATE TABLE IF NOT EXISTS `pla_planet_setting`(
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE INDEX `uk_planet_key`(`planet_id`, `setting_key`) USING BTREE
 ) ENGINE = InnoDB CHARSET = utf8mb4 COMMENT = '星球设置表' ROW_FORMAT = Dynamic;
+
+-- 星球帖子文章扩展表
+DROP TABLE IF EXISTS `pla_planet_post_article`;
+CREATE TABLE IF NOT EXISTS `pla_planet_post_article`(
+    `id`                        bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `post_id`                   bigint(20) NOT NULL COMMENT '帖子ID',
+    `content`                   longtext DEFAULT NULL COMMENT '文章内容',
+    `cover_image`               varchar(255) DEFAULT NULL COMMENT '封面图片URL',
+    `tags`                      varchar(255) DEFAULT NULL COMMENT '文章标签，逗号分隔',
+    `word_count`                int(11) DEFAULT 0 COMMENT '字数统计',
+    `reading_time`              int(11) DEFAULT 0 COMMENT '预估阅读时间（分钟）',
+    `is_original`               tinyint(1) UNSIGNED DEFAULT 1 COMMENT '是否原创: 0-否 1-是',
+    `source_url`                varchar(255) DEFAULT NULL COMMENT '来源链接',
+    `version`                   bigint(20) unsigned NOT NULL DEFAULT '1' COMMENT '乐观锁',
+    `status`                    tinyint(1) UNSIGNED DEFAULT 1 COMMENT '业务状态: 1-正常 2-已删除',
+    `is_deleted`                tinyint(1) UNSIGNED DEFAULT 0 COMMENT '逻辑删除 1: 已删除， 0: 未删除',
+    `created_by`                bigint(20) NOT NULL COMMENT '创建者',
+    `updated_by`                bigint(20) DEFAULT NULL COMMENT '更新者',
+    `created_at`                datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`                datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`) USING BTREE,
+    UNIQUE INDEX `uk_post_id`(`post_id`) USING BTREE,
+    INDEX `idx_created_at`(`created_at`) USING BTREE
+) ENGINE = InnoDB CHARSET = utf8mb4 COMMENT = '星球帖子文章扩展表' ROW_FORMAT = Dynamic;

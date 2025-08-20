@@ -277,11 +277,32 @@
 }
 
 .postText {
-  font-size: 13px;
-  color: #666;
+  font-size: 14px;
+  color: #2f3034;
   line-height: 1.5;
   margin: 0;
   word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.expandButton {
+  margin-top: 8px;
+  text-align: left;
+}
+
+.expandBtn {
+  background: none;
+  border: none;
+  color: #496c8a;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.expandBtn:hover {
+  color: #3f78aa;
 }
 
 .postMedia {
@@ -316,6 +337,36 @@
   margin-top: 4px;
   font-size: 13px;
   color: #666;
+}
+
+/* 文章链接样式 */
+.articleLink {
+  margin-top: 8px;
+  text-align: left;
+}
+
+.readMoreLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1890ff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 0;
+  transition: all 0.2s ease;
+}
+
+.readMoreLink:hover {
+  color: #40a9ff;
+}
+
+.linkIconSmall {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  stroke-width: 1.5;
+  color: #1890ff;
 }
 
 .postFooter {
