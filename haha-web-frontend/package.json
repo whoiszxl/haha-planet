@@ -30,6 +30,7 @@
     "@types/react-dom": "^18.0.4",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/styled-components": "^5.1.34",
+    "@uiw/react-md-editor": "^4.0.8",
     "antd": "^4.24.16",
     "axios": "^1.11.0",
     "buffer": "^6.0.3",

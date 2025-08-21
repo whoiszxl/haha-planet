@@ -243,6 +243,29 @@
   font-size: 11px;
   color: #999;
   margin-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.essenceTag {
+  background: #52c41a;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.topTag {
+  background: #ff4d4f;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .postOptions {
@@ -1228,4 +1251,204 @@
     font-size: 12px;
     padding: 5px 10px;
   }
+}
+
+/* 模态框样式 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: var(--bg-white);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.closeButton:hover {
+  background: #f5f5f5;
+  color: var(--text-primary);
+}
+
+.modalBody {
+  padding: 0;
+}
+
+/* 发布输入区域 */
+.publishInputArea {
+  display: flex;
+  padding: 20px;
+  gap: 12px;
+}
+
+.userAvatarSection {
+  flex-shrink: 0;
+}
+
+.modalUserAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.inputSection {
+  flex: 1;
+}
+
+.modalTitleInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: var(--text-primary);
+  background: transparent;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.modalTitleInput::placeholder {
+  color: #999;
+}
+
+/* 内容输入区域 */
+.contentInputArea {
+  padding: 0 20px 20px 72px; /* 左边距对齐头像右侧 */
+}
+
+.modalContentTextarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: transparent;
+  resize: none;
+  font-family: inherit;
+  line-height: 1.5;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.modalContentTextarea::placeholder {
+  color: #999;
+}
+
+/* 模态框底部工具栏 */
+.modalFooter {
+  border-top: 1px solid #f0f0f0;
+  padding: 0;
+}
+
+.modalToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #666;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.toolButton:hover {
+  background: #f5f5f5;
+  color: var(--text-primary);
+}
+
+.toolIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.charCount {
+  font-size: 12px;
+  color: #999;
+}
+
+.modalPublishButton {
+  padding: 6px 16px;
+  border: none;
+  background: #00d4aa;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.modalPublishButton:hover:not(:disabled) {
+  background: #00c49a;
+}
+
+.modalPublishButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #d9d9d9;
 }

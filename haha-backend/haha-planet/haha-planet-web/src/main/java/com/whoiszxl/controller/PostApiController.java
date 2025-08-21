@@ -4,9 +4,11 @@ import com.whoiszxl.common.context.UserContext;
 import com.whoiszxl.common.utils.UserLoginHelper;
 import com.whoiszxl.model.cache.PostDetailCache;
 import com.whoiszxl.model.cache.PostListCache;
+import com.whoiszxl.model.req.PostCreateReq;
 import com.whoiszxl.model.resp.PostResp;
 import com.whoiszxl.model.resp.VersionedResponse;
 import com.whoiszxl.service.PostCachedService;
+import com.whoiszxl.service.PostService;
 import com.whoiszxl.starter.core.utils.validate.CheckUtils;
 import com.whoiszxl.starter.crud.model.PageResponse;
 import com.whoiszxl.starter.web.model.R;
@@ -33,10 +35,13 @@ import java.util.List;
 public class PostApiController {
 
     private final PostCachedService postCachedService;
+    private final PostService postService;
     
     public PostApiController(
-            @Qualifier("postRedisCachedServiceImpl") PostCachedService postCachedService) {
+            @Qualifier("postRedisCachedServiceImpl") PostCachedService postCachedService,
+            PostService postService) {
         this.postCachedService = postCachedService;
+        this.postService = postService;
     }
 
     @Operation(summary = "根据星球ID查询帖子列表", description = "分页查询指定星球下的帖子列表，支持多种排序方式，只使用Redis缓存")
@@ -52,10 +57,7 @@ public class PostApiController {
         
         try {
             // 参数校验
-            if (planetId == null || planetId <= 0) {
-                log.warn("[帖子API] 星球ID参数无效: {}", planetId);
-                return R.fail("星球ID参数无效");
-            }
+            CheckUtils.throwIf(planetId == null || planetId <= 0, "星球ID参数无效");
 
             // 权限校验
             UserContext loginUser = UserLoginHelper.getLoginUser();
@@ -107,10 +109,7 @@ public class PostApiController {
         log.info("[帖子API] 获取帖子详情请求，帖子ID: {}", postId);
         
         // 参数校验
-        if (postId == null || postId <= 0) {
-            log.warn("[帖子API] 帖子ID参数无效: {}", postId);
-            return R.fail("帖子ID不能为空");
-        }
+        CheckUtils.throwIf(postId == null || postId <= 0, "帖子ID不能为空");
         
         try {
             // 调用缓存服务获取帖子详情
@@ -141,6 +140,35 @@ public class PostApiController {
         } catch (Exception e) {
             log.error("[帖子API] 获取帖子详情异常，帖子ID: {}", postId, e);
             return R.fail("获取帖子详情失败");
+        }
+    }
+
+    @Operation(summary = "新增帖子", description = "创建新的主题或文章帖子")
+    @PostMapping
+    public R<Long> createPost(@Validated @RequestBody PostCreateReq req) {
+        
+        log.info("[帖子API] 创建帖子请求，星球ID: {}, 内容类型: {}, 标题: {}", 
+                req.getPlanetId(), req.getContentType(), req.getTitle());
+        
+        // 1. 参数校验
+        CheckUtils.throwIf(req.getPlanetId() == null || req.getPlanetId() <= 0, "星球ID不能为空");
+        CheckUtils.throwIf(req.getContentType() == null || (req.getContentType() != 1 && req.getContentType() != 2), 
+                "内容类型必须为1(主题)或2(文章)");
+        
+        // 2. 获取当前登录用户
+        UserContext userContext = UserLoginHelper.getLoginUser();
+        CheckUtils.throwIfNull(userContext, "用户未登录");
+        
+        try {
+            // 3. 调用服务层创建帖子
+            Long postId = postService.createPost(req, userContext.getId());
+            
+            log.info("[帖子API] 帖子创建成功，帖子ID: {}, 用户ID: {}", postId, userContext.getId());
+            return R.ok(postId);
+            
+        } catch (Exception e) {
+            log.error("[帖子API] 创建帖子失败，用户ID: {}, 错误信息: {}", userContext.getId(), e.getMessage(), e);
+            throw e;
         }
     }
 }

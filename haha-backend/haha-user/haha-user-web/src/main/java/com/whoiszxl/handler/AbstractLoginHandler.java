@@ -10,6 +10,7 @@ import com.whoiszxl.feign.PlanetFeignClient;
 import com.whoiszxl.model.command.LoginCommand;
 import com.whoiszxl.model.response.UserClientResponse;
 import com.whoiszxl.service.UserInfoService;
+import com.whoiszxl.starter.web.model.R;
 import com.whoiszxl.starter.web.util.ServletUtils;
 import com.whoiszxl.user.model.entity.UserInfoDO;
 import jakarta.annotation.Resource;
@@ -48,7 +49,7 @@ public abstract class AbstractLoginHandler<T extends LoginCommand> implements Lo
     }
 
     protected String authenticate(UserInfoDO userInfo, UserClientResponse client) {
-        Long memberId = userInfo.getId();
+        Long userId = userInfo.getId();
 
         // 获取用户的上下文信息
         UserContext userContext = new UserContext();
@@ -58,7 +59,8 @@ public abstract class AbstractLoginHandler<T extends LoginCommand> implements Lo
         
         // 获取用户所属的星球ID列表
         try {
-            Set<Long> myPlanetIds = planetFeignClient.getMyPlanetIds();
+            R<Set<Long>> result = planetFeignClient.getMyPlanetIds(userId);
+            Set<Long> myPlanetIds = result.getData();
             userContext.setMyPlanetSet(myPlanetIds);
         } catch (Exception e) {
             // 如果获取星球ID失败，记录日志但不影响登录流程
@@ -73,7 +75,7 @@ public abstract class AbstractLoginHandler<T extends LoginCommand> implements Lo
                 .setTimeout(client.getTimeout())
                 .setExtra(CLIENT_KEY, client.getClientKey())
                 .setExtraData(BeanUtil.beanToMap(userExtraContext));
-        StpUtil.login(memberId, saLoginModel);
+        StpUtil.login(userId, saLoginModel);
         UserContextHolder.setContext(userContext);
 
         return StpUtil.getTokenValue();

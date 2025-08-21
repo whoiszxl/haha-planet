@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPostDetail, Post, formatCount, formatPostTime } from '../../apis/post/post';
-import { ArrowLeftIcon, LikeIcon, CommentIcon, ViewIcon, ShareIcon, MoreIcon } from '../../components/icons/SocialIcons';
-import { Header } from '../../components';
+import { LikeIcon, CommentIcon, ViewIcon, ShareIcon } from '../../components/icons/SocialIcons';
 import { getAvatarUrl, getDefaultAvatarUrl } from '../../utils/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import mermaid from 'mermaid';
 import styles from './PostArticlePage.module.css';
 
@@ -142,12 +140,12 @@ const globalMermaidCache = new Map<string, string>();
 const optimizeSvgForZoom = (svgContent: string): string => {
   if (!svgContent) return '';
   
-  let optimized = svgContent.replace(/(<svg[^>]*)\s+width=\"[^\"]*\"([^>]*>)/g, '$1$2');
-  optimized = optimized.replace(/(<svg[^>]*)\s+height=\"[^\"]*\"([^>]*>)/g, '$1$2');
+  let optimized = svgContent.replace(/(<svg[^>]*)\s+width="[^"]*"([^>]*>)/g, '$1$2');
+  optimized = optimized.replace(/(<svg[^>]*)\s+height="[^"]*"([^>]*>)/g, '$1$2');
   
   if (!optimized.includes('viewBox')) {
-    const widthMatch = svgContent.match(/width=\"([^\"]*)\"/); 
-    const heightMatch = svgContent.match(/height=\"([^\"]*)\"/); 
+    const widthMatch = svgContent.match(/width="([^"]*)"/); 
+    const heightMatch = svgContent.match(/height="([^"]*)"/);  
     
     if (widthMatch && heightMatch) {
       const width = widthMatch[1].replace('px', '');
@@ -396,7 +394,7 @@ const MermaidChart = React.memo(({ chart }: { chart: string }) => {
     renderChart();
     
     return () => { isMounted = false; };
-  }, [chart, chartId]);
+  }, [chart, chartId, renderCache]);
   
   const handleZoomClick = () => setZoomVisible(true);
   const handleCloseZoom = () => setZoomVisible(false);
@@ -605,10 +603,7 @@ export const PostArticlePage: React.FC<PostArticlePageProps> = () => {
     target.src = fallbackUrl || getDefaultAvatarUrl();
   };
 
-  // 返回上一页
-  const handleGoBack = () => {
-    navigate(-1);
-  };
+
 
   // 重新获取帖子详情
   const fetchPostDetail = () => {

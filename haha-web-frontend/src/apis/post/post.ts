@@ -197,6 +197,40 @@ export const getPostDetail = async (params: PostDetailParams) => {
   }
 };
 
+// 创建帖子请求参数
+export interface CreatePostParams {
+  planetId: number;
+  title: string;
+  summary: string;
+  contentType: number; // 1-主题 2-文章
+  content?: string;
+  coverImage?: string;
+  mediaUrls?: string[];
+  tags?: string[];
+  isAnonymous?: boolean;
+  isTop?: boolean;
+  isEssence?: boolean;
+  isOriginal?: boolean;
+  sourceUrl?: string;
+}
+
+/**
+ * 创建新帖子
+ */
+export const createPost = async (params: CreatePostParams) => {
+  try {
+    const response = await http.post<number>('/planet/api/post', params);
+    return {
+      data: response.data,
+      code: 'SUCCESS',
+      message: '发布成功'
+    };
+  } catch (error) {
+    console.error('创建帖子失败:', error);
+    throw error;
+  }
+};
+
 /**
  * 格式化数字显示
  */

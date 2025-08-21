@@ -4,14 +4,13 @@ import styles from "./PlanetContentPage.module.css";
 import { Header } from "../../components";
 import { 
   getUserAllPlanets,
-  UserPlanet,
-  UserPlanetGroupResp 
+  UserPlanet 
 } from "../../apis/user/userPlanet";
 import { getPlanetDetail, Planet } from "../../apis/planet/planet";
-import { getPostsByPlanetId, Post as ApiPost, formatPostTime, formatCount } from "../../apis/post/post";
+import { getPostsByPlanetId, Post as ApiPost, formatPostTime, formatCount, createPost, CreatePostParams } from "../../apis/post/post";
 import { getAvatarUrl, getDefaultAvatarUrl } from "../../utils/image";
 import { 
-  EmojiIcon, ImageIcon, LinkIcon, BoldIcon, HeadingIcon, WriteIcon,
+  EmojiIcon, ImageIcon, LinkIcon, BoldIcon, HeadingIcon, WriteIcon, DocumentIcon,
   LikeIcon, CommentIcon, ViewIcon, ShareIcon, MoreIcon, ArrowRightIcon 
 } from "../../components/icons/SocialIcons";
 import PlanetContentSkeleton from "../../components/skeleton/PlanetContentSkeleton";
@@ -48,6 +47,17 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
   const [sortType, setSortType] = useState(1); // 1-最新发布 2-最多点赞 3-最多评论 4-最多浏览
+  
+  // 发布模态框相关状态
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [publishLoading, setPublishLoading] = useState(false);
+  const [publishForm, setPublishForm] = useState({
+    title: '',
+    summary: '',
+    contentType: 1, // 1-主题 2-文章
+    content: '',
+    isAnonymous: false
+  });
   
   // 折叠状态管理
   const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({
@@ -226,6 +236,34 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     }
     
     setSelectedPlanet(planet);
+    
+    // 切换星球时加载对应的草稿内容
+    const draftKey = `draft_post_content_${planet.id}`;
+    const savedDraft = localStorage.getItem(draftKey);
+    if (savedDraft) {
+      try {
+        const draftData = JSON.parse(savedDraft);
+        setPublishForm({
+          title: draftData.title || '',
+          summary: draftData.summary || '',
+          contentType: draftData.contentType || 1,
+          content: draftData.content || '',
+          isAnonymous: draftData.isAnonymous || false
+        });
+      } catch (error) {
+        console.error('恢复草稿失败:', error);
+      }
+    } else {
+      // 如果没有草稿，重置表单
+      setPublishForm({
+        title: '',
+        summary: '',
+        contentType: 1,
+        content: '',
+        isAnonymous: false
+      });
+    }
+    
     // 重置帖子相关状态
     setPosts([]);
     setCurrentPage(1);
@@ -345,6 +383,130 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     return content.split('\n').length > 10;
   };
 
+  // 处理点击发表主题输入框
+  const handlePublishClick = () => {
+    // 只有在表单为空时才从本地存储恢复草稿
+    const currentHasContent = publishForm.title.trim() || publishForm.summary.trim();
+    if (!currentHasContent && selectedPlanet) {
+      const draftKey = `draft_post_content_${selectedPlanet.id}`;
+      const savedDraft = localStorage.getItem(draftKey);
+      if (savedDraft) {
+        try {
+          const draftData = JSON.parse(savedDraft);
+          setPublishForm({
+            title: draftData.title || '',
+            summary: draftData.summary || '',
+            contentType: draftData.contentType || 1,
+            content: draftData.content || '',
+            isAnonymous: draftData.isAnonymous || false
+          });
+        } catch (error) {
+          console.error('恢复草稿失败:', error);
+        }
+      }
+    }
+    setShowPublishModal(true);
+  };
+
+  // 处理发布表单变化
+  const handlePublishFormChange = (field: string, value: any) => {
+    const newForm = {
+      ...publishForm,
+      [field]: value
+    };
+    setPublishForm(newForm);
+    
+    // 自动保存到本地存储（按星球ID区分）
+    if (selectedPlanet) {
+      const draftKey = `draft_post_content_${selectedPlanet.id}`;
+      const hasContent = newForm.title.trim() || newForm.summary.trim();
+      if (hasContent) {
+        localStorage.setItem(draftKey, JSON.stringify(newForm));
+      } else {
+        // 如果内容为空，删除本地存储
+        localStorage.removeItem(draftKey);
+      }
+    }
+  };
+
+  // 处理发布帖子
+  const handlePublishPost = async () => {
+    if (!selectedPlanet) {
+      alert('请先选择一个星球');
+      return;
+    }
+
+    if (!publishForm.title.trim()) {
+      alert('请输入标题');
+      return;
+    }
+
+    if (!publishForm.summary.trim()) {
+      alert('请输入内容');
+      return;
+    }
+
+    setPublishLoading(true);
+    try {
+      const params: CreatePostParams = {
+        planetId: selectedPlanet.id,
+        title: publishForm.title,
+        summary: publishForm.summary,
+        contentType: publishForm.contentType,
+        content: publishForm.content || undefined,
+        isAnonymous: publishForm.isAnonymous
+      };
+
+      const response = await createPost(params);
+      if (response.code === 'SUCCESS') {
+        alert('发布成功！');
+        setShowPublishModal(false);
+        // 清空草稿内容和本地存储
+        handleClearDraft();
+        // 刷新帖子列表
+        await loadPosts(selectedPlanet.id, 1, sortType);
+      } else {
+        alert('发布失败，请重试');
+      }
+    } catch (error) {
+      console.error('发布帖子失败:', error);
+      alert('发布失败，请重试');
+    } finally {
+      setPublishLoading(false);
+    }
+  };
+
+  // 关闭发布模态框
+  const handleClosePublishModal = () => {
+    setShowPublishModal(false);
+    // 注意：这里不清理本地存储，也不重置表单状态
+    // 保留草稿内容，下次打开时继续编辑
+  };
+
+  // 清空草稿内容
+  const handleClearDraft = () => {
+    setPublishForm({
+      title: '',
+      summary: '',
+      contentType: 1,
+      content: '',
+      isAnonymous: false
+    });
+    // 清除当前星球的本地存储草稿
+    if (selectedPlanet) {
+      const draftKey = `draft_post_content_${selectedPlanet.id}`;
+      localStorage.removeItem(draftKey);
+    }
+  };
+
+  // 智能关闭模态框（有内容时不关闭）
+  const handleModalOverlayClick = () => {
+    const hasContent = publishForm.title.trim() || publishForm.summary.trim();
+    if (!hasContent) {
+      handleClosePublishModal();
+    }
+  };
+
   // 获取显示的内容
   const getDisplayContent = (summary: string, postId: number) => {
     const isExpanded = expandedPosts.has(postId);
@@ -407,7 +569,16 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                 {/* 用户信息和时间 */}
                 <div className={styles.postHeader}>
                   <div className={styles.userName}>{post.userName}</div>
-                  <div className={styles.postTime}>{formatPostTime(post.createdAt)}</div>
+                  <div className={styles.postTime}>
+                    {formatPostTime(post.createdAt)}
+                    {/* 精华和置顶标签 */}
+                    {post.isEssence === 1 && (
+                      <span className={styles.essenceTag}>精华</span>
+                    )}
+                    {post.isTop === 1 && (
+                      <span className={styles.topTag}>置顶</span>
+                    )}
+                  </div>
                   <div className={styles.postOptions}>
                     <MoreIcon className={styles.moreIcon} />
                   </div>
@@ -625,7 +796,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
             <div className={styles.publishSection}>
               <div className={styles.publishContainer}>
                 {/* 发布框 */}
-                <div className={styles.publishBox}>
+                <div className={styles.publishBox} onClick={handlePublishClick} style={{ cursor: 'pointer' }}>
                   <div className={styles.inputContainer}>
                     <div className={styles.avatarContainer}>
                       <img 
@@ -635,7 +806,9 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                         onError={(e) => handleImageError(e, `user-publish-${selectedPlanet?.id}`)}
                       />
                     </div>
-                    <div className={styles.inputPlaceholder}>点击发表主题...</div>
+                    <div className={styles.inputPlaceholder}>
+                      点击发表主题...
+                    </div>
                   </div>
                 </div>
 
@@ -906,6 +1079,92 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
           </div>
         )}
       </div>
+      
+      {/* 发布帖子模态框 */}
+      {showPublishModal && (
+        <div className={styles.modalOverlay} onClick={handleModalOverlayClick}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>发表主题</h3>
+              <button 
+                className={styles.closeButton}
+                onClick={handleClosePublishModal}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className={styles.modalBody}>
+              {/* 用户头像和输入区域 */}
+              <div className={styles.publishInputArea}>
+                <div className={styles.userAvatarSection}>
+                  <img 
+                    src={selectedPlanet ? getAvatarUrl(selectedPlanet.avatar) : getDefaultAvatarUrl()} 
+                    alt="用户头像" 
+                    className={styles.modalUserAvatar}
+                  />
+                </div>
+                <div className={styles.inputSection}>
+                  <input
+                    type="text"
+                    value={publishForm.title}
+                    onChange={(e) => handlePublishFormChange('title', e.target.value)}
+                    placeholder="点击发表主题..."
+                    className={styles.modalTitleInput}
+                    maxLength={100}
+                  />
+                </div>
+              </div>
+              
+              {/* 内容输入区域 */}
+              <div className={styles.contentInputArea}>
+                <textarea
+                  value={publishForm.summary}
+                  onChange={(e) => handlePublishFormChange('summary', e.target.value)}
+                  placeholder=""
+                  className={styles.modalContentTextarea}
+                  rows={8}
+                  maxLength={10000}
+                />
+              </div>
+            </div>
+            
+            <div className={styles.modalFooter}>
+              {/* 工具栏 */}
+              <div className={styles.modalToolbar}>
+                <div className={styles.toolbarLeft}>
+                  <button className={styles.toolButton}>
+                    <EmojiIcon className={styles.toolIcon} />
+                  </button>
+                  <button className={styles.toolButton}>
+                    <ImageIcon className={styles.toolIcon} />
+                  </button>
+                  <button className={styles.toolButton}>
+                    <DocumentIcon className={styles.toolIcon} />
+                  </button>
+                  <button className={styles.toolButton}>
+                    <BoldIcon className={styles.toolIcon} />
+                  </button>
+                  <button className={styles.toolButton}>
+                    <HeadingIcon className={styles.toolIcon} />
+                  </button>
+                </div>
+                
+                <div className={styles.toolbarRight}>
+                  <span className={styles.charCount}>({publishForm.summary.length}/10000)</span>
+                  <button 
+                    className={styles.modalPublishButton}
+                    onClick={handlePublishPost}
+                    disabled={publishLoading || !publishForm.title.trim() || !publishForm.summary.trim()}
+                  >
+                    {publishLoading ? '发布中...' : '发布'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
