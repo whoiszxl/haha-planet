@@ -6,7 +6,8 @@
     <parent>
         <groupId>com.whoiszxl</groupId>
         <artifactId>haha-user</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>haha-user-web</artifactId>
@@ -131,6 +132,12 @@
         <dependency>
             <groupId>com.whoiszxl</groupId>
             <artifactId>haha-user-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.whoiszxl</groupId>
+            <artifactId>haha-planet-api</artifactId>
             <version>1.0.0</version>
         </dependency>
 

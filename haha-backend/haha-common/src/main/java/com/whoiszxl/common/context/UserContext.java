@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Set;
 
 /**
  * 用户上下文
@@ -47,4 +48,6 @@ public class UserContext implements Serializable {
      * 客户端 key
      */
     private String clientKey;
+
+    private Set<Long> myPlanetSet;
 }

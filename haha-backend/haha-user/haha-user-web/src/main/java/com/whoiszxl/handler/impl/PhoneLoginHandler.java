@@ -38,7 +38,7 @@ public class PhoneLoginHandler extends AbstractLoginHandler<LoginCommand.PhoneLo
     @Override
     public void preLogin(LoginCommand.PhoneLoginCommand req, UserClientResponse client, HttpServletRequest request) {
         String phone = req.getPhone();
-        String captchaKey = RedisPrefixConstants.Member.MEMBER_CAPTCHA_PHONE_KEY + phone;
+        String captchaKey = RedisPrefixConstants.User.USER_CAPTCHA_PHONE_KEY + phone;
         String captcha = redissonUtil.get(captchaKey);
         ValidationUtils.throwIfBlank(captcha, CAPTCHA_EXPIRED);
         ValidationUtils.throwIfNotEqualIgnoreCase(req.getCaptcha(), captcha, CAPTCHA_ERROR);

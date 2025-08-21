@@ -11,6 +11,11 @@ public interface FillConstants {
     String ADMIN_NICKNAME = "AdminNickname";
 
     /**
+     * 用户昵称
+     */
+    String MEMBER_NICKNAME = "MemberNickname";
+
+    /**
      * 管理员的角色ID列表
      */
     String ADMIN_ROLE_ID_LIST = "AdminRoleIdList";

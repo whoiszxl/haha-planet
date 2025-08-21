@@ -1,10 +1,13 @@
 package com.whoiszxl.controller;
 
+import com.whoiszxl.common.context.UserContext;
+import com.whoiszxl.common.utils.UserLoginHelper;
 import com.whoiszxl.model.cache.PostDetailCache;
 import com.whoiszxl.model.cache.PostListCache;
 import com.whoiszxl.model.resp.PostResp;
 import com.whoiszxl.model.resp.VersionedResponse;
 import com.whoiszxl.service.PostCachedService;
+import com.whoiszxl.starter.core.utils.validate.CheckUtils;
 import com.whoiszxl.starter.crud.model.PageResponse;
 import com.whoiszxl.starter.web.model.R;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,7 +56,11 @@ public class PostApiController {
                 log.warn("[帖子API] 星球ID参数无效: {}", planetId);
                 return R.fail("星球ID参数无效");
             }
-            
+
+            // 权限校验
+            UserContext loginUser = UserLoginHelper.getLoginUser();
+            CheckUtils.throwIf(!loginUser.getMyPlanetSet().contains(planetId), "无权限访问");
+
             // 使用缓存服务获取帖子列表
             PostListCache postListCache = postCachedService.getCachedPostList(planetId, page, pageSize, sortType, null);
             
@@ -119,7 +126,12 @@ public class PostApiController {
                 log.info("[帖子API] 帖子不存在，帖子ID: {}", postId);
                 return R.fail("帖子不存在或已被删除");
             }
-            
+
+            // 权限校验
+            Long planetId = postDetailCache.getPostDetail().getPlanetId();
+            UserContext loginUser = UserLoginHelper.getLoginUser();
+            CheckUtils.throwIf(!loginUser.getMyPlanetSet().contains(planetId), "无权限访问");
+
             log.info("[帖子API] 成功获取帖子详情，帖子ID: {}, 标题: {}", 
                     postId, 
                     postDetailCache.getPostDetail() != null ? postDetailCache.getPostDetail().getTitle() : "未知");

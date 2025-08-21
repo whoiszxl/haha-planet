@@ -67,7 +67,7 @@ public class CaptchaController {
     @GetMapping("/image")
     public R<CaptchaResponse> getImageCaptcha() {
         String uuid = IdUtil.fastUUID();
-        String captchaKey = RedisPrefixConstants.Member.MEMBER_CAPTCHA_IMAGE_KEY + uuid;
+        String captchaKey = RedisPrefixConstants.User.USER_CAPTCHA_IMAGE_KEY + uuid;
         CaptchaResult captchaResult = graphicCaptchaService.generate();
 
         return R.ok(CaptchaResponse.builder()
@@ -112,7 +112,7 @@ public class CaptchaController {
         }
         
         // 保存验证码到 Redis
-        String captchaKey = RedisPrefixConstants.Member.MEMBER_CAPTCHA_EMAIL_KEY + email;
+        String captchaKey = RedisPrefixConstants.User.USER_CAPTCHA_EMAIL_KEY + email;
         redissonUtil.set(captchaKey, captcha, Duration.ofMinutes(EMAIL_CAPTCHA_EXPIRATION_MINUTES));
         
         log.info("邮箱验证码发送成功 - Email: {}, MessageId: {}", email, result.getMessageId());
@@ -137,7 +137,7 @@ public class CaptchaController {
         CheckUtils.throwIf(!smsResponse.isSuccess(), "验证码发送失败");
         
         // 保存验证码
-        String captchaKey = RedisPrefixConstants.Member.MEMBER_CAPTCHA_PHONE_KEY + phone;
+        String captchaKey = RedisPrefixConstants.User.USER_CAPTCHA_PHONE_KEY + phone;
         redissonUtil.set(captchaKey, captcha, Duration.ofMinutes(SMS_CAPTCHA_EXPIRATION_MINUTES));
         return R.ok("发送成功，验证码有效期 %s 分钟".formatted(SMS_CAPTCHA_EXPIRATION_MINUTES));
     }

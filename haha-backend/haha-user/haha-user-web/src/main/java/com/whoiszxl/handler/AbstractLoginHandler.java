@@ -6,6 +6,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.whoiszxl.common.context.UserContext;
 import com.whoiszxl.common.context.UserContextHolder;
 import com.whoiszxl.common.context.UserExtraContext;
+import com.whoiszxl.feign.PlanetFeignClient;
 import com.whoiszxl.model.command.LoginCommand;
 import com.whoiszxl.model.response.UserClientResponse;
 import com.whoiszxl.service.UserInfoService;
@@ -13,17 +14,24 @@ import com.whoiszxl.starter.web.util.ServletUtils;
 import com.whoiszxl.user.model.entity.UserInfoDO;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 /**
  * 抽象登录处理器
  * @author whoiszxl
  */
+@Slf4j
 @Component
 public abstract class AbstractLoginHandler<T extends LoginCommand> implements LoginHandler<T> {
 
     @Resource
     protected UserInfoService userInfoService;
+    
+    @Resource
+    protected PlanetFeignClient planetFeignClient;
 
     protected static final String CAPTCHA_EXPIRED = "验证码已失效";
     protected static final String CAPTCHA_ERROR = "验证码错误";
@@ -47,6 +55,15 @@ public abstract class AbstractLoginHandler<T extends LoginCommand> implements Lo
         userContext.setClientKey(client.getClientKey());
         userContext.setClientType(client.getClientType());
         BeanUtil.copyProperties(userInfo, userContext);
+        
+        // 获取用户所属的星球ID列表
+        try {
+            Set<Long> myPlanetIds = planetFeignClient.getMyPlanetIds();
+            userContext.setMyPlanetSet(myPlanetIds);
+        } catch (Exception e) {
+            // 如果获取星球ID失败，记录日志但不影响登录流程
+            log.error("获取用户星球ID失败: {}", e.getMessage(), e);
+        }
 
         UserExtraContext userExtraContext = new UserExtraContext(ServletUtils.getRequest());
 

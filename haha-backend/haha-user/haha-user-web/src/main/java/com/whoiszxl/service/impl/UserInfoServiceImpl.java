@@ -1,6 +1,7 @@
 package com.whoiszxl.service.impl;
 
 import com.whoiszxl.service.UserInfoService;
+import com.whoiszxl.starter.crud.service.CommonMemberService;
 import com.whoiszxl.user.mapper.UserInfoMapper;
 import com.whoiszxl.user.model.entity.UserInfoDO;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-public class UserInfoServiceImpl implements UserInfoService {
+public class UserInfoServiceImpl implements UserInfoService, CommonMemberService {
 
     private final UserInfoMapper userInfoMapper;
 
@@ -49,5 +50,11 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     public List<UserInfoDO> listByIds(List<Long> userIds) {
         return userInfoMapper.selectBatchIds(userIds);
+    }
+
+    @Override
+    public String getNicknameById(Long id) {
+        UserInfoDO userInfo = userInfoMapper.selectById(id);
+        return userInfo != null ? userInfo.getNickname() : null;
     }
 }

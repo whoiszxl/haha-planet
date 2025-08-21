@@ -37,7 +37,7 @@ public class EmailLoginHandler extends AbstractLoginHandler<LoginCommand.EmailLo
     @Override
     public void preLogin(LoginCommand.EmailLoginCommand req, UserClientResponse client, HttpServletRequest request) {
         String email = req.getEmail();
-        String captchaKey = RedisPrefixConstants.Member.MEMBER_CAPTCHA_EMAIL_KEY + email;
+        String captchaKey = RedisPrefixConstants.User.USER_CAPTCHA_EMAIL_KEY + email;
         String captcha = redissonUtil.get(captchaKey);
         ValidationUtils.throwIfBlank(captcha, CAPTCHA_EXPIRED);
         ValidationUtils.throwIfNotEqualIgnoreCase(req.getCaptcha(), captcha, CAPTCHA_ERROR);
