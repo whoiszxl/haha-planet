@@ -104,7 +104,7 @@
 
 .tag {
   padding: 4px 12px;
-  background: #f5f5f5;
+  background: #f4f7fd;
   color: #666666;
   border-radius: 4px;
   font-size: 12px;
@@ -166,7 +166,7 @@
   display: flex;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f4f7fd;
 }
 
 .activityItem:last-of-type {
@@ -229,7 +229,7 @@
   color: #1890ff;
   font-size: 14px;
   cursor: pointer;
-  border-top: 1px solid #f5f5f5;
+  border-top: 1px solid #f4f7fd;
 }
 
 /* 价格卡片 */
@@ -438,7 +438,7 @@
   display: inline-block;
   width: 32px;
   height: 32px;
-  border: 2px solid #f5f5f5;
+  border: 2px solid #f4f7fd;
   border-top: 2px solid #1890ff;
   border-radius: 50%;
   animation: spin 1s linear infinite;

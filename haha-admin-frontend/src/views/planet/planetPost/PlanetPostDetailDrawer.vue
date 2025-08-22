@@ -197,7 +197,7 @@ defineExpose({ onDetail })
   
   .media-urls {
     font-family: monospace;
-    background: #f5f5f5;
+    background: #f4f7fd;
     padding: 8px;
     border-radius: 4px;
     font-size: 12px;

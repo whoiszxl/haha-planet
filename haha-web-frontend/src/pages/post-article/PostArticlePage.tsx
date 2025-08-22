@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { getPostDetail, Post, formatCount, formatPostTime } from '../../apis/post/post';
 import { LikeIcon, CommentIcon, ViewIcon, ShareIcon } from '../../components/icons/SocialIcons';
-import { getAvatarUrl, getDefaultAvatarUrl } from '../../utils/image';
+import { getAvatarUrl, getDefaultAvatarUrl, getImageUrl } from '../../utils/image';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -527,7 +527,6 @@ const getContentTypeText = (contentType: number): string => {
 
 export const PostArticlePage: React.FC<PostArticlePageProps> = () => {
   const { postId } = useParams<{ postId: string }>();
-  const navigate = useNavigate();
   
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(false);
@@ -634,7 +633,7 @@ export const PostArticlePage: React.FC<PostArticlePageProps> = () => {
 
 
   return (
-    <div className={styles.pageContainer}>
+    <div className={styles.pageContainer} style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>
       
       <div className={styles.pageContent}>
         <div className={styles.mainContent}>
@@ -675,7 +674,7 @@ export const PostArticlePage: React.FC<PostArticlePageProps> = () => {
               {post.articleExtension?.coverImage && (
                 <div className={styles.coverImageContainer}>
                   <img 
-                    src={post.articleExtension.coverImage} 
+                    src={getImageUrl(post.articleExtension.coverImage)} 
                     alt={post.title || '文章封面'}
                     className={styles.coverImage}
                     onError={(e) => {

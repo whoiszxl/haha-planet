@@ -34,7 +34,6 @@ function App() {
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
-          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/social/callback" element={<OAuthRedirectPage />} />
@@ -44,7 +43,7 @@ function App() {
 
           <Route path="/discovery" element={<DiscoveryPage />} />
           <Route path="/preview/:planetId" element={<PlanetDetailPage />} />
-          <Route path="/content" element={<PlanetContentPage />} />
+          <Route path="/" element={<PlanetContentPage />} />
           <Route path="/article/:postId" element={<PostArticlePage />} />
           <Route path="/article/editor/:planetId" element={<PostArticleEditorPage />} />
 

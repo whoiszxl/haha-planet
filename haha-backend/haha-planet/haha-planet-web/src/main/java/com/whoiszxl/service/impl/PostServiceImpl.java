@@ -2,6 +2,10 @@ package com.whoiszxl.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.whoiszxl.model.req.PostCreateReq;
+import com.whoiszxl.planet.enums.AuditStatusEnum;
+import com.whoiszxl.planet.enums.PostContentTypeEnum;
+import com.whoiszxl.planet.enums.PostStatusEnum;
+import com.whoiszxl.planet.enums.YesNoEnum;
 import com.whoiszxl.planet.mapper.PlanetMemberMapper;
 import com.whoiszxl.planet.mapper.PlanetPostArticleMapper;
 import com.whoiszxl.planet.mapper.PlanetPostMapper;
@@ -9,6 +13,7 @@ import com.whoiszxl.planet.model.entity.PlanetMemberDO;
 import com.whoiszxl.planet.model.entity.PlanetPostArticleDO;
 import com.whoiszxl.planet.model.entity.PlanetPostDO;
 import com.whoiszxl.service.PostService;
+import com.whoiszxl.service.PostCacheUpdateService;
 import com.whoiszxl.starter.core.utils.validate.CheckUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +33,7 @@ public class PostServiceImpl implements PostService {
     private final PlanetPostMapper planetPostMapper;
     private final PlanetPostArticleMapper planetPostArticleMapper;
     private final PlanetMemberMapper planetMemberMapper;
+    private final PostCacheUpdateService postCacheUpdateService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -38,8 +44,9 @@ public class PostServiceImpl implements PostService {
         CheckUtils.throwIfNull(req.getPlanetId(), "星球ID不能为空");
         CheckUtils.throwIfBlank(req.getTitle(), "帖子标题不能为空");
         CheckUtils.throwIfNull(req.getContentType(), "内容类型不能为空");
-        CheckUtils.throwIf(req.getContentType() != 1 && req.getContentType() != 2, 
-                           "内容类型只能是1(主题)或2(文章)");
+        CheckUtils.throwIf(!PostContentTypeEnum.TOPIC.getValue().equals(req.getContentType()) && 
+                           !PostContentTypeEnum.ARTICLE.getValue().equals(req.getContentType()), 
+                           "内容类型只能是主题或文章");
         
         // 1. 校验用户是否为星球成员
         PlanetMemberDO member = validateMemberPermission(req.getPlanetId(), userId);
@@ -55,10 +62,13 @@ public class PostServiceImpl implements PostService {
         planetPostMapper.insert(post);
         
         // 5. 如果是文章类型，创建文章扩展信息
-        if (req.getContentType() == 2) {
+        if (PostContentTypeEnum.ARTICLE.getValue().equals(req.getContentType())) {
             PlanetPostArticleDO article = buildArticleDO(req, post.getId());
             planetPostArticleMapper.insert(article);
         }
+        
+        // 6. 清除帖子列表缓存
+        postCacheUpdateService.clearPostListCache(req.getPlanetId());
         
         log.info("用户[{}]在星球[{}]创建了帖子[{}]", userId, req.getPlanetId(), post.getId());
         return post.getId();
@@ -71,7 +81,7 @@ public class PostServiceImpl implements PostService {
         PlanetMemberDO member = planetMemberMapper.lambdaQuery()
                 .eq(PlanetMemberDO::getPlanetId, planetId)
                 .eq(PlanetMemberDO::getUserId, userId)
-                .eq(PlanetMemberDO::getStatus, 1).one();
+                .eq(PlanetMemberDO::getStatus, YesNoEnum.YES.getValue()).one();
         
         CheckUtils.throwIfNull(member, "您不是该星球的成员，无法发布帖子");
         
@@ -91,7 +101,7 @@ public class PostServiceImpl implements PostService {
      * 校验文章内容
      */
     private void validateArticleContent(PostCreateReq req) {
-        if (req.getContentType() == 2) {
+        if (PostContentTypeEnum.ARTICLE.getValue().equals(req.getContentType())) {
             CheckUtils.throwIfBlank(req.getContent(), "文章内容不能为空");
         }
     }
@@ -116,9 +126,9 @@ public class PostServiceImpl implements PostService {
             post.setMediaUrls(String.join(",", req.getMediaUrls()));
         }
         
-        post.setIsAnonymous(req.getIsAnonymous() ? 1 : 0);
-        post.setIsTop(req.getIsTop() ? 1 : 0);
-        post.setIsEssence(req.getIsEssence() ? 1 : 0);
+        post.setIsAnonymous(YesNoEnum.getByBoolean(req.getIsAnonymous()).getValue());
+        post.setIsTop(YesNoEnum.getByBoolean(req.getIsTop()).getValue());
+        post.setIsEssence(YesNoEnum.getByBoolean(req.getIsEssence()).getValue());
         
         // 初始化统计字段
         post.setViewCount(0);
@@ -128,8 +138,8 @@ public class PostServiceImpl implements PostService {
         post.setCollectCount(0);
         
         // 设置审核状态（默认通过，可根据星球设置调整）
-        post.setAuditStatus(1);
-        post.setStatus(1);
+        post.setAuditStatus(AuditStatusEnum.APPROVED.getValue());
+        post.setStatus(PostStatusEnum.NORMAL.getValue());
         
         return post;
     }
@@ -159,9 +169,9 @@ public class PostServiceImpl implements PostService {
         
         article.setWordCount(wordCount);
         article.setReadingTime(readingTime);
-        article.setIsOriginal(req.getIsOriginal() ? 1 : 0);
+        article.setIsOriginal(YesNoEnum.getByBoolean(req.getIsOriginal()).getValue());
         article.setSourceUrl(req.getSourceUrl());
-        article.setStatus(1);
+        article.setStatus(PostStatusEnum.NORMAL.getValue());
         
         return article;
     }
@@ -181,12 +191,12 @@ public class PostServiceImpl implements PostService {
                 .replaceAll("```[\\s\\S]*?```", "")
                 .replaceAll("`[^`]*`", "")
                 // 移除链接
-                .replaceAll("\\[([^\\]]+)\\]\\([^\\)]+\\)", "$1")
+                .replaceAll("\\[([^]]+)]\\([^)]+\\)", "$1")
                 // 移除图片
-                .replaceAll("!\\[([^\\]]*)\\]\\([^\\)]+\\)", "$1")
+                .replaceAll("!\\[([^]]*)]\\([^)]+\\)", "$1")
                 // 移除粗体和斜体
-                .replaceAll("\\*\\*([^\\*]+)\\*\\*", "$1")
-                .replaceAll("\\*([^\\*]+)\\*", "$1")
+                .replaceAll("\\*\\*([^*]+)\\*\\*", "$1")
+                .replaceAll("\\*([^*]+)\\*", "$1")
                 .replaceAll("__([^_]+)__", "$1")
                 .replaceAll("_([^_]+)_", "$1")
                 // 移除删除线
@@ -196,7 +206,7 @@ public class PostServiceImpl implements PostService {
                 // 移除引用标记（>号）
                 .replaceAll(">\\s*", "")
                 // 移除列表标记
-                .replaceAll("[-\\*\\+]\\s+", "")
+                .replaceAll("[-*+]\\s+", "")
                 .replaceAll("\\d+\\.\\s+", "")
                 // 移除HTML标签
                 .replaceAll("<[^>]*>", "")
@@ -228,7 +238,7 @@ public class PostServiceImpl implements PostService {
     
     /**
      * 计算阅读时间（分钟）
-     * 按照中文每分钟300字，英文每分钟200词的标准计算
+     * 按照中文每分钟 300 字，英文每分钟 200 词的标准计算
      */
     private int calculateReadingTime(int wordCount) {
         // 校验字数参数
@@ -238,8 +248,8 @@ public class PostServiceImpl implements PostService {
             return 1;
         }
         
-        // 按每分钟250字的平均阅读速度计算
+        // 按每分钟 250 字的平均阅读速度计算
         int minutes = (int) Math.ceil((double) wordCount / 250);
-        return Math.max(1, minutes); // 最少1分钟
+        return Math.max(1, minutes);
     }
 }

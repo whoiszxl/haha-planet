@@ -28,7 +28,7 @@ public class PostCreateReq {
 
     @Schema(description = "帖子摘要/主题内容", example = "这是帖子的摘要或主题的主要内容")
     @NotBlank(message = "帖子摘要不能为空")
-    @Size(max = 500, message = "摘要长度不能超过500个字符")
+    @Size(max = 10000, message = "摘要长度不能超过10000个字符")
     private String summary;
 
     @Schema(description = "内容类型: 1-主题 2-文章", example = "1")

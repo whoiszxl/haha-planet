@@ -50,11 +50,11 @@
 /* 封面图片容器 - 类似Notion的长条图片 */
 .coverImageContainer {
   width: calc(100% + 64px);
-  height: 25vh;
+  height: 20vh;
   margin: -32px -32px 32px -32px;
   overflow: hidden;
   position: relative;
-  background: #f5f5f5;
+  background: #f4f7fd;
   border-radius: 0;
 }
 
@@ -232,7 +232,7 @@
   gap: 20px;
   padding: 12px 0;
   margin: 0 0 20px 0;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f4f7fd;
 }
 
 .statItem {
@@ -745,6 +745,246 @@
   }
 }
 
+/* 文本选择菜单样式 */
+.selectionMenu {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e1e5e9;
+  overflow: hidden;
+  animation: fadeInUp 0.2s ease-out;
+}
+
+.selectionMenuContent {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  gap: 2px;
+}
+
+.selectionMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.selectionMenuItem:hover {
+  background: #f5f7fa;
+  color: #1a73e8;
+}
+
+.selectionMenuItem:active {
+  background: #e8f0fe;
+  transform: scale(0.98);
+}
+
+.menuIcon {
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.selectionMenuClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  transition: all 0.15s ease;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.selectionMenuClose:hover {
+  background: #f5f7fa;
+  color: #333;
+}
+
+.selectionMenuClose:active {
+  background: #e8f0fe;
+  transform: scale(0.95);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px) translateX(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+}
+
+/* AI解释模态框样式 */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e1e5e9;
+  background: #f8f9fa;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modalCloseBtn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.modalCloseBtn:hover {
+  background: #e9ecef;
+  color: #333;
+}
+
+.modalBody {
+  padding: 24px;
+  max-height: calc(80vh - 80px);
+  overflow-y: auto;
+}
+
+.selectedTextSection,
+.explanationSection {
+  margin-bottom: 20px;
+}
+
+.selectedTextSection h4,
+.explanationSection h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+}
+
+.selectedTextDisplay {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  word-break: break-word;
+}
+
+.explanationDisplay {
+  background: #fff;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 120px;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+.loadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e1e5e9;
+  border-top: 2px solid #1a73e8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.explanationText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
   .pageContent {
     padding: 0 16px;
@@ -828,5 +1068,56 @@
   
   .helpText {
     display: none;
+  }
+  
+  /* 移动端选择菜单样式调整 */
+  .selectionMenuItem {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .menuIcon {
+    font-size: 16px;
+  }
+
+  .selectionMenuClose {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+
+  /* 移动端模态框样式调整 */
+  .modalContent {
+    width: 95%;
+    max-width: none;
+    margin: 0 10px;
+  }
+
+  .modalHeader {
+    padding: 16px 20px;
+  }
+
+  .modalTitle {
+    font-size: 16px;
+  }
+
+  .modalBody {
+    padding: 20px;
+  }
+
+  .selectedTextDisplay,
+  .explanationDisplay {
+    font-size: 15px;
+    padding: 14px;
+  }
+
+  .loadingContainer {
+    padding: 30px 15px;
+    font-size: 15px;
+  }
+
+  .loadingSpinner {
+    width: 24px;
+    height: 24px;
   }
 }

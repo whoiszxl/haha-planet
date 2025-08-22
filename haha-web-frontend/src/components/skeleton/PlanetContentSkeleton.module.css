@@ -10,7 +10,7 @@
 
 /* 通用骨架屏样式 */
 .skeletonBase {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
 }
@@ -27,7 +27,7 @@
 }
 
 .skeletonTitle {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 6px;
   height: 24px;
@@ -54,7 +54,7 @@
 }
 
 .skeletonText {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 18px;
@@ -62,7 +62,7 @@
 }
 
 .skeletonCount {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 18px;
@@ -86,7 +86,7 @@
 }
 
 .planetAvatarSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 50%;
   width: 40px;
@@ -102,7 +102,7 @@
 }
 
 .planetNameSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 16px;
@@ -115,7 +115,7 @@
 }
 
 .skeletonMeta {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 14px;
@@ -146,7 +146,7 @@
 }
 
 .avatarSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 50%;
   width: 40px;
@@ -155,7 +155,7 @@
 }
 
 .inputSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 20px;
   height: 40px;
@@ -169,7 +169,7 @@
 }
 
 .toolIconSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 6px;
   width: 32px;
@@ -191,7 +191,7 @@
 }
 
 .tabSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 20px;
@@ -215,7 +215,7 @@
 }
 
 .postAvatarSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 50%;
   width: 44px;
@@ -237,7 +237,7 @@
 }
 
 .userNameSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 16px;
@@ -245,7 +245,7 @@
 }
 
 .postTimeSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 14px;
@@ -259,7 +259,7 @@
 }
 
 .postTitleSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 20px;
@@ -273,7 +273,7 @@
 }
 
 .textLineSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 16px;
@@ -281,7 +281,7 @@
 }
 
 .textLineShortSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 16px;
@@ -301,7 +301,7 @@
 }
 
 .actionIconSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 2px;
   width: 16px;
@@ -309,7 +309,7 @@
 }
 
 .actionTextSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 14px;
@@ -335,7 +335,7 @@
 }
 
 .planetAvatarLargeSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 12px;
   width: 80px;
@@ -351,7 +351,7 @@
 }
 
 .planetTitleSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 24px;
@@ -371,7 +371,7 @@
 }
 
 .statNumberSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 20px;
@@ -379,7 +379,7 @@
 }
 
 .statLabelSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 14px;
@@ -399,7 +399,7 @@
 }
 
 .sectionTitleSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 18px;
@@ -425,7 +425,7 @@
 }
 
 .infoLabelSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 16px;
@@ -433,7 +433,7 @@
 }
 
 .infoValueSkeleton {
-  background: #f5f5f5;
+  background: #f4f7fd;
   animation: pulse 2s ease-in-out infinite;
   border-radius: 4px;
   height: 16px;
@@ -443,7 +443,7 @@
 /* 全页面骨架屏布局 */
 .fullPageSkeleton {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #f4f7fd;
 }
 
 .fullPageContent {

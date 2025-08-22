@@ -16,7 +16,23 @@ interface ArticleData {
   tags: string[];
   summary: string;
   coverImage?: string;
+  coverImagePosition?: number; // 封面图片垂直位置 0-100
 }
+
+// 解析封面图片URL和位置参数
+const parseCoverImageData = (coverImage?: string) => {
+  if (!coverImage) return { imageUrl: '', position: 50 };
+  
+  if (coverImage.startsWith('position:')) {
+    const parts = coverImage.split('|');
+    if (parts.length === 2) {
+      const position = parseInt(parts[0].replace('position:', ''));
+      return { imageUrl: parts[1], position: isNaN(position) ? 50 : position };
+    }
+  }
+  
+  return { imageUrl: coverImage, position: 50 };
+};
 
 export const PostArticleEditorPage: React.FC = () => {
   const navigate = useNavigate();
@@ -25,8 +41,13 @@ export const PostArticleEditorPage: React.FC = () => {
     content: "",
     tags: [],
     summary: "",
-    coverImage: ""
+    coverImage: "",
+    coverImagePosition: 50 // 默认居中显示
   });
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [initialPosition, setInitialPosition] = useState(50);
 
   const [isPublishing, setIsPublishing] = useState(false);
   const [availableTags] = useState(["技术", "生活", "随笔", "教程", "分享", "思考"]);
@@ -84,16 +105,79 @@ export const PostArticleEditorPage: React.FC = () => {
 
   // 选择封面图
   const handleSelectCoverImage = useCallback((imageUrl: string) => {
-    handleInputChange('coverImage', imageUrl);
+    const newData = {
+      ...articleData,
+      coverImage: imageUrl,
+      coverImagePosition: 50 // 重置位置到中间
+    };
+    setArticleData(newData);
+    localStorage.setItem('article_draft', JSON.stringify(newData));
     setIsGalleryModalVisible(false);
     message.success('封面图选择成功');
-  }, [handleInputChange]);
+  }, [articleData]);
 
   // 移除封面图
   const handleRemoveCoverImage = useCallback(() => {
-    handleInputChange('coverImage', '');
+    const newData = {
+      ...articleData,
+      coverImage: '',
+      coverImagePosition: 50 // 重置位置
+    };
+    setArticleData(newData);
+    localStorage.setItem('article_draft', JSON.stringify(newData));
     message.success('封面图已移除');
-  }, [handleInputChange]);
+  }, [articleData]);
+
+  // 开始拖动
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStartY(e.clientY);
+    // 使用当前实际的position值，如果未设置则使用50作为默认值
+    const currentPosition = articleData.coverImagePosition !== undefined ? articleData.coverImagePosition : 50;
+    setInitialPosition(currentPosition);
+  }, [articleData.coverImagePosition]);
+
+  // 拖动中
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    const deltaY = e.clientY - dragStartY;
+    const containerHeight = 600; // 进一步增加容器高度，大幅降低拖动灵敏度
+    const positionChange = (deltaY / containerHeight) * 100;
+    // 反转拖动方向：向下拖动减少position值，向上拖动增加position值
+    // 限制在0-100范围内，避免图片超出边界产生留白
+    const newPosition = Math.max(0, Math.min(100, initialPosition - positionChange));
+    
+    handleInputChange('coverImagePosition', newPosition);
+  }, [isDragging, dragStartY, initialPosition, handleInputChange]);
+
+  // 结束拖动
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // 添加全局鼠标事件监听
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'grabbing';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleTagChange = useCallback((tags: string[]) => {
     const newData = {
@@ -171,6 +255,12 @@ export const PostArticleEditorPage: React.FC = () => {
 
     setIsPublishing(true);
     try {
+      // 处理封面图片，将位置参数拼接到图片URL前面
+      let processedCoverImage = articleData.coverImage;
+      if (articleData.coverImage && articleData.coverImagePosition !== undefined) {
+        processedCoverImage = `position:${articleData.coverImagePosition}|${articleData.coverImage}`;
+      }
+      
       // 调用真实的发布文章API
         const response = await createPost({
           planetId: 1, // 默认星球ID，实际应该从用户选择或上下文获取
@@ -183,7 +273,7 @@ export const PostArticleEditorPage: React.FC = () => {
           isTop: false,
           isEssence: false,
           isOriginal: true,
-          coverImage: articleData.coverImage
+          coverImage: processedCoverImage
         });
       
       if (response.code === 'SUCCESS') {
@@ -206,6 +296,32 @@ export const PostArticleEditorPage: React.FC = () => {
   return (
     <div className={styles.postArticleEditorPage}>
       <div className={styles.editorContainer}>
+        {/* 封面图片展示区域 - Notion风格 */}
+        {articleData.coverImage && (
+          <div className={styles.coverImageContainer}>
+            {(() => {
+              const { imageUrl, position } = parseCoverImageData(articleData.coverImage);
+              return (
+                <img
+                  src={getImageUrl(imageUrl)}
+                  alt="文章封面"
+                  className={styles.coverImage}
+                  style={{
+                    objectPosition: `center ${articleData.coverImagePosition !== undefined ? articleData.coverImagePosition : position}%`,
+                    cursor: isDragging ? 'grabbing' : 'grab'
+                  }}
+                  onMouseDown={handleMouseDown}
+                  draggable={false}
+                />
+              );
+            })()}
+            {/* 拖动提示 */}
+            <div className={styles.dragHint}>
+              拖动调整图片位置
+            </div>
+          </div>
+        )}
+        
         {/* 文章信息区域 */}
         <div className={styles.articleInfo}>
           <div className={styles.compactForm}>
@@ -238,13 +354,22 @@ export const PostArticleEditorPage: React.FC = () => {
               <div className={styles.coverImageContent}>
                 {articleData.coverImage ? (
                   <div className={styles.coverImagePreview}>
-                    <Image
-                      src={getImageUrl(articleData.coverImage)}
-                      alt="封面图预览"
-                      width={120}
-                      height={80}
-                      style={{ objectFit: 'cover', borderRadius: '6px' }}
-                    />
+                    {(() => {
+                      const { imageUrl, position } = parseCoverImageData(articleData.coverImage);
+                      return (
+                        <Image
+                          src={getImageUrl(imageUrl)}
+                          alt="封面图预览"
+                          width={120}
+                          height={80}
+                          style={{ 
+                            objectFit: 'cover', 
+                            borderRadius: '6px',
+                            objectPosition: `center ${articleData.coverImagePosition !== undefined ? articleData.coverImagePosition : position}%`
+                          }}
+                        />
+                      );
+                    })()}
                     <div className={styles.coverImageActions}>
                       <Button 
                         size="small" 
@@ -421,7 +546,6 @@ export const PostArticleEditorPage: React.FC = () => {
         open={isGalleryModalVisible}
         onCancel={() => setIsGalleryModalVisible(false)}
         footer={null}
-        width={800}
         className={styles.galleryModal}
       >
         {isLoadingGallery ? (

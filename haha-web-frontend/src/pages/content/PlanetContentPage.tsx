@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import styles from "./PlanetContentPage.module.css";
 import { Header } from "../../components";
 import { 
@@ -28,7 +28,6 @@ interface PlanetContentPageProps {}
 
 export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const planetId = searchParams.get('planetId');
   
   const [createdPlanets, setCreatedPlanets] = useState<UserPlanet[]>([]);
@@ -75,6 +74,13 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   
   // 帖子展开状态管理
   const [expandedPosts, setExpandedPosts] = useState<Set<number>>(new Set());
+  
+  // 防止自动加载标记
+  const [justLoaded, setJustLoaded] = useState(false);
+  
+  // 帖子详情模态框状态
+  const [showPostDetailModal, setShowPostDetailModal] = useState(false);
+  const [selectedPostDetail, setSelectedPostDetail] = useState<Post | null>(null);
 
   // 加载星球详情
   const loadPlanetDetail = async (id: number) => {
@@ -97,7 +103,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   };
 
   // 加载所有类型的星球列表
-  const loadAllPlanets = async () => {
+  const loadAllPlanets = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -157,7 +163,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [planetId]);
 
   // 加载帖子列表
   const loadPosts = async (planetId: number, page: number = 1, sort: number = 1) => {
@@ -221,6 +227,15 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     } finally {
       setPostLoading(false);
       setLoadingMore(false);
+      
+      // 如果是第一页加载，设置刚加载完成标记，防止立即触发第二页
+      if (page === 1) {
+        setJustLoaded(true);
+        // 2秒后清除标记，允许正常的无限滚动
+        setTimeout(() => {
+          setJustLoaded(false);
+        }, 2000);
+      }
     }
   };
 
@@ -269,6 +284,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     setPosts([]);
     setCurrentPage(1);
     setSortType(1);
+    setJustLoaded(false); // 重置防护标记
     // 加载选中星球的详情和帖子
     await loadPlanetDetail(planet.id);
     await loadPosts(planet.id, 1, 1);
@@ -293,6 +309,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   const handleSortChange = async (newSortType: number) => {
     if (!selectedPlanet) return;
     setSortType(newSortType);
+    setJustLoaded(false); // 重置防护标记
     await loadPosts(selectedPlanet.id, 1, newSortType);
   };
 
@@ -317,9 +334,14 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     // 创建新的观察器
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        // 如果加载指示器进入视口，且不是正在加载状态，且还有更多帖子可加载
-        if (entries[0].isIntersecting && !postLoading && !loadingMore && posts.length < totalPosts) {
-          loadMorePosts();
+        // 如果加载指示器进入视口，且不是正在加载状态，且还有更多帖子可加载，且不是刚加载完成
+        if (entries[0].isIntersecting && !postLoading && !loadingMore && posts.length < totalPosts && posts.length > 0 && !justLoaded) {
+          // 添加延迟，避免在数据刚加载完成时立即触发
+          setTimeout(() => {
+            if (!postLoading && !loadingMore && posts.length < totalPosts && !justLoaded) {
+              loadMorePosts();
+            }
+          }, 100);
         }
       },
       { threshold: 0.5 } // 当50%的元素可见时触发
@@ -329,14 +351,18 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     if (loadingRef.current) {
       observerRef.current.observe(loadingRef.current);
     }
-  }, [postLoading, loadingMore]); // 移除posts.length和totalPosts依赖，避免不必要的重建
+  }, [postLoading, loadingMore, loadMorePosts, posts.length, totalPosts, justLoaded]);
 
   // 当相关依赖项变化时，重新初始化观察器
   useEffect(() => {
-    initObserver();
+    // 延迟初始化观察器，避免在数据加载完成后立即触发
+    const timer = setTimeout(() => {
+      initObserver();
+    }, 200);
     
-    // 组件卸载时清理观察器
+    // 组件卸载时清理观察器和定时器
     return () => {
+      clearTimeout(timer);
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
@@ -531,6 +557,18 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     return lines.slice(0, 10).join('\n');
   };
 
+  // 处理查看详情点击
+  const handleViewDetail = (post: Post) => {
+    setSelectedPostDetail(post);
+    setShowPostDetailModal(true);
+  };
+
+  // 关闭帖子详情模态框
+  const handleClosePostDetailModal = () => {
+    setShowPostDetailModal(false);
+    setSelectedPostDetail(null);
+  };
+
   // 渲染帖子列表
   const renderPostList = () => {
     if (postError) {
@@ -668,7 +706,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                     <ShareIcon className={styles.actionIcon} />
                     <span>{formatCount(post.shareCount)}</span>
                   </div>
-                  <div className={styles.postActionRight}>
+                  <div className={styles.postActionRight} onClick={() => handleViewDetail(post)}>
                     <span className={styles.actionText}>查看详情</span>
                     <ArrowRightIcon className={styles.arrowIcon} />
                   </div>
@@ -696,7 +734,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   // 页面初始化
   useEffect(() => {
     loadAllPlanets();
-  }, []);
+  }, [loadAllPlanets]);
 
   // 切换分组折叠状态
   const toggleSection = (sectionKey: string) => {
@@ -1170,6 +1208,52 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                   >
                     {publishLoading ? '发布中...' : '发布'}
                   </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* 帖子详情模态框 */}
+      {showPostDetailModal && selectedPostDetail && (
+        <div className={styles.modalOverlay} onClick={handleClosePostDetailModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            
+            
+            <div className={styles.modalBody}>
+              {/* 帖子头部信息 */}
+              <div className={styles.publishInputArea}>
+                <div className={styles.userAvatarSection}>
+                  <img 
+                    src={getUserAvatar(selectedPostDetail.userAvatar)} 
+                    alt={selectedPostDetail.userName} 
+                    className={styles.modalUserAvatar}
+                    onError={(e) => handleImageError(e, `modal-avatar-${selectedPostDetail.id}`)}
+                  />
+                </div>
+                <div className={styles.inputSection}>
+                  <div className={styles.postDetailHeader}>
+                    <div className={styles.postDetailUserName}>{selectedPostDetail.userName}</div>
+                    <div className={styles.postDetailTime}>
+                      {formatPostTime(selectedPostDetail.createdAt)}
+                      {/* 精华和置顶标签 */}
+                      {selectedPostDetail.isEssence === 1 && (
+                        <span className={styles.essenceTag}>精华</span>
+                      )}
+                      {selectedPostDetail.isTop === 1 && (
+                        <span className={styles.topTag}>置顶</span>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              
+              {/* 帖子内容 */}
+              <div className={styles.contentInputArea}>
+                <div className={styles.postDetailContent}>
+                  {selectedPostDetail.summary}
                 </div>
               </div>
             </div>

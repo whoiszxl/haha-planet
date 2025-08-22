@@ -206,12 +206,12 @@ export const EmailLoginPage: React.FC = () => {
                     </form>
 
                     <div className={styles.switchLogin}>
-                        <a href="#" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>
+                        <button type="button" onClick={() => navigate('/login')} className={styles.linkButton}>
                             使用账号密码登录
-                        </a>
-                        <a href="#" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>
+                        </button>
+                        <button type="button" onClick={() => navigate('/register')} className={styles.linkButton}>
                             没有账号？立即创建
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>

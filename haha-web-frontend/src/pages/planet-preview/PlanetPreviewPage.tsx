@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import styles from "./PlanetPreviewPage.module.css";
 import { Footer, Header } from "../../components";
@@ -14,7 +14,7 @@ export const PlanetDetailPage: React.FC<PlanetDetailPageProps> = () => {
   const [error, setError] = useState<string | null>(null);
 
   // 加载星球详情数据
-  const loadPlanetDetail = async () => {
+  const loadPlanetDetail = useCallback(async () => {
     if (!planetId) {
       setError("星球ID参数无效");
       setLoading(false);
@@ -40,11 +40,11 @@ export const PlanetDetailPage: React.FC<PlanetDetailPageProps> = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [planetId]);
 
   useEffect(() => {
     loadPlanetDetail();
-  }, [planetId]);
+  }, [planetId, loadPlanetDetail]);
 
   // 格式化价格显示
   const formatPrice = (price: number) => {
