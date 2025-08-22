@@ -1061,3 +1061,87 @@ INSERT INTO haha.pla_planet_post_article (id, post_id, content, cover_image, tag
 
 简单总结一下，核心差异就是：编译型是‘一次编译，多次运行（编译产物）’，解释型是‘每次运行，每次解释（源代码）’。当然，现在很多语言比如Java或Python，它们会采用一些混合的策略，比如先编译成字节码，再由虚拟机解释执行，虚拟机内部可能还会有JIT（即时编译）技术来优化性能，这样就能结合两者的部分优点。"
 ', 'https://www.notion.so/images/page-cover/met_winslow_homer_maine_coast.jpg', '魂', 1233, 45, 1, null, 1, 1, 0, 1, 1, '2025-08-20 13:47:49', '2025-08-20 14:08:01');
+
+
+
+-- 星球画廊表初始数据
+-- 插入画廊图片数据
+
+-- NASA分类图片
+INSERT INTO `pla_planet_gallery` (`user_id`, `file_name`, `file_url`, `file_size`, `file_type`, `width`, `height`, `thumbnail_url`, `description`, `category`, `year`, `author`, `sort_order`) VALUES
+(1, 'nasa_bruce_mccandless_spacewalk.jpg', '/gallery/NASA/nasa_bruce_mccandless_spacewalk.jpg', 0, 'image', 0, 0, NULL, 'Bruce McCandless太空行走', 'NASA', NULL, 'NASA', 1),
+(1, 'nasa_carina_nebula.jpg', '/gallery/NASA/nasa_carina_nebula.jpg', 0, 'image', 0, 0, NULL, '船底座星云', 'NASA', NULL, 'NASA', 2),
+(1, 'nasa_earth_grid.jpg', '/gallery/NASA/nasa_earth_grid.jpg', 0, 'image', 0, 0, NULL, '地球网格图', 'NASA', NULL, 'NASA', 3),
+(1, 'nasa_new_york_city_grid.jpg', '/gallery/NASA/nasa_new_york_city_grid.jpg', 0, 'image', 0, 0, NULL, '纽约城市网格', 'NASA', NULL, 'NASA', 4),
+(1, 'nasa_orion_nebula.jpg', '/gallery/NASA/nasa_orion_nebula.jpg', 0, 'image', 0, 0, NULL, '猎户座星云', 'NASA', NULL, 'NASA', 5),
+(1, 'nasa_reduced_gravity_walking_simulator.jpg', '/gallery/NASA/nasa_reduced_gravity_walking_simulator.jpg', 0, 'image', 0, 0, NULL, '减重力行走模拟器', 'NASA', NULL, 'NASA', 6),
+(1, 'nasa_robert_stewart_spacewalk.jpg', '/gallery/NASA/nasa_robert_stewart_spacewalk.jpg', 0, 'image', 0, 0, NULL, 'Robert Stewart太空行走', 'NASA', NULL, 'NASA', 7),
+(1, 'nasa_robert_stewart_spacewalk_2.jpg', '/gallery/NASA/nasa_robert_stewart_spacewalk_2.jpg', 0, 'image', 0, 0, NULL, 'Robert Stewart太空行走2', 'NASA', NULL, 'NASA', 8),
+(1, 'nasa_space_shuttle_columbia_and_sunrise.jpg', '/gallery/NASA/nasa_space_shuttle_columbia_and_sunrise.jpg', 0, 'image', 0, 0, NULL, '哥伦比亚号航天飞机与日出', 'NASA', NULL, 'NASA', 9),
+(1, 'nasa_the_blue_marble.jpg', '/gallery/NASA/nasa_the_blue_marble.jpg', 0, 'image', 0, 0, NULL, '蓝色弹珠', 'NASA', NULL, 'NASA', 10);
+
+-- 大都会艺术博物馆分类图片
+INSERT INTO `pla_planet_gallery` (`user_id`, `file_name`, `file_url`, `file_size`, `file_type`, `width`, `height`, `thumbnail_url`, `description`, `category`, `year`, `author`, `sort_order`) VALUES
+(1, 'met_canaletto_1720.jpg', '/gallery/大都会艺术博物馆/met_canaletto_1720.jpg', 0, 'image', 0, 0, NULL, 'Canaletto作品', '大都会艺术博物馆', 1720, 'Canaletto', 1),
+(1, 'met_cezanne_1890.jpg', '/gallery/大都会艺术博物馆/met_cezanne_1890.jpg', 0, 'image', 0, 0, NULL, 'Cézanne作品', '大都会艺术博物馆', 1890, 'Paul Cézanne', 2),
+(1, 'met_frederic_edwin_church_1871.jpg', '/gallery/大都会艺术博物馆/met_frederic_edwin_church_1871.jpg', 0, 'image', 0, 0, NULL, 'Frederic Edwin Church作品', '大都会艺术博物馆', 1871, 'Frederic Edwin Church', 3),
+(1, 'met_henri_tl_1892.jpg', '/gallery/大都会艺术博物馆/met_henri_tl_1892.jpg', 0, 'image', 0, 0, NULL, 'Henri作品', '大都会艺术博物馆', 1892, 'Henri', 4),
+(1, 'met_joseph_hidley_1870.jpg', '/gallery/大都会艺术博物馆/met_joseph_hidley_1870.jpg', 0, 'image', 0, 0, NULL, 'Joseph Hidley作品', '大都会艺术博物馆', 1870, 'Joseph Hidley', 5),
+(1, 'met_vincent_van_gogh_oleanders.jpg', '/gallery/大都会艺术博物馆/met_vincent_van_gogh_oleanders.jpg', 0, 'image', 0, 0, NULL, '梵高夹竹桃', '大都会艺术博物馆', NULL, 'Vincent van Gogh', 6),
+(1, 'met_winslow_homer_maine_coast.jpg', '/gallery/大都会艺术博物馆/met_winslow_homer_maine_coast.jpg', 0, 'image', 0, 0, NULL, 'Winslow Homer缅因海岸', '大都会艺术博物馆', NULL, 'Winslow Homer', 7);
+
+-- 大都会艺术博物馆-图案分类图片
+INSERT INTO `pla_planet_gallery` (`user_id`, `file_name`, `file_url`, `file_size`, `file_type`, `width`, `height`, `thumbnail_url`, `description`, `category`, `year`, `author`, `sort_order`) VALUES
+(1, 'met_william_morris_1875.jpg', '/gallery/大都会艺术博物馆-图案/met_william_morris_1875.jpg', 0, 'image', 0, 0, NULL, 'William Morris图案设计', '大都会艺术博物馆-图案', 1875, 'William Morris', 1),
+(1, 'met_william_morris_1877_willow.jpg', '/gallery/大都会艺术博物馆-图案/met_william_morris_1877_willow.jpg', 0, 'image', 0, 0, NULL, 'William Morris柳树图案', '大都会艺术博物馆-图案', 1877, 'William Morris', 2),
+(1, 'met_william_morris_1878.jpg', '/gallery/大都会艺术博物馆-图案/met_william_morris_1878.jpg', 0, 'image', 0, 0, NULL, 'William Morris图案设计', '大都会艺术博物馆-图案', 1878, 'William Morris', 3);
+
+-- 宇宙分类图片
+INSERT INTO `pla_planet_gallery` (`user_id`, `file_name`, `file_url`, `file_size`, `file_type`, `width`, `height`, `thumbnail_url`, `description`, `category`, `year`, `author`, `sort_order`) VALUES
+(1, 'greg-rakozy-0LU4vO5iFpM-unsplash.jpg', '/gallery/宇宙/greg-rakozy-0LU4vO5iFpM-unsplash.jpg', 0, 'image', 0, 0, NULL, '宇宙星空', '宇宙', NULL, 'Greg Rakozy', 1),
+(1, 'jeremy-thomas-4dpAqfTbvKA-unsplash.jpg', '/gallery/宇宙/jeremy-thomas-4dpAqfTbvKA-unsplash.jpg', 0, 'image', 0, 0, NULL, '宇宙星空', '宇宙', NULL, 'Jeremy Thomas', 2),
+(1, 'jeremy-thomas-E0AHdsENmDg-unsplash.jpg', '/gallery/宇宙/jeremy-thomas-E0AHdsENmDg-unsplash.jpg', 0, 'image', 0, 0, NULL, '宇宙星空', '宇宙', NULL, 'Jeremy Thomas', 3),
+(1, 'nasa-OVO8nK-7Rfs-unsplash.jpg', '/gallery/宇宙/nasa-OVO8nK-7Rfs-unsplash.jpg', 0, 'image', 0, 0, NULL, 'NASA宇宙图片', '宇宙', NULL, 'NASA', 4),
+(1, 'nasa-Q1p7bh3SHj8-unsplash.jpg', '/gallery/宇宙/nasa-Q1p7bh3SHj8-unsplash.jpg', 0, 'image', 0, 0, NULL, 'NASA宇宙图片', '宇宙', NULL, 'NASA', 5),
+(1, 'pedro-j-conesa-EGGGADpdT38-unsplash.jpg', '/gallery/宇宙/pedro-j-conesa-EGGGADpdT38-unsplash.jpg', 0, 'image', 0, 0, NULL, '宇宙星空', '宇宙', NULL, 'Pedro J Conesa', 6),
+(1, 'shot-by-cerqueira-0o_GEzyargo-unsplash.jpg', '/gallery/宇宙/shot-by-cerqueira-0o_GEzyargo-unsplash.jpg', 0, 'image', 0, 0, NULL, '宇宙星空', '宇宙', NULL, 'Shot by Cerqueira', 7);
+
+-- 蒸汽波分类图片
+INSERT INTO `pla_planet_gallery` (`user_id`, `file_name`, `file_url`, `file_size`, `file_type`, `width`, `height`, `thumbnail_url`, `description`, `category`, `year`, `author`, `sort_order`) VALUES
+(1, 'adrian-newell-_wlpsopoo-k-unsplash.jpg', '/gallery/蒸汽波/adrian-newell-_wlpsopoo-k-unsplash.jpg', 0, 'image', 0, 0, NULL, '蒸汽波风格', '蒸汽波', NULL, 'Adrian Newell', 1),
+(1, 'IMG_8351.JPG', '/gallery/蒸汽波/IMG_8351.JPG', 0, 'image', 0, 0, NULL, '蒸汽波风格图片', '蒸汽波', NULL, NULL, 2),
+(1, 'IMG_8352.JPG', '/gallery/蒸汽波/IMG_8352.JPG', 0, 'image', 0, 0, NULL, '蒸汽波风格图片', '蒸汽波', NULL, NULL, 3),
+(1, 'IMG_8353.JPG', '/gallery/蒸汽波/IMG_8353.JPG', 0, 'image', 0, 0, NULL, '蒸汽波风格图片', '蒸汽波', NULL, NULL, 4),
+(1, 'IMG_8354.JPG', '/gallery/蒸汽波/IMG_8354.JPG', 0, 'image', 0, 0, NULL, '蒸汽波风格图片', '蒸汽波', NULL, NULL, 5),
+(1, 'IMG_8355.JPG', '/gallery/蒸汽波/IMG_8355.JPG', 0, 'image', 0, 0, NULL, '蒸汽波风格图片', '蒸汽波', NULL, NULL, 6),
+(1, 'neeqolah-creative-works-Tn5gnXGI3hI-unsplash.jpg', '/gallery/蒸汽波/neeqolah-creative-works-Tn5gnXGI3hI-unsplash.jpg', 0, 'image', 0, 0, NULL, '蒸汽波创意作品', '蒸汽波', NULL, 'Neeqolah Creative Works', 7),
+(1, 'sonder-quest-VE9pIb8QNQ4-unsplash.jpg', '/gallery/蒸汽波/sonder-quest-VE9pIb8QNQ4-unsplash.jpg', 0, 'image', 0, 0, NULL, '蒸汽波风格', '蒸汽波', NULL, 'Sonder Quest', 8);
+
+-- 詹姆斯·韦布空间望远镜分类图片
+INSERT INTO `pla_planet_gallery` (`user_id`, `file_name`, `file_url`, `file_size`, `file_type`, `width`, `height`, `thumbnail_url`, `description`, `category`, `year`, `author`, `sort_order`) VALUES
+(1, 'webb1.jpg', '/gallery/詹姆斯·韦布空间望远镜/webb1.jpg', 0, 'image', 0, 0, NULL, '韦布望远镜图片1', '詹姆斯·韦布空间望远镜', NULL, 'NASA/ESA/CSA', 1),
+(1, 'webb2.jpg', '/gallery/詹姆斯·韦布空间望远镜/webb2.jpg', 0, 'image', 0, 0, NULL, '韦布望远镜图片2', '詹姆斯·韦布空间望远镜', NULL, 'NASA/ESA/CSA', 2),
+(1, 'webb3.jpg', '/gallery/詹姆斯·韦布空间望远镜/webb3.jpg', 0, 'image', 0, 0, NULL, '韦布望远镜图片3', '詹姆斯·韦布空间望远镜', NULL, 'NASA/ESA/CSA', 3),
+(1, 'webb4.jpg', '/gallery/詹姆斯·韦布空间望远镜/webb4.jpg', 0, 'image', 0, 0, NULL, '韦布望远镜图片4', '詹姆斯·韦布空间望远镜', NULL, 'NASA/ESA/CSA', 4);
+
+-- 计算机分类图片
+INSERT INTO `pla_planet_gallery` (`user_id`, `file_name`, `file_url`, `file_size`, `file_type`, `width`, `height`, `thumbnail_url`, `description`, `category`, `year`, `author`, `sort_order`) VALUES
+(1, 'alan-w-AP7tG4LTeXA-unsplash.jpg', '/gallery/计算机/alan-w-AP7tG4LTeXA-unsplash.jpg', 0, 'image', 0, 0, NULL, '计算机相关图片', '计算机', NULL, 'Alan W', 1),
+(1, 'marissa-lewis-PoL7eR-p4Z0-unsplash.jpg', '/gallery/计算机/marissa-lewis-PoL7eR-p4Z0-unsplash.jpg', 0, 'image', 0, 0, NULL, '计算机相关图片', '计算机', NULL, 'Marissa Lewis', 2),
+(1, 'marissa-lewis-UsIlyGTLcTQ-unsplash.jpg', '/gallery/计算机/marissa-lewis-UsIlyGTLcTQ-unsplash.jpg', 0, 'image', 0, 0, NULL, '计算机相关图片', '计算机', NULL, 'Marissa Lewis', 3),
+(1, 'p-l-8bnc0-fl_NQ-unsplash.jpg', '/gallery/计算机/p-l-8bnc0-fl_NQ-unsplash.jpg', 0, 'image', 0, 0, NULL, '计算机相关图片', '计算机', NULL, 'P L', 4),
+(1, 'pramod-tiwari-rjXukZYsO_0-unsplash.jpg', '/gallery/计算机/pramod-tiwari-rjXukZYsO_0-unsplash.jpg', 0, 'image', 0, 0, NULL, '计算机相关图片', '计算机', NULL, 'Pramod Tiwari', 5),
+(1, 'theo-QZePhoGqD7w-unsplash.jpg', '/gallery/计算机/theo-QZePhoGqD7w-unsplash.jpg', 0, 'image', 0, 0, NULL, '计算机相关图片', '计算机', NULL, 'Theo', 6);
+
+-- 颜色和渐变分类图片
+INSERT INTO `pla_planet_gallery` (`user_id`, `file_name`, `file_url`, `file_size`, `file_type`, `width`, `height`, `thumbnail_url`, `description`, `category`, `year`, `author`, `sort_order`) VALUES
+(1, 'gradients_10.jpg', '/gallery/颜色和渐变/gradients_10.jpg', 0, 'image', 0, 0, NULL, '渐变色彩10', '颜色和渐变', NULL, NULL, 1),
+(1, 'gradients_11.jpg', '/gallery/颜色和渐变/gradients_11.jpg', 0, 'image', 0, 0, NULL, '渐变色彩11', '颜色和渐变', NULL, NULL, 2),
+(1, 'gradients_2.png', '/gallery/颜色和渐变/gradients_2.png', 0, 'image', 0, 0, NULL, '渐变色彩2', '颜色和渐变', NULL, NULL, 3),
+(1, 'gradients_3.png', '/gallery/颜色和渐变/gradients_3.png', 0, 'image', 0, 0, NULL, '渐变色彩3', '颜色和渐变', NULL, NULL, 4),
+(1, 'gradients_5.png', '/gallery/颜色和渐变/gradients_5.png', 0, 'image', 0, 0, NULL, '渐变色彩5', '颜色和渐变', NULL, NULL, 5),
+(1, 'gradients_8.png', '/gallery/颜色和渐变/gradients_8.png', 0, 'image', 0, 0, NULL, '渐变色彩8', '颜色和渐变', NULL, NULL, 6),
+(1, 'solid_beige.png', '/gallery/颜色和渐变/solid_beige.png', 0, 'image', 0, 0, NULL, '米色纯色', '颜色和渐变', NULL, NULL, 7),
+(1, 'solid_blue.png', '/gallery/颜色和渐变/solid_blue.png', 0, 'image', 0, 0, NULL, '蓝色纯色', '颜色和渐变', NULL, NULL, 8),
+(1, 'solid_red.png', '/gallery/颜色和渐变/solid_red.png', 0, 'image', 0, 0, NULL, '红色纯色', '颜色和渐变', NULL, NULL, 9),
+(1, 'solid_yellow.png', '/gallery/颜色和渐变/solid_yellow.png', 0, 'image', 0, 0, NULL, '黄色纯色', '颜色和渐变', NULL, NULL, 10);

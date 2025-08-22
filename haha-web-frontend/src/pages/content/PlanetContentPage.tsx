@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import styles from "./PlanetContentPage.module.css";
 import { Header } from "../../components";
 import { 
@@ -28,6 +28,7 @@ interface PlanetContentPageProps {}
 
 export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const planetId = searchParams.get('planetId');
   
   const [createdPlanets, setCreatedPlanets] = useState<UserPlanet[]>([]);
@@ -507,6 +508,16 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     }
   };
 
+  // 处理写文章按钮点击
+  const handleWriteArticleClick = () => {
+    if (!selectedPlanet) {
+      alert('请先选择一个星球');
+      return;
+    }
+    // 在新标签页中打开文章编辑页面，携带当前星球ID
+    window.open(`/article/editor/${selectedPlanet.id}`, '_blank');
+  };
+
   // 获取显示的内容
   const getDisplayContent = (summary: string, postId: number) => {
     const isExpanded = expandedPosts.has(postId);
@@ -829,7 +840,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                   <div className={styles.toolIcon}>
                     <HeadingIcon className={styles.headingIcon} />
                   </div>
-                  <div className={styles.toolIcon}>
+                  <div className={styles.toolIcon} onClick={handleWriteArticleClick} style={{ cursor: 'pointer' }}>
                     <WriteIcon className={styles.writeIcon} />
                     <span>写文章</span>
                   </div>

@@ -535,7 +535,7 @@ export const PostArticlePage: React.FC<PostArticlePageProps> = () => {
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   // 加载帖子详情
-  const loadPostDetail = async (id: number) => {
+  const loadPostDetail = async (id: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -608,22 +608,14 @@ export const PostArticlePage: React.FC<PostArticlePageProps> = () => {
   // 重新获取帖子详情
   const fetchPostDetail = () => {
     if (postId) {
-      const id = parseInt(postId);
-      if (!isNaN(id)) {
-        loadPostDetail(id);
-      }
+      loadPostDetail(postId);
     }
   };
 
   // 页面初始化
   useEffect(() => {
     if (postId) {
-      const id = parseInt(postId);
-      if (!isNaN(id)) {
-        loadPostDetail(id);
-      } else {
-        setError('无效的帖子ID');
-      }
+      loadPostDetail(postId);
     } else {
       setError('缺少帖子ID参数');
     }

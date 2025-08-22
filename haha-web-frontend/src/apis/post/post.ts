@@ -155,13 +155,13 @@ export const formatPostTime = (dateString: string): string => {
 
 // 帖子详情请求参数
 export interface PostDetailParams {
-  postId: number;
+  postId: string;
 }
 
 // 帖子详情响应接口
 export interface VersionedPostDetailResponse {
   postDetail: Post;
-  postId: number;
+  postId: string;
   exist: boolean;
   later: boolean;
 }
