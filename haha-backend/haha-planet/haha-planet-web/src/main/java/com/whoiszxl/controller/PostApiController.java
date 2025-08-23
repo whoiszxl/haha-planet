@@ -1,5 +1,6 @@
 package com.whoiszxl.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.whoiszxl.common.context.UserContext;
 import com.whoiszxl.common.utils.UserLoginHelper;
 import com.whoiszxl.model.cache.GalleryListCache;
@@ -13,8 +14,12 @@ import com.whoiszxl.service.GalleryCachedService;
 import com.whoiszxl.service.PostCachedService;
 import com.whoiszxl.service.PostService;
 import com.whoiszxl.starter.core.utils.validate.CheckUtils;
+import com.whoiszxl.starter.core.utils.validate.ValidationUtils;
 import com.whoiszxl.starter.crud.model.PageResponse;
 import com.whoiszxl.starter.web.model.R;
+import com.whoiszxl.storage.core.domain.StorageObject;
+import com.whoiszxl.storage.core.domain.UploadRequest;
+import com.whoiszxl.storage.core.service.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,9 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 帖子管理 API
@@ -41,14 +50,17 @@ public class PostApiController {
     private final PostCachedService postCachedService;
     private final PostService postService;
     private final GalleryCachedService galleryCachedService;
+    private final StorageService storageService;
     
     public PostApiController(
             @Qualifier("postRedisCachedServiceImpl") PostCachedService postCachedService,
             PostService postService,
-            @Qualifier("galleryCachedServiceImpl") GalleryCachedService galleryCachedService) {
+            @Qualifier("galleryCachedServiceImpl") GalleryCachedService galleryCachedService,
+            StorageService storageService) {
         this.postCachedService = postCachedService;
         this.postService = postService;
         this.galleryCachedService = galleryCachedService;
+        this.storageService = storageService;
     }
 
     @Operation(summary = "根据星球ID查询帖子列表", description = "分页查询指定星球下的帖子列表，支持多种排序方式，只使用Redis缓存")
@@ -214,6 +226,102 @@ public class PostApiController {
         } catch (Exception e) {
             log.error("[帖子API] 获取画廊列表失败", e);
             return R.fail("获取画廊列表失败，请稍后重试");
+        }
+    }
+
+    @Operation(summary = "上传帖子图片", description = "上传帖子相关的图片文件")
+    @PostMapping("/upload/image")
+    public R<Map<String, String>> uploadPostImage(@RequestParam("imageFile") MultipartFile file) {
+        try {
+            // 参数校验
+            ValidationUtils.throwIfNull(file, "图片文件不能为空");
+            ValidationUtils.throwIf(file.isEmpty(), "图片文件不能为空");
+            
+            // 文件类型校验
+            String contentType = file.getContentType();
+            ValidationUtils.throwIf(!StrUtil.startWith(contentType, "image/"), "只支持图片格式");
+            
+            // 文件大小校验 (限制10MB)
+            long maxSize = 10 * 1024 * 1024;
+            ValidationUtils.throwIf(file.getSize() > maxSize, "图片文件大小不能超过10MB");
+            
+            // 获取当前登录用户ID
+            Long currentUserId = UserLoginHelper.getUserId();
+            
+            // 生成文件名
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = StrUtil.subAfter(originalFilename, ".", true);
+            String fileName = "post/image/" + currentUserId + "/" + UUID.randomUUID() + "." + fileExtension;
+            
+            // 构建上传请求，帖子图片上传到公共bucket
+            UploadRequest uploadRequest = UploadRequest.builder()
+                    .bucketName("haha-public")
+                    .key(fileName)
+                    .fileName(originalFilename)
+                    .contentType(contentType)
+                    .content(file.getInputStream())
+                    .contentLength(file.getSize());
+            
+            // 上传到S3
+            StorageObject storageObject = storageService.upload(uploadRequest);
+            
+            // 返回结果
+            Map<String, String> result = new HashMap<>();
+            result.put("imageUrl", storageObject.getUrl());
+            result.put("fileName", fileName);
+            
+            return R.ok(result);
+            
+        } catch (IOException e) {
+            log.error("帖子图片上传失败", e);
+            throw new RuntimeException("帖子图片上传失败", e);
+        }
+    }
+
+    @Operation(summary = "上传帖子文件", description = "上传帖子相关的文件（文档、音频、视频等）")
+    @PostMapping("/upload/file")
+    public R<Map<String, String>> uploadPostFile(@RequestParam("file") MultipartFile file) {
+        try {
+            // 参数校验
+            ValidationUtils.throwIfNull(file, "文件不能为空");
+            ValidationUtils.throwIf(file.isEmpty(), "文件不能为空");
+            
+            // 文件大小校验 (限制50MB)
+            long maxSize = 50 * 1024 * 1024;
+            ValidationUtils.throwIf(file.getSize() > maxSize, "文件大小不能超过50MB");
+            
+            // 获取当前登录用户ID
+            Long currentUserId = UserLoginHelper.getUserId();
+            
+            // 生成文件名
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = StrUtil.subAfter(originalFilename, ".", true);
+            String fileName = "post/file/" + currentUserId + "/" + UUID.randomUUID() + "." + fileExtension;
+            
+            // 构建上传请求，帖子文件上传到公共bucket
+            UploadRequest uploadRequest = UploadRequest.builder()
+                    .bucketName("haha-public")
+                    .key(fileName)
+                    .fileName(originalFilename)
+                    .contentType(file.getContentType())
+                    .content(file.getInputStream())
+                    .contentLength(file.getSize());
+            
+            // 上传到S3
+            StorageObject storageObject = storageService.upload(uploadRequest);
+            
+            // 返回结果
+            Map<String, String> result = new HashMap<>();
+            result.put("fileUrl", storageObject.getUrl());
+            result.put("fileName", fileName);
+            result.put("originalFileName", originalFilename);
+            result.put("fileSize", String.valueOf(file.getSize()));
+            
+            return R.ok(result);
+            
+        } catch (IOException e) {
+            log.error("帖子文件上传失败", e);
+            throw new RuntimeException("帖子文件上传失败", e);
         }
     }
 }

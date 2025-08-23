@@ -14,6 +14,7 @@ import {
   LikeIcon, CommentIcon, ViewIcon, ShareIcon, MoreIcon, ArrowRightIcon 
 } from "../../components/icons/SocialIcons";
 import PlanetContentSkeleton from "../../components/skeleton/PlanetContentSkeleton";
+import { uploadPostImage } from "../../apis/upload/upload";
 
 // 扩展帖子类型定义，添加前端需要的额外字段
 interface Post extends ApiPost {
@@ -81,6 +82,11 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   // 帖子详情模态框状态
   const [showPostDetailModal, setShowPostDetailModal] = useState(false);
   const [selectedPostDetail, setSelectedPostDetail] = useState<Post | null>(null);
+  
+  // 图片上传相关状态
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 加载星球详情
   const loadPlanetDetail = async (id: number) => {
@@ -456,6 +462,58 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     }
   };
 
+  // 处理图片上传按钮点击
+  const handleImageUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  // 处理文件选择
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件');
+      return;
+    }
+
+    // 验证文件大小（10MB）
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('图片大小不能超过10MB');
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      const response = await uploadPostImage(file);
+      
+      if (response.code === 'SUCCESS' && response.data) {
+        // 添加图片URL到已上传列表
+        setUploadedImages(prev => [...prev, response.data.fileUrl]);
+        
+        // 将图片URL插入到文本内容中
+        const imageMarkdown = `\n![${response.data.fileName}](${response.data.fileUrl})\n`;
+        const newSummary = publishForm.summary + imageMarkdown;
+        handlePublishFormChange('summary', newSummary);
+        
+        alert('图片上传成功！');
+      }
+    } catch (error) {
+      console.error('图片上传失败:', error);
+      alert('图片上传失败，请重试');
+    } finally {
+      setUploadingImage(false);
+      // 清空文件输入框
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   // 处理发布帖子
   const handlePublishPost = async () => {
     if (!selectedPlanet) {
@@ -519,6 +577,9 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
       content: '',
       isAnonymous: false
     });
+    // 清除图片上传状态
+    setUploadedImages([]);
+    setUploadingImage(false);
     // 清除当前星球的本地存储草稿
     if (selectedPlanet) {
       const draftKey = `draft_post_content_${selectedPlanet.id}`;
@@ -1185,8 +1246,14 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                   <button className={styles.toolButton}>
                     <EmojiIcon className={styles.toolIcon} />
                   </button>
-                  <button className={styles.toolButton}>
+                  <button 
+                    className={styles.toolButton}
+                    onClick={handleImageUploadClick}
+                    disabled={uploadingImage}
+                    title={uploadingImage ? '图片上传中...' : '上传图片'}
+                  >
                     <ImageIcon className={styles.toolIcon} />
+                    {uploadingImage && <span style={{fontSize: '12px', marginLeft: '4px'}}>上传中...</span>}
                   </button>
                   <button className={styles.toolButton}>
                     <DocumentIcon className={styles.toolIcon} />
@@ -1198,6 +1265,15 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
                     <HeadingIcon className={styles.toolIcon} />
                   </button>
                 </div>
+                
+                {/* 隐藏的文件输入框 */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleFileSelect}
+                />
                 
                 <div className={styles.toolbarRight}>
                   <span className={styles.charCount}>({publishForm.summary.length}/10000)</span>
