@@ -278,13 +278,34 @@ public class PostApiController {
         }
     }
 
-    @Operation(summary = "上传帖子文件", description = "上传帖子相关的文件（文档、音频、视频等）")
+    @Operation(summary = "上传帖子文件", description = "上传帖子相关的文件（文档、音频、视频、PDF等）")
     @PostMapping("/upload/file")
     public R<Map<String, String>> uploadPostFile(@RequestParam("file") MultipartFile file) {
         try {
             // 参数校验
             ValidationUtils.throwIfNull(file, "文件不能为空");
             ValidationUtils.throwIf(file.isEmpty(), "文件不能为空");
+            
+            // 文件类型校验
+            String contentType = file.getContentType();
+            String originalFilename = file.getOriginalFilename();
+            String fileExtension = StrUtil.subAfter(originalFilename, ".", true).toLowerCase();
+            
+            // 支持的文件类型：PDF、文档、音频、视频等
+            boolean isValidFileType = false;
+            if ("pdf".equals(fileExtension) || "application/pdf".equals(contentType)) {
+                isValidFileType = true;
+            } else if (StrUtil.startWith(contentType, "application/") && 
+                      ("doc".equals(fileExtension) || "docx".equals(fileExtension) || 
+                       "xls".equals(fileExtension) || "xlsx".equals(fileExtension) || 
+                       "ppt".equals(fileExtension) || "pptx".equals(fileExtension) ||
+                       "txt".equals(fileExtension))) {
+                isValidFileType = true;
+            } else if (StrUtil.startWith(contentType, "audio/") || StrUtil.startWith(contentType, "video/")) {
+                isValidFileType = true;
+            }
+            
+            ValidationUtils.throwIf(!isValidFileType, "不支持的文件类型，仅支持PDF、文档、音频、视频文件");
             
             // 文件大小校验 (限制50MB)
             long maxSize = 50 * 1024 * 1024;
@@ -294,8 +315,6 @@ public class PostApiController {
             Long currentUserId = UserLoginHelper.getUserId();
             
             // 生成文件名
-            String originalFilename = file.getOriginalFilename();
-            String fileExtension = StrUtil.subAfter(originalFilename, ".", true);
             String fileName = "post/file/" + currentUserId + "/" + UUID.randomUUID() + "." + fileExtension;
             
             // 构建上传请求，帖子文件上传到公共bucket

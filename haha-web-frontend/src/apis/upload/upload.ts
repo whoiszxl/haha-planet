@@ -7,6 +7,9 @@ import http from '../../utils/http';
 export interface UploadResponse {
   fileUrl: string;
   fileName: string;
+  imageUrl?: string; // 图片上传时返回
+  originalFileName?: string; // 文件上传时返回
+  fileSize?: string; // 文件上传时返回
 }
 
 // ================================ API接口 ================================
