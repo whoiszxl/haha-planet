@@ -90,3 +90,26 @@ export const getDefaultAvatarUrl = (): string => {
 export const getDefaultCoverUrl = (): string => {
   return getImageUrl('default/cover.jpg', true);
 };
+
+/**
+ * 从上传响应中提取文件名
+ * @param uploadResponse 上传接口的响应数据
+ * @returns 文件名，如果提取失败则返回默认名称
+ */
+export const getFileNameFromUploadResponse = (uploadResponse: any): string => {
+  try {
+    if (uploadResponse && uploadResponse.data && uploadResponse.data.fileName) {
+      return uploadResponse.data.fileName;
+    }
+    // 如果有imageUrl，尝试从URL中提取文件名
+    if (uploadResponse && uploadResponse.data && uploadResponse.data.imageUrl) {
+      const url = uploadResponse.data.imageUrl;
+      const urlParts = url.split('/');
+      return urlParts[urlParts.length - 1] || '未知文件';
+    }
+    return '未知文件';
+  } catch (error) {
+    console.error('提取文件名失败:', error);
+    return '未知文件';
+  }
+};

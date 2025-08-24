@@ -37,7 +37,12 @@
 /* 发布区域 */
 .publishSection { margin-bottom: 2px; }
 .publishContainer { overflow: hidden; }
-.publishBox { padding: 16px 20px; }
+.publishBox { 
+  padding: 16px 20px; 
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
+}
 .avatarContainer { margin-right: 12px; flex-shrink: 0; }
 .userAvatar { width: 30px; height: 30px; background: #f0f0f0; }
 .inputContainer {
@@ -1354,14 +1359,23 @@
 }
 
 .modalUserAvatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .inputSection {
   flex: 1;
+  background: var(--bg-gray);
+  border-radius: var(--border-radius);
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.inputSection:hover {
+  background: var(--bg-light);
 }
 
 .modalTitleInput {
@@ -1377,6 +1391,54 @@
 
 .modalTitleInput::placeholder {
   color: #999;
+}
+
+/* 图片预览区域 */
+.imagePreviewArea {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-light);
+  border-radius: var(--border-radius);
+}
+
+.imagePreviewItem {
+  position: relative;
+  display: inline-block;
+}
+
+.previewImage {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-light);
+}
+
+.removeImageButton {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ff4757;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  transition: var(--transition);
+}
+
+.removeImageButton:hover {
+  background: #ff3742;
+  transform: scale(1.1);
 }
 
 /* 内容输入区域 */

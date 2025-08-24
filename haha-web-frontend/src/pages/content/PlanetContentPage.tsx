@@ -8,13 +8,19 @@ import {
 } from "../../apis/user/userPlanet";
 import { getPlanetDetail, Planet } from "../../apis/planet/planet";
 import { getPostsByPlanetId, Post as ApiPost, formatPostTime, formatCount, createPost, CreatePostParams } from "../../apis/post/post";
-import { getAvatarUrl, getDefaultAvatarUrl } from "../../utils/image";
+import { getAvatarUrl, getDefaultAvatarUrl, getFileNameFromUploadResponse, getImageUrl } from "../../utils/image";
 import { 
   EmojiIcon, ImageIcon, LinkIcon, BoldIcon, HeadingIcon, WriteIcon, DocumentIcon,
   LikeIcon, CommentIcon, ViewIcon, ShareIcon, MoreIcon, ArrowRightIcon 
 } from "../../components/icons/SocialIcons";
 import PlanetContentSkeleton from "../../components/skeleton/PlanetContentSkeleton";
 import { uploadPostImage } from "../../apis/upload/upload";
+import { PublishSection } from "./PublishSection";
+import { PostList } from "./PostList";
+import { PlanetSidebar } from "./PlanetSidebar";
+import { PlanetInfoPanel } from "./PlanetInfoPanel";
+import { CategoryTabs } from "./CategoryTabs";
+import { PublishModal } from "./PublishModal";
 
 // 扩展帖子类型定义，添加前端需要的额外字段
 interface Post extends ApiPost {
@@ -85,7 +91,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   
   // 图片上传相关状态
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<{url: string, fileName: string}[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 加载星球详情
@@ -469,6 +475,11 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     }
   };
 
+  // 删除已上传的图片
+  const handleRemoveImage = (imageUrl: string) => {
+    setUploadedImages(prev => prev.filter(item => item.url !== imageUrl));
+  };
+
   // 处理文件选择
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -492,15 +503,16 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
       const response = await uploadPostImage(file);
       
       if (response.code === 'SUCCESS' && response.data) {
-        // 添加图片URL到已上传列表
-        setUploadedImages(prev => [...prev, response.data.fileUrl]);
+        // 使用工具方法提取文件名
+        const fileName = getFileNameFromUploadResponse(response);
         
-        // 将图片URL插入到文本内容中
-        const imageMarkdown = `\n![${response.data.fileName}](${response.data.fileUrl})\n`;
-        const newSummary = publishForm.summary + imageMarkdown;
-        handlePublishFormChange('summary', newSummary);
+        // 添加图片信息到已上传列表
+        setUploadedImages(prev => [...prev, {
+          url: getImageUrl(response.data.fileUrl),
+          fileName: fileName
+        }]);
         
-        alert('图片上传成功！');
+        alert(`图片上传成功！文件名: ${fileName}`);
       }
     } catch (error) {
       console.error('图片上传失败:', error);
@@ -533,10 +545,17 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
 
     setPublishLoading(true);
     try {
+      // 将上传的图片添加到内容末尾
+      let finalSummary = publishForm.summary;
+      if (uploadedImages.length > 0) {
+        const imageMarkdowns = uploadedImages.map(item => `![${item.fileName}](${getImageUrl(item.url)})`).join('\n');
+        finalSummary = publishForm.summary + '\n\n' + imageMarkdowns;
+      }
+      
       const params: CreatePostParams = {
         planetId: selectedPlanet.id,
         title: publishForm.title,
-        summary: publishForm.summary,
+        summary: finalSummary,
         contentType: publishForm.contentType,
         content: publishForm.content || undefined,
         isAnonymous: publishForm.isAnonymous
@@ -548,6 +567,8 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
         setShowPublishModal(false);
         // 清空草稿内容和本地存储
         handleClearDraft();
+        // 清空已上传的图片
+        setUploadedImages([]);
         // 刷新帖子列表
         await loadPosts(selectedPlanet.id, 1, sortType);
       } else {
@@ -873,125 +894,41 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
       
       <div className={styles.pageContent}>
         {/* 左侧边栏 */}
-        <div className={styles.sidebar}>
-          <div className={styles.sidebarHeader}>
-            <h2 className={styles.sidebarTitle}>我的星球</h2>
-          </div>
-          
-          <div className={styles.planetList}>
-            {error ? (
-              <div className={styles.error}>{error}</div>
-            ) : (
-              <>
-                {renderPlanetSection('我创建的星球', createdPlanets, 'created')}
-                {renderPlanetSection('我加入的星球', joinedPlanets, 'joined')}
-                {renderPlanetSection('我管理的星球', managedPlanets, 'managed')}
-                
-                {createdPlanets.length === 0 && joinedPlanets.length === 0 && managedPlanets.length === 0 && (
-                  <div className={styles.emptyState}>
-                    <div className={styles.emptyIcon}>🌟</div>
-                    <div className={styles.emptyText}>暂无星球</div>
-                    <div className={styles.emptySubtext}>快去创建或加入一个星球吧！</div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
+        <PlanetSidebar
+          createdPlanets={createdPlanets}
+          joinedPlanets={joinedPlanets}
+          managedPlanets={managedPlanets}
+          selectedPlanet={selectedPlanet}
+          collapsedSections={collapsedSections}
+          error={error}
+          onPlanetSelect={handlePlanetSelect}
+          onToggleSection={toggleSection}
+          onImageError={handleImageError}
+          formatNumber={formatNumber}
+        />
 
         {/* 中间主内容区 */}
         <div className={styles.mainContent}>
-          {/* 发布区域 - 独立区域 */}
+          {/* 发布区域 */}
           {selectedPlanet && (
-            <div className={styles.publishSection}>
-              <div className={styles.publishContainer}>
-                {/* 发布框 */}
-                <div className={styles.publishBox} onClick={handlePublishClick} style={{ cursor: 'pointer' }}>
-                  <div className={styles.inputContainer}>
-                    <div className={styles.avatarContainer}>
-                      <img 
-                        src={getAvatarUrl(selectedPlanet?.avatar)} 
-                        alt="用户头像" 
-                        className={styles.userAvatar}
-                        onError={(e) => handleImageError(e, `user-publish-${selectedPlanet?.id}`)}
-                      />
-                    </div>
-                    <div className={styles.inputPlaceholder}>
-                      点击发表主题...
-                    </div>
-                  </div>
-                </div>
-
-                {/* 工具栏 */}
-                <div className={styles.toolbar}>
-                  <div className={styles.toolIcon}>
-                    <EmojiIcon className={styles.emojiIcon} />
-                  </div>
-                  <div className={styles.toolIcon}>
-                    <ImageIcon className={styles.imageIcon} />
-                  </div>
-                  <div className={styles.toolIcon}>
-                    <LinkIcon className={styles.linkIcon} />
-                  </div>
-                  <div className={styles.toolIcon}>
-                    <BoldIcon className={styles.boldIcon} />
-                  </div>
-                  <div className={styles.toolIcon}>
-                    <HeadingIcon className={styles.headingIcon} />
-                  </div>
-                  <div className={styles.toolIcon} onClick={handleWriteArticleClick} style={{ cursor: 'pointer' }}>
-                    <WriteIcon className={styles.writeIcon} />
-                    <span>写文章</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PublishSection 
+              selectedPlanet={selectedPlanet}
+              onPublishClick={handlePublishClick}
+              onWriteArticleClick={handleWriteArticleClick}
+              onImageUploadClick={handleImageUploadClick}
+              uploadingImage={uploadingImage}
+              fileInputRef={fileInputRef}
+              onFileSelect={handleFileSelect}
+              onImageError={handleImageError}
+            />
           )}
 
           {/* 分类标签区域 - 独立区域 */}
           {selectedPlanet && (
-            <div className={styles.categorySection}>
-              <div className={styles.categoryContainer}>
-                <div className={styles.tabsContainer}>
-                  <div 
-                    className={`${styles.tab} ${sortType === 1 ? styles.activeTab : ''}`}
-                    onClick={() => handleSortChange(1)}
-                  >
-                    最新
-                  </div>
-                  <div 
-                    className={`${styles.tab} ${sortType === 2 ? styles.activeTab : ''}`}
-                    onClick={() => handleSortChange(2)}
-                  >
-                    最多点赞
-                  </div>
-                  <div 
-                    className={`${styles.tab} ${sortType === 3 ? styles.activeTab : ''}`}
-                    onClick={() => handleSortChange(3)}
-                  >
-                    最多评论
-                  </div>
-                  <div 
-                    className={`${styles.tab} ${sortType === 4 ? styles.activeTab : ''}`}
-                    onClick={() => handleSortChange(4)}
-                  >
-                    最多浏览
-                  </div>
-                  <div className={styles.tab}>
-                    精华
-                  </div>
-                  <div className={styles.tab}>
-                    只看星主
-                  </div>
-                  <div className={styles.tab}>
-                    问答
-                  </div>
-                  <div className={styles.tab}>
-                    文件
-                  </div>
-                </div>
-              </div>
-            </div>
+            <CategoryTabs 
+              sortType={sortType}
+              onSortChange={handleSortChange}
+            />
           )}
 
           {/* 内容区域 */}
@@ -1000,10 +937,21 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
               postLoading ? (
                 <PlanetContentSkeleton type="postList" />
               ) : (
-                <div className={styles.postContainer}>
-                  {/* 帖子列表 */}
-                  {renderPostList()}
-                </div>
+                <PostList 
+                  posts={posts}
+                  totalPosts={posts.length}
+                  loadingMore={false}
+                  postError={null}
+                  expandedPosts={expandedPosts}
+                  failedImages={failedImages}
+                  sortType={sortType.toString()}
+                  loadingRef={loadingRef}
+                  onTogglePostExpansion={togglePostExpansion}
+                  onViewDetail={handleViewDetail}
+                  onImageError={handleImageError}
+                  onRetry={() => {}}
+                  onSortChange={(type) => handleSortChange(parseInt(type))}
+                />
               )
             ) : (
               <div className={styles.emptyState}>
@@ -1017,279 +965,32 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
 
         {/* 右侧星球信息面板 */}
         {selectedPlanet && (
-          <div className={styles.rightPanel}>
-            <div className={styles.planetInfoPanel}>
-              {detailLoading ? (
-                <PlanetContentSkeleton type="rightPanel" />
-              ) : (
-                <>
-                  <div 
-                    className={styles.planetHeader}
-                    style={{
-                      backgroundImage: `url(${getAvatarUrl((planetDetail || selectedPlanet)?.coverImage || (planetDetail || selectedPlanet)?.avatar || '')})`
-                    }}
-                  >
-                    <div className={styles.planetHeaderOverlay}></div>
-                    <div className={styles.planetHeaderContent}>
-                      <div className={styles.planetAvatarLarge}>
-                        <img 
-                          src={getAvatarUrl((planetDetail || selectedPlanet)?.avatar || '')} 
-                          alt={(planetDetail || selectedPlanet)?.name}
-                          onError={(e) => handleImageError(e, `planet-large-${selectedPlanet?.id}`, '/default-planet.png')}
-                        />
-                      </div>
-                      <div className={styles.planetBasicInfo}>
-                        <h3 className={styles.planetTitle}>{(planetDetail || selectedPlanet)?.name}</h3>
-                        <div className={styles.planetStats}>
-                          <span className={styles.statItem}>
-                            <span className={styles.statNumber}>
-                              {formatNumber((planetDetail || selectedPlanet)?.memberCount || 0)}
-                            </span>
-                            <span className={styles.statLabel}>成员</span>
-                          </span>
-                          <span className={styles.statItem}>
-                            <span className={styles.statNumber}>
-                              {(planetDetail || selectedPlanet)?.postCount || 0}
-                            </span>
-                            <span className={styles.statLabel}>内容</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.planetDetails}>
-                    <div className={styles.detailSection}>
-                      <h4 className={styles.sectionTitle}>星球简介</h4>
-                      <p className={styles.planetDescription}>
-                        {(planetDetail || selectedPlanet)?.description || '暂无简介'}
-                      </p>
-                    </div>
-
-                    <div className={styles.detailSection}>
-                      <h4 className={styles.sectionTitle}>基本信息</h4>
-                      <div className={styles.infoList}>
-                        <div className={styles.infoRow}>
-                          <span className={styles.infoLabel}>分类</span>
-                          <span className={styles.infoValue}>
-                            {(planetDetail || selectedPlanet)?.categoryName || '未分类'}
-                          </span>
-                        </div>
-                        {planetDetail && (
-                          <>
-                            <div className={styles.infoRow}>
-                              <span className={styles.infoLabel}>星球编码</span>
-                              <span className={styles.infoValue}>{planetDetail.planetCode}</span>
-                            </div>
-                            <div className={styles.infoRow}>
-                              <span className={styles.infoLabel}>加入方式</span>
-                              <span className={styles.infoValue}>
-                                {planetDetail.joinType === 1 ? '自由加入' : '申请加入'}
-                              </span>
-                            </div>
-                            <div className={styles.infoRow}>
-                              <span className={styles.infoLabel}>是否公开</span>
-                              <span className={styles.infoValue}>
-                                {planetDetail.isPublic === 1 ? '公开' : '私密'}
-                              </span>
-                            </div>
-                            {planetDetail.maxMembers > 0 && (
-                              <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>成员上限</span>
-                                <span className={styles.infoValue}>{planetDetail.maxMembers}人</span>
-                              </div>
-                            )}
-                            {planetDetail.tags && (
-                              <div className={styles.infoRow}>
-                                <span className={styles.infoLabel}>标签</span>
-                                <span className={styles.infoValue}>{planetDetail.tags}</span>
-                              </div>
-                            )}
-                          </>
-                        )}
-                        {selectedPlanet?.memberTypeName && (
-                          <div className={styles.infoRow}>
-                            <span className={styles.infoLabel}>我的角色</span>
-                            <span className={`${styles.infoValue} ${getMemberBadgeClass(selectedPlanet.memberType)}`}>
-                              {selectedPlanet.memberTypeName}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* 管理员信息 */}
-                    {planetDetail?.adminUsers && planetDetail.adminUsers.length > 0 && (
-                      <div className={styles.detailSection}>
-                        <h4 className={styles.sectionTitle}>管理团队</h4>
-                        <div className={styles.adminList}>
-                          {planetDetail.adminUsers.map((admin) => (
-                            <div key={admin.userId} className={styles.adminItem}>
-                              <div className={styles.adminAvatar}>
-                                <img 
-                                  src={getAvatarUrl(admin.avatar || '')} 
-                                  alt={admin.nickname}
-                                  onError={(e) => handleImageError(e, `admin-${admin.userId}`, '/default-avatar.png')}
-                                />
-                              </div>
-                              <div className={styles.adminInfo}>
-                                <div className={styles.adminName}>{admin.nickname}</div>
-                                <div className={`${styles.adminRole} ${getMemberBadgeClass(admin.memberType)}`}>
-                                  {admin.memberTypeName}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className={styles.footerSection}>
-                    <div className={styles.footerContent}>
-                      <div className={styles.footerLogo}>
-                        <span className={styles.footerLogoText}>HAHA PLANET</span>
-                      </div>
-                      
-                      <div className={styles.footerCopyright}>
-                        © 2024 哈哈星球 版权所有。让学习变得更有趣，让知识在星球间传播。
-                      </div>
-                      
-                      <div className={styles.footerLinks}>
-                        <div className={styles.footerLinkGroup}>
-                          {['关于我们', '课程中心', '学习社区', '帮助中心'].map(text => (
-                            <button key={text} className={styles.footerLink}>{text}</button>
-                          ))}
-                        </div>
-                        <div className={styles.footerLinkGroup}>
-                          {['技术博客', '加入我们', '联系我们'].map(text => (
-                            <button key={text} className={styles.footerLink}>{text}</button>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div className={styles.footerPolicies}>
-                        {['隐私政策', '服务条款', '用户协议', '退款政策', 'Cookie政策'].map((text, index, arr) => (
-                          <React.Fragment key={text}>
-                            <button className={styles.footerPolicyLink}>{text}</button>
-                            {index < arr.length - 1 && <span className={styles.footerSeparator}>|</span>}
-                          </React.Fragment>
-                        ))}
-                      </div>
-                      
-                      <div className={styles.footerExtra}>
-                        <p>让每个人都能在哈哈星球上找到属于自己的学习乐趣</p>
-                        <p>ICP备案号：京ICP备2024000000号 | 网络文化经营许可证</p>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+          <PlanetInfoPanel 
+            selectedPlanet={selectedPlanet}
+            planetDetail={planetDetail}
+            detailLoading={detailLoading}
+            onImageError={handleImageError}
+            formatNumber={formatNumber}
+            getMemberBadgeClass={getMemberBadgeClass}
+          />
         )}
       </div>
       
       {/* 发布帖子模态框 */}
-      {showPublishModal && (
-        <div className={styles.modalOverlay} onClick={handleModalOverlayClick}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3>发表主题</h3>
-              <button 
-                className={styles.closeButton}
-                onClick={handleClosePublishModal}
-              >
-                ×
-              </button>
-            </div>
-            
-            <div className={styles.modalBody}>
-              {/* 用户头像和输入区域 */}
-              <div className={styles.publishInputArea}>
-                <div className={styles.userAvatarSection}>
-                  <img 
-                    src={selectedPlanet ? getAvatarUrl(selectedPlanet.avatar) : getDefaultAvatarUrl()} 
-                    alt="用户头像" 
-                    className={styles.modalUserAvatar}
-                  />
-                </div>
-                <div className={styles.inputSection}>
-                  <input
-                    type="text"
-                    value={publishForm.title}
-                    onChange={(e) => handlePublishFormChange('title', e.target.value)}
-                    placeholder="点击发表主题..."
-                    className={styles.modalTitleInput}
-                    maxLength={100}
-                  />
-                </div>
-              </div>
-              
-              {/* 内容输入区域 */}
-              <div className={styles.contentInputArea}>
-                <textarea
-                  value={publishForm.summary}
-                  onChange={(e) => handlePublishFormChange('summary', e.target.value)}
-                  placeholder=""
-                  className={styles.modalContentTextarea}
-                  rows={8}
-                  maxLength={10000}
-                />
-              </div>
-            </div>
-            
-            <div className={styles.modalFooter}>
-              {/* 工具栏 */}
-              <div className={styles.modalToolbar}>
-                <div className={styles.toolbarLeft}>
-                  <button className={styles.toolButton}>
-                    <EmojiIcon className={styles.toolIcon} />
-                  </button>
-                  <button 
-                    className={styles.toolButton}
-                    onClick={handleImageUploadClick}
-                    disabled={uploadingImage}
-                    title={uploadingImage ? '图片上传中...' : '上传图片'}
-                  >
-                    <ImageIcon className={styles.toolIcon} />
-                    {uploadingImage && <span style={{fontSize: '12px', marginLeft: '4px'}}>上传中...</span>}
-                  </button>
-                  <button className={styles.toolButton}>
-                    <DocumentIcon className={styles.toolIcon} />
-                  </button>
-                  <button className={styles.toolButton}>
-                    <BoldIcon className={styles.toolIcon} />
-                  </button>
-                  <button className={styles.toolButton}>
-                    <HeadingIcon className={styles.toolIcon} />
-                  </button>
-                </div>
-                
-                {/* 隐藏的文件输入框 */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handleFileSelect}
-                />
-                
-                <div className={styles.toolbarRight}>
-                  <span className={styles.charCount}>({publishForm.summary.length}/10000)</span>
-                  <button 
-                    className={styles.modalPublishButton}
-                    onClick={handlePublishPost}
-                    disabled={publishLoading || !publishForm.title.trim() || !publishForm.summary.trim()}
-                  >
-                    {publishLoading ? '发布中...' : '发布'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <PublishModal
+        show={showPublishModal}
+        selectedPlanet={selectedPlanet}
+        publishForm={publishForm}
+        publishLoading={publishLoading}
+        uploadingImage={uploadingImage}
+        uploadedImages={uploadedImages}
+        onClose={handleClosePublishModal}
+        onPublishFormChange={handlePublishFormChange}
+        onPublishPost={handlePublishPost}
+        onImageUploadClick={handleImageUploadClick}
+        onFileSelect={handleFileSelect}
+        onRemoveImage={handleRemoveImage}
+      />
       
       {/* 帖子详情模态框 */}
       {showPostDetailModal && selectedPostDetail && (
