@@ -7,7 +7,8 @@ import {
   ImageIcon,
   DocumentIcon,
   BoldIcon,
-  HeadingIcon
+  HeadingIcon,
+  CloseIcon
 } from '../../components/icons/SocialIcons';
 
 interface PublishForm {
@@ -21,13 +22,17 @@ interface PublishModalProps {
   publishForm: PublishForm;
   publishLoading: boolean;
   uploadingImage: boolean;
-  uploadedImages: {url: string, fileName: string}[];
+  uploadedImages: {
+    file: {fileName: string; originalFileName?: string}[];
+    image: {fileName: string; originalFileName?: string}[];
+  };
   onClose: () => void;
   onPublishFormChange: (field: keyof PublishForm, value: string) => void;
   onPublishPost: () => void;
   onImageUploadClick: () => void;
+  onFileUploadClick: () => void;
   onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onRemoveImage: (imageUrl: string) => void;
+  onRemoveImage: (fileName: string) => void;
 }
 
 export const PublishModal: React.FC<PublishModalProps> = ({
@@ -41,10 +46,12 @@ export const PublishModal: React.FC<PublishModalProps> = ({
   onPublishFormChange,
   onPublishPost,
   onImageUploadClick,
+  onFileUploadClick,
   onFileSelect,
   onRemoveImage
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   if (!show) {
     return null;
@@ -90,32 +97,55 @@ export const PublishModal: React.FC<PublishModalProps> = ({
             <textarea
               value={publishForm.summary}
               onChange={(e) => onPublishFormChange('summary', e.target.value)}
-              placeholder=""
+              placeholder="点击发表内容..."
               className={styles.modalContentTextarea}
               rows={8}
               maxLength={10000}
             />
           </div>
           
-          {/* 图片展示区域 */}
-          {uploadedImages.length > 0 && (
-             <div className={styles.imagePreviewArea}>
-               {uploadedImages.map((item, index) => (
-                 <div key={index} className={styles.imagePreviewItem}>
-                   <img 
-                     src={getImageUrl(item.url)} 
-                     alt={item.fileName}
-                     className={styles.previewImage}
-                   />
-                   <button 
-                     className={styles.removeImageButton}
-                     onClick={() => onRemoveImage(item.url)}
-                     title="删除图片"
-                   >
-                     ×
-                   </button>
+          {/* 文件展示区域 */}
+          {(uploadedImages.image.length > 0 || uploadedImages.file.length > 0) && (
+             <div className={styles.mediaPreviewArea}>
+               {/* 文件预览 - 显示在上方，每行一个文件 */}
+               {uploadedImages.file.length > 0 && (
+                 <div className={styles.filePreviewSection}>
+                   {uploadedImages.file.map((item, index) => (
+                     <div key={`file-${index}`} className={styles.filePreviewRow}>
+                       <DocumentIcon className={styles.fileIcon} />
+                       <span className={styles.fileName}>{item.originalFileName || item.fileName}</span>
+                       <button 
+                         className={styles.removeImageButton}
+                         onClick={() => onRemoveImage(item.fileName)}
+                         title="删除文件"
+                       >
+                         <CloseIcon />
+                       </button>
+                     </div>
+                   ))}
                  </div>
-               ))}
+               )}
+               
+               {/* 图片预览 - 显示在下方 */}
+               {uploadedImages.image.length > 0 && (
+                 <div className={styles.imagePreviewSection}>
+                   {uploadedImages.image.map((item, index) => (
+                     <div key={`image-${index}`} className={styles.imagePreviewItem}>
+                       <img 
+                         src={getImageUrl(item.fileName)} 
+                         alt={item.fileName}
+                         className={styles.previewImage}
+                       />
+                       <button 
+                         className={styles.removeImageButton}
+                         onClick={() => onRemoveImage(item.fileName)}
+                       >
+                         <CloseIcon />
+                       </button>
+                     </div>
+                   ))}
+                 </div>
+               )}
              </div>
            )}
         </div>
@@ -129,14 +159,19 @@ export const PublishModal: React.FC<PublishModalProps> = ({
               </button>
               <button 
                 className={styles.toolButton}
-                onClick={onImageUploadClick}
+                onClick={() => imageInputRef.current?.click()}
                 disabled={uploadingImage}
                 title={uploadingImage ? '图片上传中...' : '上传图片'}
               >
                 <ImageIcon className={styles.toolIcon} />
                 {uploadingImage && <span style={{fontSize: '12px', marginLeft: '4px'}}>上传中...</span>}
               </button>
-              <button className={styles.toolButton}>
+              <button 
+                className={styles.toolButton}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingImage}
+                title={uploadingImage ? '文件上传中...' : '上传文件'}
+              >
                 <DocumentIcon className={styles.toolIcon} />
               </button>
               <button className={styles.toolButton}>
@@ -147,11 +182,20 @@ export const PublishModal: React.FC<PublishModalProps> = ({
               </button>
             </div>
             
+            {/* 隐藏的图片输入框 */}
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={onFileSelect}
+            />
+            
             {/* 隐藏的文件输入框 */}
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept=".pdf,.doc,.docx,.txt,.zip,.rar"
               style={{ display: 'none' }}
               onChange={onFileSelect}
             />

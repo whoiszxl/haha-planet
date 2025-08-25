@@ -17,6 +17,19 @@ import java.util.List;
 @Schema(description = "新增帖子请求")
 public class PostCreateReq {
 
+    /**
+     * 媒体文件URLs结构
+     */
+    @Data
+    @Schema(description = "媒体文件URLs结构")
+    public static class MediaUrls {
+        @Schema(description = "文件列表", example = "[\"file1.pdf\", \"file2.doc\"]")
+        private List<String> file;
+        
+        @Schema(description = "图片列表", example = "[\"image1.jpg\", \"image2.png\"]")
+        private List<String> image;
+    }
+
     @Schema(description = "星球ID", example = "1")
     @NotNull(message = "星球ID不能为空")
     private Long planetId;
@@ -41,8 +54,8 @@ public class PostCreateReq {
     @Schema(description = "封面图片(仅当contentType=2时可选)", example = "https://example.com/cover.jpg")
     private String coverImage;
 
-    @Schema(description = "媒体文件URLs", example = "[\"https://example.com/image1.jpg\", \"https://example.com/image2.jpg\"]")
-    private List<String> mediaUrls;
+    @Schema(description = "媒体文件URLs")
+    private MediaUrls mediaUrls;
 
     @Schema(description = "标签列表(仅当contentType=2时可选)", example = "[\"技术\", \"Java\"]")
     private List<String> tags;

@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './PlanetContentPage.module.css';
 import { Post, formatPostTime, formatCount } from '../../apis/post/post';
-import { getAvatarUrl, getDefaultAvatarUrl } from '../../utils/image';
+import { getAvatarUrl, getDefaultAvatarUrl, getImageUrl } from '../../utils/image';
 import { 
-  LikeIcon, CommentIcon, ViewIcon, ShareIcon, MoreIcon, ArrowRightIcon, LinkIcon
+  LikeIcon, CommentIcon, ViewIcon, ShareIcon, MoreIcon, ArrowRightIcon, LinkIcon, FileIcon
 } from '../../components/icons/SocialIcons';
 
 interface PostItemProps {
@@ -29,6 +29,7 @@ export const PostItem: React.FC<PostItemProps> = ({
   onImageError,
   failedImages
 }) => {
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   // 获取用户头像
   const getUserAvatar = (avatar?: string) => {
     if (!avatar) return getDefaultAvatarUrl();
@@ -54,6 +55,16 @@ export const PostItem: React.FC<PostItemProps> = ({
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     onImageError(e, `post-avatar-${post.id}`);
+  };
+
+  // 处理图片点击预览
+  const handleImageClick = (imageUrl: string) => {
+    setPreviewImage(imageUrl);
+  };
+
+  // 关闭图片预览
+  const closeImagePreview = () => {
+    setPreviewImage(null);
   };
 
   const content = post.summary || post.articleExtension?.content || '';
@@ -118,21 +129,71 @@ export const PostItem: React.FC<PostItemProps> = ({
           )}
           
           {/* 如果有媒体内容 */}
-          {post.mediaUrls && post.contentType === 2 && (
+          {post.mediaUrls && (
             <div className={styles.postMedia}>
-              <img 
-                src={post.mediaUrls} 
-                alt="帖子图片" 
-                className={styles.postImage}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  const imageKey = `post-media-${post.id}`;
-                  if (!failedImages.has(imageKey)) {
-                    onImageError(e, imageKey);
-                    target.style.display = 'none'; // 隐藏加载失败的图片
-                  }
-                }}
-              />
+              {(() => {
+                try {
+                  const mediaData = JSON.parse(post.mediaUrls);
+                  return (
+                    <>
+                      {/* 文件展示区域 */}
+                      {mediaData.file && mediaData.file.length > 0 && (
+                        <div className={styles.filePreviewArea}>
+                          {mediaData.file.map((fileName: string, index: number) => (
+                            <div key={`file-${index}`} className={styles.filePreviewItem}>
+                              <div className={styles.fileIcon}><FileIcon /></div>
+                              <div 
+                                className={styles.fileName}
+                                onClick={() => {
+                                  const link = document.createElement('a');
+                                  link.href = `${process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080'}/planet/api/file/download?fileName=${fileName}`;
+                                  link.download = fileName.split('/').pop() || '';
+                                  link.target = '_blank';
+                                  link.rel = 'noopener noreferrer';
+                                  document.body.appendChild(link);
+                                  link.click();
+                                  document.body.removeChild(link);
+                                }}
+                              >
+                                {fileName.split('/').pop()}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* 图片展示区域 */}
+                      {mediaData.image && mediaData.image.length > 0 && (
+                        <div className={styles.imagePreviewArea}>
+                          {mediaData.image.map((fileName: string, index: number) => (
+                            <div key={`image-${index}`} className={styles.imagePreviewItem}>
+                              <img 
+                                 src={getImageUrl(fileName)}
+                                 alt="帖子图片" 
+                                 className={styles.postImage}
+                                 style={{ cursor: 'pointer' }}
+                                 onClick={() => handleImageClick(getImageUrl(fileName))}
+                                 onError={(e) => {
+                                   const target = e.target as HTMLImageElement;
+                                   const imageKey = `post-media-${post.id}-${index}`;
+                                   if (!failedImages.has(imageKey)) {
+                                     onImageError(e, imageKey);
+                                     target.style.display = 'none';
+                                   }
+                                 }}
+                               />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                } catch (error) {
+                  // 如果JSON解析失败，不显示媒体内容
+                  return null;
+                }
+              })()
+              }
             </div>
           )}
           
@@ -169,6 +230,29 @@ export const PostItem: React.FC<PostItemProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* 图片预览模态框 */}
+      {previewImage && (
+        <div 
+          className={styles.imagePreviewModal}
+          onClick={closeImagePreview}
+        >
+          <div className={styles.imagePreviewContent}>
+            <img 
+              src={previewImage} 
+              alt="预览图片" 
+              className={styles.previewImage}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button 
+              className={styles.closeButton}
+              onClick={closeImagePreview}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

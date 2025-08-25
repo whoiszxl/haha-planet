@@ -49,7 +49,7 @@ export const PublishSection: React.FC<PublishSectionProps> = ({
             className={styles.inputSection}
             onClick={onPublishClick}
           >
-            <div className={styles.publishInputArea}>
+            <div className={styles.publishInputArea} style={{   backgroundColor: '#f8f9fa' }}>
               <div className={styles.userAvatarSection}>
                 <img 
                   src={selectedPlanet ? getAvatarUrl(selectedPlanet.avatar) : getDefaultAvatarUrl()} 

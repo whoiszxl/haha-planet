@@ -205,7 +205,10 @@ export interface CreatePostParams {
   contentType: number; // 1-主题 2-文章
   content?: string;
   coverImage?: string;
-  mediaUrls?: string[];
+  mediaUrls?: {
+    file: string[];
+    image: string[];
+  };
   tags?: string[];
   isAnonymous?: boolean;
   isTop?: boolean;

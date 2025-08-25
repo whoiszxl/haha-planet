@@ -14,7 +14,7 @@ import {
   LikeIcon, CommentIcon, ViewIcon, ShareIcon, MoreIcon, ArrowRightIcon 
 } from "../../components/icons/SocialIcons";
 import PlanetContentSkeleton from "../../components/skeleton/PlanetContentSkeleton";
-import { uploadPostImage } from "../../apis/upload/upload";
+import { uploadPostFile, uploadPostImage } from "../../apis/upload/upload";
 import { PublishSection } from "./PublishSection";
 import { PostList } from "./PostList";
 import { PlanetSidebar } from "./PlanetSidebar";
@@ -89,9 +89,12 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
   const [showPostDetailModal, setShowPostDetailModal] = useState(false);
   const [selectedPostDetail, setSelectedPostDetail] = useState<Post | null>(null);
   
-  // 图片上传相关状态
+  // 文件上传相关状态
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<{url: string, fileName: string}[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<{
+    file: {fileName: string; originalFileName?: string}[];
+    image: {fileName: string; originalFileName?: string}[];
+  }>({ file: [], image: [] });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 加载星球详情
@@ -475,9 +478,33 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     }
   };
 
-  // 删除已上传的图片
-  const handleRemoveImage = (imageUrl: string) => {
-    setUploadedImages(prev => prev.filter(item => item.url !== imageUrl));
+  // 处理文件上传按钮点击
+  const handleFileUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  // 删除已上传的文件
+  const handleRemoveFile = (fileName: string, fileType: 'image' | 'file') => {
+    setUploadedImages(prev => ({
+      ...prev,
+      [fileType]: prev[fileType].filter(item => item.fileName !== fileName)
+    }));
+  };
+
+  // 删除文件函数，自动识别文件类型
+  const handleRemoveImage = (fileName: string) => {
+    // 检查是否在图片数组中
+    const isInImageArray = uploadedImages.image.some(item => item.fileName === fileName);
+    // 检查是否在文件数组中
+    const isInFileArray = uploadedImages.file.some(item => item.fileName === fileName);
+    
+    if (isInImageArray) {
+      handleRemoveFile(fileName, 'image');
+    } else if (isInFileArray) {
+      handleRemoveFile(fileName, 'file');
+    }
   };
 
   // 处理文件选择
@@ -485,38 +512,40 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // 验证文件类型
-    if (!file.type.startsWith('image/')) {
-      alert('请选择图片文件');
-      return;
-    }
-
     // 验证文件大小（10MB）
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert('图片大小不能超过10MB');
+      alert('文件大小不能超过10MB');
       return;
     }
 
     try {
       setUploadingImage(true);
-      const response = await uploadPostImage(file);
+      
+      // 根据文件类型判断是图片还是文件
+      const isImage = file.type.startsWith('image/');
+      const fileType = isImage ? 'image' : 'file';
+      
+      // 根据文件类型选择不同的上传方法
+      const response = isImage ? await uploadPostImage(file) : await uploadPostFile(file);
       
       if (response.code === 'SUCCESS' && response.data) {
         // 使用工具方法提取文件名
         const fileName = getFileNameFromUploadResponse(response);
+        // 提取原始文件名
+        const originalFileName = response.data.originalFileName || file.name;
         
-        // 添加图片信息到已上传列表
-        setUploadedImages(prev => [...prev, {
-          url: getImageUrl(response.data.fileUrl),
-          fileName: fileName
-        }]);
+        // 添加文件信息到相应的数组中
+        setUploadedImages(prev => ({
+          ...prev,
+          [fileType]: [...prev[fileType], { fileName: fileName, originalFileName: originalFileName }]
+        }));
         
-        alert(`图片上传成功！文件名: ${fileName}`);
+        // 文件上传成功，不显示alert提示
       }
     } catch (error) {
-      console.error('图片上传失败:', error);
-      alert('图片上传失败，请重试');
+      console.error('文件上传失败:', error);
+      alert('文件上传失败，请重试');
     } finally {
       setUploadingImage(false);
       // 清空文件输入框
@@ -545,19 +574,19 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
 
     setPublishLoading(true);
     try {
-      // 将上传的图片添加到内容末尾
-      let finalSummary = publishForm.summary;
-      if (uploadedImages.length > 0) {
-        const imageMarkdowns = uploadedImages.map(item => `![${item.fileName}](${getImageUrl(item.url)})`).join('\n');
-        finalSummary = publishForm.summary + '\n\n' + imageMarkdowns;
-      }
+      // 构建新的 mediaUrls 对象结构
+      const mediaUrls = {
+        file: uploadedImages.file.map(item => item.fileName),
+        image: uploadedImages.image.map(item => item.fileName)
+      };
       
       const params: CreatePostParams = {
         planetId: selectedPlanet.id,
         title: publishForm.title,
-        summary: finalSummary,
+        summary: publishForm.summary,
         contentType: publishForm.contentType,
         content: publishForm.content || undefined,
+        mediaUrls: (mediaUrls.file.length > 0 || mediaUrls.image.length > 0) ? mediaUrls : undefined,
         isAnonymous: publishForm.isAnonymous
       };
 
@@ -567,8 +596,8 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
         setShowPublishModal(false);
         // 清空草稿内容和本地存储
         handleClearDraft();
-        // 清空已上传的图片
-        setUploadedImages([]);
+        // 清空已上传的文件
+        setUploadedImages({ file: [], image: [] });
         // 刷新帖子列表
         await loadPosts(selectedPlanet.id, 1, sortType);
       } else {
@@ -598,8 +627,8 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
       content: '',
       isAnonymous: false
     });
-    // 清除图片上传状态
-    setUploadedImages([]);
+    // 清除文件上传状态
+    setUploadedImages({ file: [], image: [] });
     setUploadingImage(false);
     // 清除当前星球的本地存储草稿
     if (selectedPlanet) {
@@ -988,6 +1017,7 @@ export const PlanetContentPage: React.FC<PlanetContentPageProps> = () => {
         onPublishFormChange={handlePublishFormChange}
         onPublishPost={handlePublishPost}
         onImageUploadClick={handleImageUploadClick}
+        onFileUploadClick={handleFileUploadClick}
         onFileSelect={handleFileSelect}
         onRemoveImage={handleRemoveImage}
       />

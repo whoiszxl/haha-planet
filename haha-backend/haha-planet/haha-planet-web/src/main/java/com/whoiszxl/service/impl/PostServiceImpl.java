@@ -73,6 +73,34 @@ public class PostServiceImpl implements PostService {
         log.info("用户[{}]在星球[{}]创建了帖子[{}]", userId, req.getPlanetId(), post.getId());
         return post.getId();
     }
+
+    @Override
+    public void updateViewCount(Long postId, Integer viewCount) {
+        // 参数校验
+        CheckUtils.throwIfNull(postId, "帖子ID不能为空");
+        CheckUtils.throwIfNull(viewCount, "浏览数不能为空");
+        CheckUtils.throwIf(postId <= 0, "帖子ID必须大于0");
+        CheckUtils.throwIf(viewCount < 0, "浏览数不能为负数");
+        
+        try {
+            // 构建更新条件
+            PlanetPostDO updatePost = new PlanetPostDO();
+            updatePost.setId(postId);
+            updatePost.setViewCount(viewCount);
+            
+            // 执行更新
+            int updateCount = planetPostMapper.updateById(updatePost);
+            
+            if (updateCount > 0) {
+                log.info("[帖子服务] 更新帖子浏览数成功，帖子ID: {}, 浏览数: {}", postId, viewCount);
+            } else {
+                log.warn("[帖子服务] 更新帖子浏览数失败，帖子不存在，帖子ID: {}", postId);
+            }
+        } catch (Exception e) {
+            log.error("[帖子服务] 更新帖子浏览数异常，帖子ID: {}, 浏览数: {}", postId, viewCount, e);
+            throw new RuntimeException("更新帖子浏览数失败", e);
+        }
+    }
     
     /**
      * 校验用户成员权限
@@ -122,8 +150,35 @@ public class PostServiceImpl implements PostService {
         post.setContentType(req.getContentType());
         
         // 处理媒体文件URLs
-        if (req.getMediaUrls() != null && !req.getMediaUrls().isEmpty()) {
-            post.setMediaUrls(String.join(",", req.getMediaUrls()));
+        if (req.getMediaUrls() != null && 
+            ((req.getMediaUrls().getFile() != null && !req.getMediaUrls().getFile().isEmpty()) ||
+             (req.getMediaUrls().getImage() != null && !req.getMediaUrls().getImage().isEmpty()))) {
+            try {
+                // 将MediaUrls对象转换为JSON格式存储到数据库
+                post.setMediaUrls(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(req.getMediaUrls()));
+            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                // 如果JSON序列化失败，使用手动拼接的方式构建JSON
+                StringBuilder jsonBuilder = new StringBuilder();
+                jsonBuilder.append("{");
+                
+                // 添加file数组
+                jsonBuilder.append("\"file\":[")
+                    .append(req.getMediaUrls().getFile() != null ? 
+                        req.getMediaUrls().getFile().stream()
+                            .map(f -> "\"" + f + "\"")
+                            .reduce((a, b) -> a + "," + b).orElse("") : "")
+                    .append("],");
+                
+                // 添加image数组
+                jsonBuilder.append("\"image\":[")
+                    .append(req.getMediaUrls().getImage() != null ? 
+                        req.getMediaUrls().getImage().stream()
+                            .map(i -> "\"" + i + "\"")
+                            .reduce((a, b) -> a + "," + b).orElse("") : "")
+                    .append("]}");
+                
+                post.setMediaUrls(jsonBuilder.toString());
+            }
         }
         
         post.setIsAnonymous(YesNoEnum.getByBoolean(req.getIsAnonymous()).getValue());

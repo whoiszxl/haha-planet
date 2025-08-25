@@ -14,7 +14,7 @@ export const getImageBaseUrl = (): string => {
  * @param isPublic 是否为公共图片，默认为true
  * @returns 完整的图片URL
  */
-export const getImageUrl = (imagePath: string, isPublic: boolean = true): string => {
+export const getImageUrl = (imagePath: string, isPublic: boolean = true): string => {  
   // 如果路径为空，返回空字符串
   if (!imagePath) {
     return '';
@@ -80,7 +80,7 @@ export const getImageUrls = (imagePaths: string[], isPublic: boolean = true): st
  * @returns 默认头像URL
  */
 export const getDefaultAvatarUrl = (): string => {
-  return getImageUrl('default/avatar.png', true);
+  return getImageUrl('avatar/default_avatar.png', true);
 };
 
 /**

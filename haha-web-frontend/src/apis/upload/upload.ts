@@ -8,8 +8,9 @@ export interface UploadResponse {
   fileUrl: string;
   fileName: string;
   imageUrl?: string; // 图片上传时返回
-  originalFileName?: string; // 文件上传时返回
-  fileSize?: string; // 文件上传时返回
+  originalFileName?: string; // 原始文件名
+  fileSize?: string; // 文件大小
+  folderUuid?: string; // 文件夹UUID
 }
 
 // ================================ API接口 ================================

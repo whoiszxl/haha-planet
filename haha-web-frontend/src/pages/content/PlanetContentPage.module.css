@@ -226,10 +226,6 @@
   overflow: hidden;
 }
 
-.postItem:hover {
-  background-color: #fafafa;
-}
-
 .postAvatar {
   margin-right: 10px;
   flex-shrink: 0;
@@ -349,9 +345,11 @@
 }
 
 .postImage {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 4px;
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .postLink {
@@ -1367,15 +1365,10 @@
 
 .inputSection {
   flex: 1;
-  background: var(--bg-gray);
   border-radius: var(--border-radius);
   padding: 8px 12px;
   cursor: pointer;
   transition: var(--transition);
-}
-
-.inputSection:hover {
-  background: var(--bg-light);
 }
 
 .modalTitleInput {
@@ -1389,38 +1382,65 @@
   box-sizing: border-box;
 }
 
-.modalTitleInput::placeholder {
-  color: #999;
+/* 文件预览区域 */
+.filePreviewArea {
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
+
+.filePreviewItem {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  margin-bottom: 2px;
+  justify-content: flex-start;
+}
+
+.fileIcon {
+  font-size: 20px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fileName {
+  font-size: 13px;
+  color: #5e606d;
+  text-decoration: none;
+  word-break: break-all;
+  cursor: pointer;
+}
+
+
 
 /* 图片预览区域 */
 .imagePreviewArea {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 16px;
-  padding: 12px;
-  background: var(--bg-light);
-  border-radius: var(--border-radius);
+  gap: 8px;
+  margin-top: 8px;
+  padding: 0;
 }
 
 .imagePreviewItem {
   position: relative;
   display: inline-block;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .previewImage {
-  width: 120px;
-  height: 120px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
   border-radius: var(--border-radius);
   border: 1px solid var(--border-light);
 }
 
 .removeImageButton {
-  position: absolute;
-  top: -8px;
-  right: -8px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -1434,6 +1454,10 @@
   font-size: 14px;
   line-height: 1;
   transition: var(--transition);
+  margin-left: 8px;
+  flex-shrink: 0;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .removeImageButton:hover {
@@ -1458,6 +1482,7 @@
   line-height: 1.5;
   box-sizing: border-box;
   padding: 0;
+  
 }
 
 .modalContentTextarea::placeholder {
@@ -1588,4 +1613,234 @@
 
 .postDetailContent::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* 文档预览样式 */
+.documentPreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.documentIcon {
+  width: 24px;
+  height: 24px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.documentName {
+  font-size: 10px;
+  color: #666;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.2;
+  max-height: 24px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 图片预览模态框样式 */
+.imagePreviewModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: pointer;
+}
+
+.imagePreviewContent {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagePreviewContent .previewImage {
+  max-width: 90vw;
+  max-height: 90vh;
+  min-width: 300px;
+  min-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.closeButton {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+/* PublishModal 媒体预览区域 */
+.mediaPreviewArea {
+  padding: 12px 20px 16px 72px; /* 左边距对齐头像右侧 */
+  border-top: 1px solid #f0f0f0;
+  margin-top: 8px;
+}
+
+/* 文件预览区域 */
+.filePreviewSection {
+  margin-bottom: 12px;
+}
+
+.filePreviewRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.filePreviewRow:hover {
+  background: #f8f9fa;
+  border-color: #dee2e6;
+}
+
+.filePreviewRow:hover .removeImageButton {
+  opacity: 1;
+  visibility: visible;
+}
+
+.filePreviewRow .fileIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  color: #dc3545;
+  flex-shrink: 0;
+}
+
+.filePreviewRow .fileName {
+  flex: 1;
+  font-size: 13px;
+  color: #495057;
+  word-break: break-all;
+  line-height: 1.3;
+}
+
+.removeFileButton {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  margin-left: 6px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.removeFileButton:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+/* 图片预览区域 */
+.imagePreviewSection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.imagePreviewSection .imagePreviewItem {
+  position: relative;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.imagePreviewSection .imagePreviewItem:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.imagePreviewSection .previewImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.imagePreviewSection .previewImage:hover {
+  transform: scale(1.02);
+}
+
+.imagePreviewSection .removeImageButton {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #dc3545;
+  color: white;
+  border: 1px solid white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.imagePreviewSection .removeImageButton:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.imagePreviewItem:hover .removeImageButton {
+  opacity: 1;
+  visibility: visible;
 }

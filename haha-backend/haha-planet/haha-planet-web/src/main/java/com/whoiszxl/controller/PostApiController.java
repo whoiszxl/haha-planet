@@ -34,6 +34,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import org.springframework.scheduling.annotation.Async;
+import com.whoiszxl.cache.redisson.util.RedissonUtil;
+import java.time.Duration;
 
 /**
  * 帖子管理 API
@@ -51,16 +55,19 @@ public class PostApiController {
     private final PostService postService;
     private final GalleryCachedService galleryCachedService;
     private final StorageService storageService;
+    private final RedissonUtil redissonUtil;
     
     public PostApiController(
             @Qualifier("postRedisCachedServiceImpl") PostCachedService postCachedService,
             PostService postService,
             @Qualifier("galleryCachedServiceImpl") GalleryCachedService galleryCachedService,
-            StorageService storageService) {
+            StorageService storageService,
+            RedissonUtil redissonUtil) {
         this.postCachedService = postCachedService;
         this.postService = postService;
         this.galleryCachedService = galleryCachedService;
         this.storageService = storageService;
+        this.redissonUtil = redissonUtil;
     }
 
     @Operation(summary = "根据星球ID查询帖子列表", description = "分页查询指定星球下的帖子列表，支持多种排序方式，只使用Redis缓存")
@@ -282,6 +289,10 @@ public class PostApiController {
     @PostMapping("/upload/file")
     public R<Map<String, String>> uploadPostFile(@RequestParam("file") MultipartFile file) {
         try {
+            // 用户登录校验
+            Long currentUserId = UserLoginHelper.getUserId();
+            ValidationUtils.throwIfNull(currentUserId, "用户未登录，无法上传文件");
+            
             // 参数校验
             ValidationUtils.throwIfNull(file, "文件不能为空");
             ValidationUtils.throwIf(file.isEmpty(), "文件不能为空");
@@ -289,6 +300,7 @@ public class PostApiController {
             // 文件类型校验
             String contentType = file.getContentType();
             String originalFilename = file.getOriginalFilename();
+            ValidationUtils.throwIfNull(originalFilename, "文件名不能为空");
             String fileExtension = StrUtil.subAfter(originalFilename, ".", true).toLowerCase();
             
             // 支持的文件类型：PDF、文档、音频、视频等
@@ -311,11 +323,9 @@ public class PostApiController {
             long maxSize = 50 * 1024 * 1024;
             ValidationUtils.throwIf(file.getSize() > maxSize, "文件大小不能超过50MB");
             
-            // 获取当前登录用户ID
-            Long currentUserId = UserLoginHelper.getUserId();
-            
-            // 生成文件名
-            String fileName = "post/file/" + currentUserId + "/" + UUID.randomUUID() + "." + fileExtension;
+            // 生成UUID作为文件夹名称，保留原始文件名
+            String folderUuid = UUID.randomUUID().toString();
+            String fileName = "post/file/" + currentUserId + "/" + folderUuid + "/" + originalFilename;
             
             // 构建上传请求，帖子文件上传到公共bucket
             UploadRequest uploadRequest = UploadRequest.builder()
@@ -335,12 +345,81 @@ public class PostApiController {
             result.put("fileName", fileName);
             result.put("originalFileName", originalFilename);
             result.put("fileSize", String.valueOf(file.getSize()));
+            result.put("folderUuid", folderUuid);
             
             return R.ok(result);
             
         } catch (IOException e) {
             log.error("帖子文件上传失败", e);
             throw new RuntimeException("帖子文件上传失败", e);
+        }
+    }
+
+    @Operation(summary = "增加帖子浏览数", description = "增加指定帖子的浏览次数，支持高并发访问")
+    @PostMapping("/view/{postId}")
+    public R<Void> incrementViewCount(
+            @Parameter(description = "帖子ID", required = true) @PathVariable Long postId) {
+        
+        log.info("[帖子API] 增加帖子浏览数请求，帖子ID: {}", postId);
+        
+        try {
+            // 参数校验
+            CheckUtils.throwIf(postId == null || postId <= 0, "帖子ID不能为空");
+            
+            // 获取当前登录用户
+            UserContext userContext = UserLoginHelper.getLoginUser();
+            Long userId = userContext != null ? userContext.getId() : null;
+            
+            // Redis key策略
+            String viewCountKey = redissonUtil.formatKey("post", "view", "count", postId.toString());
+            String userViewKey = redissonUtil.formatKey("post", "view", "user", postId.toString(), 
+                    userId != null ? userId.toString() : "anonymous");
+            
+            // 防重复浏览检查（24小时内同一用户对同一帖子只计算一次浏览）
+            boolean hasViewed = redissonUtil.exists(userViewKey);
+            if (hasViewed) {
+                log.debug("[帖子API] 用户已浏览过该帖子，跳过计数，帖子ID: {}, 用户ID: {}", postId, userId);
+                return R.ok();
+            }
+            
+            // 设置用户浏览标记，24小时过期
+            redissonUtil.set(userViewKey, "1", Duration.ofHours(24));
+            
+            // Redis计数器增加浏览数
+            Long newViewCount = redissonUtil.addAndGet(viewCountKey, 1);
+            
+            // 异步批量更新数据库（每100次浏览或每5分钟更新一次）
+            if (newViewCount % 100 == 0) {
+                asyncUpdateViewCountToDatabase(postId, viewCountKey);
+            }
+            
+            log.info("[帖子API] 帖子浏览数增加成功，帖子ID: {}, 当前缓存计数: {}", postId, newViewCount);
+            return R.ok();
+            
+        } catch (Exception e) {
+            log.error("[帖子API] 增加帖子浏览数失败，帖子ID: {}", postId, e);
+            return R.fail("增加浏览数失败");
+        }
+    }
+    
+    /**
+     * 异步批量更新浏览数到数据库
+     */
+    @Async
+    public void asyncUpdateViewCountToDatabase(Long postId, String viewCountKey) {
+        try {
+            // 获取Redis中的当前计数
+            Long countObj = redissonUtil.get(viewCountKey);
+            if (countObj != null) {
+                Integer redisViewCount = countObj.intValue();
+                
+                // 调用服务层更新数据库
+                postService.updateViewCount(postId, redisViewCount);
+                
+                log.info("[帖子API] 异步更新帖子浏览数到数据库成功，帖子ID: {}, 浏览数: {}", postId, redisViewCount);
+            }
+        } catch (Exception e) {
+            log.error("[帖子API] 异步更新帖子浏览数到数据库失败，帖子ID: {}", postId, e);
         }
     }
 }

@@ -17,4 +17,12 @@ public interface PostService {
      * @return 帖子ID
      */
     Long createPost(PostCreateReq req, Long userId);
+
+    /**
+     * 更新帖子浏览数
+     *
+     * @param postId 帖子ID
+     * @param viewCount 新的浏览数
+     */
+    void updateViewCount(Long postId, Integer viewCount);
 }
